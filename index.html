@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>GolfCircle</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --green: #1a5c38;
+            --green-light: #2d7a50;
+            --gold: #c9a84c;
+            --bg: #f0f2f0;
+            --gray: #8a8a8a;
+            --border: #e0e0e0;
+            --text: #1a1a1a;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); max-width: 430px; margin: 0 auto; min-height: 100vh; }
+        .header { background: var(--green); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo span { color: var(--gold); }
+        .page { display: none; padding-bottom: 80px; }
+        .page.active { display: block; }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: white; border-top: 1px solid var(--border); display: flex; z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px; cursor: pointer; color: var(--gray); font-size: 10px; gap: 3px; }
+        .nav-item.active { color: var(--green); }
+        .nav-item svg { width: 24px; height: 24px; }
+        .card { background: white; border-radius: 12px; margin: 12px 12px 0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+        /* ── Feed ── */
+        .stories { display: flex; gap: 12px; padding: 12px 16px; overflow-x: auto; background: white; margin-bottom: 8px; }
+        .story { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; }
+        .story-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 22px; background: #e8f5e9; }
+        .story-name { font-size: 11px; color: var(--text); text-align: center; }
+        .post-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px 8px; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .post-name { font-size: 14px; font-weight: 600; }
+        .post-info { font-size: 12px; color: var(--gray); }
+        .score-card-visual { margin: 0 14px 12px; background: linear-gradient(135deg, var(--green), var(--green-light)); border-radius: 10px; padding: 14px; color: white; }
+        .course-name { font-size: 13px; opacity: 0.85; margin-bottom: 8px; }
+        .score-numbers { display: flex; gap: 16px; align-items: flex-end; }
+        .score-main { font-size: 42px; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 11px; opacity: 0.75; }
+        .score-sub { font-size: 14px; color: var(--gold); }
+        .post-photo { width: 100%; height: 200px; background: linear-gradient(135deg, #2d5016, #4a7c2f); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+        .post-actions { display: flex; gap: 16px; padding: 10px 14px; border-top: 1px solid var(--border); }
+        .post-action { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--gray); cursor: pointer; }
+        .post-action.liked { color: #e74c3c; }
+        .post-caption { padding: 0 14px 12px; font-size: 13px; line-height: 1.5; }
+        .tag { display: inline-block; background: #e8f5e9; color: var(--green); font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-top: 4px; }
+
+        /* ── Leaderboard ── */
+        .lb-header { background: var(--green); color: white; padding: 16px; }
+        .lb-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .lb-sub { font-size: 12px; opacity: 0.75; }
+        .trophy-section { margin: 12px 12px 0; background: linear-gradient(135deg, #1a5c38, #2d7a50); border-radius: 12px; padding: 16px; color: white; }
+        .trophy-title { font-size: 13px; opacity: 0.85; margin-bottom: 8px; }
+        .trophy-info { display: flex; align-items: center; gap: 10px; }
+        .trophy-icon { font-size: 36px; }
+        .trophy-text h3 { font-size: 15px; }
+        .trophy-text p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+        .course-tabs { display: flex; overflow-x: auto; padding: 12px 12px 0; gap: 8px; }
+        .course-tab { white-space: nowrap; padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--gray); }
+        .course-tab.active { background: var(--green); color: white; border-color: var(--green); }
+        .lb-list { padding: 12px; }
+        .lb-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .lb-item.top-1 { background: linear-gradient(135deg,#fffbe6,#fff8d6); border: 1.5px solid var(--gold); }
+        .lb-item.top-2 { background: #f8f8f8; border: 1.5px solid #c0c0c0; }
+        .lb-item.top-3 { background: #fff5f0; border: 1.5px solid #cd7f32; }
+        .lb-item.me { border: 1.5px solid var(--green); }
+        .lb-rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+        .lb-rank-num { background: #e8f5e9; color: var(--green); }
+        .lb-avatar { width: 38px; height: 38px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .lb-info { flex: 1; }
+        .lb-name { font-size: 14px; font-weight: 600; }
+        .lb-detail { font-size: 12px; color: var(--gray); }
+        .lb-score { text-align: right; }
+        .lb-score-num { font-size: 20px; font-weight: 700; color: var(--green); }
+        .lb-score-label { font-size: 10px; color: var(--gray); }
+
+        /* ── Buddies ── */
+        .search-bar { padding: 12px; background: white; }
+        .search-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 25px; font-size: 14px; outline: none; background: #f5f5f5; }
+        .filter-chips { display: flex; gap: 8px; padding: 8px 12px 12px; overflow-x: auto; background: white; }
+        .chip { white-space: nowrap; padding: 5px 12px; border-radius: 15px; font-size: 12px; border: 1.5px solid var(--border); background: white; color: var(--gray); cursor: pointer; }
+        .chip.active { background: var(--green); color: white; border-color: var(--green); }
+        .buddy-card { background: white; border-radius: 12px; margin: 0 12px 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+        .buddy-top { display: flex; gap: 12px; align-items: flex-start; }
+        .buddy-avatar { width: 52px; height: 52px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+        .buddy-name { font-size: 15px; font-weight: 600; }
+        .buddy-location { font-size: 12px; color: var(--gray); margin-top: 2px; }
+        .buddy-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; }
+        .badge-hcp { background: #e8f5e9; color: var(--green); }
+        .badge-time { background: #fff3e0; color: #e65100; }
+        .badge-course { background: #e3f2fd; color: #1565c0; }
+        .buddy-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .buddy-rounds { font-size: 12px; color: var(--gray); }
+        .btn-golf { background: var(--green); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        /* ── Scores ── */
+        .score-summary { background: linear-gradient(135deg, var(--green), #2d7a50); color: white; padding: 20px 16px; text-align: center; }
+        .score-summary h2 { font-size: 14px; opacity: 0.8; margin-bottom: 4px; }
+        .big-score { font-size: 64px; font-weight: 700; line-height: 1; }
+        .score-type { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+        .stats-row { display: flex; background: white; border-bottom: 1px solid var(--border); }
+        .stat-item { flex: 1; text-align: center; padding: 14px 8px; border-right: 1px solid var(--border); }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { font-size: 20px; font-weight: 700; color: var(--green); }
+        .stat-lbl { font-size: 11px; color: var(--gray); margin-top: 2px; }
+        .history-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid var(--border); background: white; }
+        .history-icon { width: 40px; height: 40px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 12px; }
+        .history-info { flex: 1; }
+        .history-course { font-size: 14px; font-weight: 600; }
+        .history-date { font-size: 12px; color: var(--gray); margin-top: 2px; }
+        .history-score { text-align: right; }
+        .history-num { font-size: 22px; font-weight: 700; color: var(--green); }
+        .history-net { font-size: 12px; color: var(--gray); }
+
+        /* ── Handicap Block ── */
+        .hcp-block { margin: 12px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .hcp-block-header { background: linear-gradient(135deg,#1a5c38,#2d7a50); color: white; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+        .hcp-block-title { font-size: 14px; font-weight: 600; }
+        .hcp-block-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+        .hcp-number { font-size: 36px; font-weight: 700; color: var(--gold); }
+        .hcp-locked { padding: 16px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+        .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width 0.5s; }
+        .progress-hint { font-size: 12px; color: var(--gray); margin-top: 8px; text-align: center; }
+        .hcp-unlocked { padding: 14px 16px; }
+        .hcp-formula { background: #f5f9f6; border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+        .hcp-formula-title { font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+        .hcp-round-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+        .hcp-round-row:last-child { border-bottom: none; }
+        .hcp-round-best { color: var(--green); font-weight: 600; }
+        .hcp-result { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 600; }
+
+        /* ── Profile ── */
+        .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
+        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.5); }
+        .profile-name { font-size: 20px; font-weight: 700; }
+        .profile-sub { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+        .hcp-badge { display: inline-block; background: var(--gold); color: white; padding: 4px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; margin-top: 10px; }
+        .profile-stats { display: flex; background: white; border-bottom: 1px solid var(--border); }
+        .achievements { padding: 12px; }
+        .ach-title { font-size: 14px; font-weight: 600; padding: 4px 0 10px; }
+        .ach-list { display: flex; gap: 10px; overflow-x: auto; }
+        .ach-item { min-width: 80px; background: white; border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .ach-icon { font-size: 28px; }
+        .ach-name { font-size: 10px; color: var(--gray); margin-top: 4px; }
+
+        /* ── Record Score Page ── */
+        .record-header { background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .record-header h2 { font-size: 16px; font-weight: 600; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 0; line-height: 1; }
+        .record-section { background: white; margin: 10px 12px 0; border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+        .record-section h3 { font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-row { margin-bottom: 12px; }
+        .form-label { font-size: 13px; color: var(--text); margin-bottom: 5px; display: block; font-weight: 500; }
+        .form-select, .form-input {
+            width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 14px; outline: none; background: white;
+            appearance: none; -webkit-appearance: none;
+        }
+        .form-select:focus, .form-input:focus { border-color: var(--green); }
+
+        /* Scorecard grid */
+        .scorecard { overflow-x: auto; margin-top: 4px; }
+        .sc-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 340px; }
+        .sc-table th { background: var(--green); color: white; padding: 7px 4px; text-align: center; font-weight: 600; font-size: 12px; }
+        .sc-table th:first-child { text-align: left; padding-left: 8px; min-width: 52px; }
+        .sc-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+        .sc-table td:first-child { text-align: left; padding-left: 8px; font-size: 12px; color: var(--gray); font-weight: 500; }
+        .sc-table tr.par-row td { background: #f5f9f6; font-weight: 600; color: var(--green); }
+        .sc-table tr.score-row td { background: white; }
+        .sc-table tr.total-row td { background: #1a5c38; color: white; font-weight: 700; }
+        .sc-table tr.total-row td:first-child { color: white; }
+        .hole-input {
+            width: 34px; height: 32px; border: 1.5px solid var(--border); border-radius: 6px;
+            text-align: center; font-size: 14px; font-weight: 600; outline: none;
+            -moz-appearance: textfield;
+        }
+        .hole-input::-webkit-inner-spin-button, .hole-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+        .hole-input:focus { border-color: var(--green); background: #f5f9f6; }
+        .hole-input.birdie { background: #ffd700; border-color: #c9a84c; }
+        .hole-input.par { background: #e8f5e9; border-color: var(--green); }
+        .hole-input.bogey { background: #fff3e0; border-color: #e65100; }
+        .hole-input.double { background: #fce4ec; border-color: #c62828; }
+
+        .score-total-bar { background: white; border-radius: 10px; padding: 14px; margin: 10px 12px 0; display: flex; justify-content: space-around; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+        .total-item { text-align: center; }
+        .total-num { font-size: 28px; font-weight: 700; color: var(--green); }
+        .total-net { color: var(--gold); }
+        .total-lbl { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+        .submit-btn { display: block; width: calc(100% - 24px); margin: 14px 12px 16px; padding: 14px; background: var(--green); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; }
+        .submit-btn:active { background: var(--green-light); }
+
+        /* ── Misc ── */
+        .section-label { font-size: 12px; font-weight: 600; color: var(--gray); padding: 12px 14px 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fab { position: fixed; bottom: 80px; right: calc(50% - 215px + 16px); width: 52px; height: 52px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26,92,56,0.4); cursor: pointer; z-index: 99; }
+        ::-webkit-scrollbar { display: none; }
+        .mt10 { margin-top: 10px; }
+        .mt12 { margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="header" id="main-header">
+    <div class="logo">Golf<span>Circle</span></div>
+    <div style="display:flex;gap:16px;align-items:center">
+        <svg fill="none" viewBox="0 0 24 24" stroke="white" style="width:22px;height:22px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <svg fill="none" viewBox="0 0 24 24" stroke="white" style="width:22px;height:22px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    </div>
+</div>
+
+<!-- ════ FEED ════ -->
+<div class="page active" id="page-feed">
+    <div class="stories">
+        <div class="story"><div class="story-avatar" style="border-color:var(--gold)">➕</div><div class="story-name">我的</div></div>
+        <div class="story"><div class="story-avatar">⛳</div><div class="story-name">Alex</div></div>
+        <div class="story"><div class="story-avatar">🏌️</div><div class="story-name">Emily</div></div>
+        <div class="story"><div class="story-avatar">🎯</div><div class="story-name">Jason</div></div>
+        <div class="story"><div class="story-avatar">🏆</div><div class="story-name">林教練</div></div>
+        <div class="story"><div class="story-avatar">🌿</div><div class="story-name">Kevin</div></div>
+    </div>
+    <div class="card">
+        <div class="post-header">
+            <div class="post-avatar">⛳</div>
+            <div><div class="post-name">Alex Chen</div><div class="post-info">長庚高爾夫球場 · 2小時前</div></div>
+        </div>
+        <div class="score-card-visual">
+            <div class="course-name">🏌️ 長庚高爾夫球場 · 18洞</div>
+            <div class="score-numbers">
+                <div><div class="score-main">82</div><div class="score-label">總桿</div></div>
+                <div><div class="score-sub">淨桿 72</div><div class="score-label">差點 10</div></div>
+                <div style="margin-left:auto;text-align:right"><div style="font-size:13px;opacity:0.8">本月排名</div><div style="font-size:28px;font-weight:700;color:var(--gold)">#3</div></div>
+            </div>
+        </div>
+        <div class="post-caption">今天狀態不錯！第7洞小鳥球 🐦 這個月終於打進前三了，繼續衝 🏆<div><span class="tag">#長庚球場</span> <span class="tag">#個人最佳</span></div></div>
+        <div class="post-actions"><div class="post-action liked">❤️ 24</div><div class="post-action">💬 8 則留言</div><div class="post-action" style="margin-left:auto">↗️ 分享</div></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+        <div class="post-header">
+            <div class="post-avatar">🏌️</div>
+            <div><div class="post-name">Emily Lin</div><div class="post-info">發問 · 5小時前</div></div>
+        </div>
+        <div class="post-caption" style="padding-top:4px">請問大家 7號鐵桿的距離控制有什麼技巧嗎？一直打得不穩 😅<br><br><span class="tag">#技術問題</span> <span class="tag">#鐵桿</span></div>
+        <div class="post-actions"><div class="post-action">❤️ 12</div><div class="post-action">💬 15 則回覆</div><div class="post-action" style="margin-left:auto">↗️ 分享</div></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+        <div class="post-header">
+            <div class="post-avatar">🎯</div>
+            <div><div class="post-name">Jason Wang</div><div class="post-info">林口高爾夫球場 · 昨天</div></div>
+        </div>
+        <div class="post-photo">⛳</div>
+        <div class="post-caption">週末晨打，天氣超好！林口的果嶺狀況很完美 ☀️<div><span class="tag">#林口球場</span> <span class="tag">#晨打</span></div></div>
+        <div class="post-actions"><div class="post-action">❤️ 41</div><div class="post-action">💬 6 則留言</div><div class="post-action" style="margin-left:auto">↗️ 分享</div></div>
+    </div>
+    <div class="card" style="margin-top:10px;margin-bottom:12px">
+        <div class="post-header">
+            <div class="post-avatar">🏆</div>
+            <div><div class="post-name">林教練 Coach Lin</div><div class="post-info">教學影片 · 認證教練 ✅</div></div>
+        </div>
+        <div class="post-photo" style="background:linear-gradient(135deg,#1a3a5c,#2d5f8a);position:relative">▶️<div style="position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.6);color:white;padding:4px 10px;border-radius:5px;font-size:12px">切桿技巧：3步驟穩定落點</div></div>
+        <div class="post-caption">短切的落點控制 3 個重點 👇<br>① 開放站姿　② 球位置中後　③ 手腕鎖定<br><br><span class="tag">#教學</span> <span class="tag">#短打</span> <span class="tag">#切桿</span></div>
+        <div class="post-actions"><div class="post-action">❤️ 87</div><div class="post-action">💬 23 則留言</div><div class="post-action" style="margin-left:auto">↗️ 分享</div></div>
+    </div>
+</div>
+
+<!-- ════ LEADERBOARD ════ -->
+<div class="page" id="page-leaderboard">
+    <div class="lb-header"><div class="lb-title">🏆 球場排行榜</div><div class="lb-sub">2026年4月 · 淨桿排行</div></div>
+    <div class="trophy-section">
+        <div class="trophy-title">🎖️ 本季冠軍 — Q1 2026</div>
+        <div class="trophy-info"><div class="trophy-icon">🏆</div><div class="trophy-text"><h3>Michael Huang</h3><p>龍潭高爾夫球場 · 淨桿 68 · 實體獎杯已寄出</p></div></div>
+    </div>
+    <div class="course-tabs">
+        <div class="course-tab active">龍潭高爾夫</div>
+        <div class="course-tab">再興俱樂部</div>
+        <div class="course-tab">南峰俱樂部</div>
+        <div class="course-tab">全國花園</div>
+        <div class="course-tab">台中國際</div>
+    </div>
+    <div class="lb-list mt12">
+        <div class="lb-item top-1"><div class="lb-rank" style="background:var(--gold);color:white">1</div><div class="lb-avatar">🏌️</div><div class="lb-info"><div class="lb-name">Michael H.</div><div class="lb-detail">差點 8 · 13場</div></div><div class="lb-score"><div class="lb-score-num">68</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item top-2"><div class="lb-rank" style="background:#aaa;color:white">2</div><div class="lb-avatar">⛳</div><div class="lb-info"><div class="lb-name">Alex Chen</div><div class="lb-detail">差點 10 · 8場</div></div><div class="lb-score"><div class="lb-score-num">70</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item top-3"><div class="lb-rank" style="background:#cd7f32;color:white">3</div><div class="lb-avatar">🎯</div><div class="lb-info"><div class="lb-name">Sarah Liu</div><div class="lb-detail">差點 12 · 6場</div></div><div class="lb-score"><div class="lb-score-num">71</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item"><div class="lb-rank lb-rank-num">4</div><div class="lb-avatar">🌿</div><div class="lb-info"><div class="lb-name">Kevin Chang</div><div class="lb-detail">差點 15 · 5場</div></div><div class="lb-score"><div class="lb-score-num">72</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item"><div class="lb-rank lb-rank-num">5</div><div class="lb-avatar">🏆</div><div class="lb-info"><div class="lb-name">Jason Wang</div><div class="lb-detail">差點 18 · 4場</div></div><div class="lb-score"><div class="lb-score-num">73</div><div class="lb-score-label">淨桿</div></div></div>
+        <div style="text-align:center;padding:16px;color:var(--gray);font-size:13px">⋯ 共 48 名球友參與本月排行</div>
+        <div class="lb-item me"><div class="lb-rank lb-rank-num">23</div><div class="lb-avatar">😊</div><div class="lb-info"><div class="lb-name">David（我）🏌️</div><div class="lb-detail">差點 20 · 2場</div></div><div class="lb-score"><div class="lb-score-num">76</div><div class="lb-score-label">淨桿</div></div></div>
+    </div>
+</div>
+
+<!-- ════ BUDDIES ════ -->
+<div class="page" id="page-buddies">
+    <div class="search-bar"><input class="search-input" type="text" placeholder="🔍 搜尋球友姓名或地區..."></div>
+    <div class="filter-chips">
+        <div class="chip active">全部</div><div class="chip">本週有空</div><div class="chip">差點 10-20</div><div class="chip">台北市</div><div class="chip">新北市</div><div class="chip">桃園</div>
+    </div>
+    <div class="buddy-card"><div class="buddy-top"><div class="buddy-avatar">⛳</div><div><div class="buddy-name">Alex Chen</div><div class="buddy-location">📍 台北市 · 長庚、林口常打</div><div class="buddy-badges"><span class="badge badge-hcp">差點 10</span><span class="badge badge-time">本週六有空</span><span class="badge badge-course">長庚熟悉</span></div></div></div><div class="buddy-bottom"><div class="buddy-rounds">已打 48 場 · 加入 8 個月</div><button class="btn-golf">約球 ⛳</button></div></div>
+    <div class="buddy-card"><div class="buddy-top"><div class="buddy-avatar">🏌️</div><div><div class="buddy-name">Emily Lin</div><div class="buddy-location">📍 新北市 · 大溪、石門常打</div><div class="buddy-badges"><span class="badge badge-hcp">差點 22</span><span class="badge badge-time">週末有空</span><span class="badge badge-course">初學友善</span></div></div></div><div class="buddy-bottom"><div class="buddy-rounds">已打 15 場 · 加入 3 個月</div><button class="btn-golf">約球 ⛳</button></div></div>
+    <div class="buddy-card"><div class="buddy-top"><div class="buddy-avatar">🎯</div><div><div class="buddy-name">Jason Wang</div><div class="buddy-location">📍 桃園市 · 大溪、台北常打</div><div class="buddy-badges"><span class="badge badge-hcp">差點 18</span><span class="badge badge-time">平日早上</span><span class="badge badge-course">大溪熟悉</span></div></div></div><div class="buddy-bottom"><div class="buddy-rounds">已打 62 場 · 加入 1 年</div><button class="btn-golf">約球 ⛳</button></div></div>
+    <div class="buddy-card" style="margin-bottom:12px"><div class="buddy-top"><div class="buddy-avatar">🌿</div><div><div class="buddy-name">Kevin Chang</div><div class="buddy-location">📍 台北市 · 全台都可</div><div class="buddy-badges"><span class="badge badge-hcp">差點 15</span><span class="badge badge-time">彈性時間</span></div></div></div><div class="buddy-bottom"><div class="buddy-rounds">已打 91 場 · 加入 2 年</div><button class="btn-golf">約球 ⛳</button></div></div>
+</div>
+
+<!-- ════ SCORES ════ -->
+<div class="page" id="page-scores">
+    <div class="score-summary">
+        <h2>本月最佳成績</h2>
+        <div class="big-score">82</div>
+        <div class="score-type">總桿 · 長庚高爾夫球場</div>
+    </div>
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-val">76</div><div class="stat-lbl">淨桿最佳</div></div>
+        <div class="stat-item"><div class="stat-val" id="hcp-display">--</div><div class="stat-lbl">我的差點</div></div>
+        <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">本年場數</div></div>
+    </div>
+
+    <!-- Handicap Block -->
+    <div class="hcp-block">
+        <div class="hcp-block-header">
+            <div><div class="hcp-block-title">🎯 我的差點指數</div><div class="hcp-block-sub">GolfCircle 平台估算</div></div>
+            <div id="hcp-big" class="hcp-number" style="display:none"></div>
+        </div>
+        <div id="hcp-locked-view" class="hcp-locked">
+            <div class="progress-label"><span>差點解鎖進度</span><span id="hcp-progress-text">2 / 5 場</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="hcp-bar" style="width:40%"></div></div>
+            <div class="progress-hint">再打 <strong>3 場</strong>即可解鎖你的專屬差點指數 ⛳</div>
+        </div>
+        <div id="hcp-unlocked-view" class="hcp-unlocked" style="display:none">
+            <div style="font-size:13px;color:var(--gray);margin-bottom:8px">根據你最近的成績計算：</div>
+            <div class="hcp-formula">
+                <div class="hcp-formula-title">最佳 5 場成績（超出 Par）</div>
+                <div class="hcp-round-row hcp-round-best"><span>長庚 82桿</span><span>+10</span></div>
+                <div class="hcp-round-row hcp-round-best"><span>大溪 85桿</span><span>+13</span></div>
+                <div class="hcp-round-row hcp-round-best"><span>長庚 84桿</span><span>+12</span></div>
+                <div class="hcp-round-row"><span>林口 88桿</span><span>+17</span></div>
+                <div class="hcp-round-row"><span>台北俱樂部 91桿</span><span>+19</span></div>
+                <div class="hcp-result"><span>平均超過 Par</span><span>+14.2</span></div>
+                <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.9）</span><span>≈ <strong>12.8</strong></span></div>
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:8px;line-height:1.5">* 此為平台估算值，採用簡化計算方式。正式差點認證請洽台灣高爾夫協會。</div>
+        </div>
+    </div>
+
+    <div class="section-label" style="margin-top:4px">最近成績</div>
+    <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">2026年4月22日 · 18洞</div></div><div class="history-score"><div class="history-num">82</div><div class="history-net">淨桿 76</div></div></div>
+    <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">2026年4月15日 · 18洞</div></div><div class="history-score"><div class="history-num">88</div><div class="history-net">淨桿 79</div></div></div>
+    <div class="history-item"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">2026年4月8日 · 18洞</div></div><div class="history-score"><div class="history-num">85</div><div class="history-net">淨桿 78</div></div></div>
+    <div class="history-item"><div class="history-icon">🌿</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">2026年3月28日 · 18洞</div></div><div class="history-score"><div class="history-num">84</div><div class="history-net">淨桿 77</div></div></div>
+    <div class="history-item" style="margin-bottom:12px"><div class="history-icon">🏆</div><div class="history-info"><div class="history-course">台北高爾夫俱樂部</div><div class="history-date">2026年3月20日 · 18洞</div></div><div class="history-score"><div class="history-num">91</div><div class="history-net">淨桿 82</div></div></div>
+</div>
+
+<!-- ════ RECORD SCORE ════ -->
+<div class="page" id="page-record">
+    <div class="record-header">
+        <button class="back-btn" onclick="go('scores', document.querySelectorAll('.nav-item')[3])">‹</button>
+        <h2>記錄這場成績</h2>
+    </div>
+
+    <div class="record-section">
+        <h3>基本資訊</h3>
+        <div class="form-row">
+            <label class="form-label">球場</label>
+            <select class="form-select" id="course-select" onchange="loadCoursePars()">
+                <optgroup label="── 已驗證球場 ──">
+                <option value="lungtan">龍潭高爾夫球場（Par 72）</option>
+                <option value="tsaihing">再興高爾夫俱樂部（Par 72）</option>
+                <option value="nanfeng">南峰高爾夫球俱樂部（Par 72）</option>
+                <option value="quanguo">全國花園鄉村俱樂部（Par 72）</option>
+                <option value="taichung_em">台中國際（東區＋中區）（Par 72）</option>
+                <option value="taichung_mw">台中國際（中區＋西區）（Par 72）</option>
+                <option value="taichung_ew">台中國際（東區＋西區）（Par 72）</option>
+                </optgroup>
+                <optgroup label="── 其他球場 ──">
+                <option value="changgeng">長庚高爾夫球場（Par 72）</option>
+                <option value="linkou">林口高爾夫球場（Par 71）</option>
+                <option value="dasi">大溪高爾夫球場（Par 72）</option>
+                <option value="taipei">台北高爾夫俱樂部（Par 72）</option>
+                <option value="shimen">石門水庫球場（Par 72）</option>
+                <option value="oldtamsui">老淡水高爾夫球場（Par 72）</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class="form-row">
+            <label class="form-label">日期</label>
+            <input class="form-input" type="date" id="round-date" value="2026-04-27">
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+            <label class="form-label">洞數</label>
+            <select class="form-select" id="holes-select" onchange="buildScorecard()">
+                <option value="18">18 洞</option>
+                <option value="9f">前 9 洞</option>
+                <option value="9b">後 9 洞</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="record-section mt10">
+        <h3>逐洞記分</h3>
+        <div class="scorecard">
+            <table class="sc-table" id="scorecard-table"></table>
+        </div>
+    </div>
+
+    <div class="score-total-bar" id="score-totals" style="justify-content:center">
+        <div class="total-item" style="padding:0 32px">
+            <div class="total-num" id="total-gross">--</div>
+            <div class="total-lbl">總桿</div>
+        </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitScore()">✅ 儲存並分享成績</button>
+</div>
+
+<!-- ════ PROFILE ════ -->
+<div class="page" id="page-profile">
+    <div class="profile-header">
+        <div class="profile-pic">😊</div>
+        <div class="profile-name">David</div>
+        <div class="profile-sub">台北市 · 高爾夫愛好者</div>
+        <div class="hcp-badge">差點 12.8</div>
+    </div>
+    <div class="profile-stats">
+        <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">本年場數</div></div>
+        <div class="stat-item"><div class="stat-val">82</div><div class="stat-lbl">個人最佳</div></div>
+        <div class="stat-item"><div class="stat-val">23</div><div class="stat-lbl">球友人數</div></div>
+        <div class="stat-item"><div class="stat-val">#23</div><div class="stat-lbl">本月排名</div></div>
+    </div>
+    <div class="achievements">
+        <div class="ach-title">成就徽章</div>
+        <div class="ach-list">
+            <div class="ach-item"><div class="ach-icon">🏌️</div><div class="ach-name">10場達成</div></div>
+            <div class="ach-item"><div class="ach-icon">🐦</div><div class="ach-name">首次小鳥</div></div>
+            <div class="ach-item"><div class="ach-icon">⛳</div><div class="ach-name">5球場探索</div></div>
+            <div class="ach-item"><div class="ach-icon">👥</div><div class="ach-name">10位球友</div></div>
+            <div class="ach-item"><div class="ach-icon">🎯</div><div class="ach-name">差點解鎖</div></div>
+        </div>
+    </div>
+    <div class="section-label">最常打的球場</div>
+    <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">共打 7 場</div></div><div class="history-score" style="color:var(--gold);font-size:13px">本月 #23</div></div>
+    <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">共打 3 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #8</div></div>
+    <div class="history-item" style="margin-bottom:12px"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">共打 2 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #12</div></div>
+</div>
+
+<button class="fab" id="fab">+</button>
+
+<div class="bottom-nav" id="main-nav">
+    <div class="nav-item active" onclick="go('feed',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>動態
+    </div>
+    <div class="nav-item" onclick="go('leaderboard',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>排行榜
+    </div>
+    <div class="nav-item" onclick="go('buddies',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>找球友
+    </div>
+    <div class="nav-item" onclick="go('scores',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>成績
+    </div>
+    <div class="nav-item" onclick="go('profile',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>我的
+    </div>
+</div>
+
+<script>
+// ── Course Data ──
+// par arrays: holes 1-9 (OUT), holes 10-18 (IN)
+const COURSES = {
+    changgeng: { name: '長庚高爾夫球場', par: [4,5,3,4,4,3,4,5,4, 4,4,3,5,4,4,3,4,5] },
+    linkou:    { name: '林口高爾夫球場', par: [4,4,3,5,4,3,4,4,4, 4,5,3,4,4,3,4,4,3] },
+    dasi:      { name: '大溪高爾夫球場', par: [5,4,3,4,4,4,3,5,4, 4,4,3,5,4,3,4,4,5] },
+    taipei:    { name: '台北高爾夫俱樂部', par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },
+    shimen:    { name: '石門水庫球場',   par: [4,5,3,4,4,3,5,4,4, 4,4,3,5,4,4,3,4,4] },
+    oldtamsui: { name: '老淡水高爾夫球場',par: [4,5,3,4,4,3,4,4,5, 4,4,3,5,4,4,3,4,5] },
+    // ── 實際驗證資料 ──
+    lungtan:   { name: '龍潭高爾夫球場',   par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },  // OUT 36 / IN 36 = 72
+    tsaihing:  { name: '再興高爾夫俱樂部', par: [4,4,3,5,5,4,4,3,5, 4,5,4,3,4,3,5,4,3] },  // OUT 37 / IN 35 = 72
+    nanfeng:   { name: '南峰高爾夫球俱樂部',par: [5,4,4,3,4,4,3,5,4, 5,3,4,4,3,4,5,4,4] }, // OUT 36 / IN 36 = 72
+    quanguo:   { name: '全國花園鄉村俱樂部',par: [4,4,5,4,3,4,5,3,4, 4,3,4,5,3,4,5,4,4] }, // OUT 36 / IN 36 = 72
+    // 台中國際 27洞 — 三種18洞組合
+    taichung_em: { name: '台中國際（東區＋中區）', par: [4,4,3,5,4,4,3,5,4, 4,4,3,5,4,4,3,4,5] }, // 東36 + 中36 = 72
+    taichung_mw: { name: '台中國際（中區＋西區）', par: [4,4,3,5,4,4,3,4,5, 5,4,3,4,4,3,4,5,4] }, // 中36 + 西36 = 72
+    taichung_ew: { name: '台中國際（東區＋西區）', par: [4,4,3,5,4,4,3,5,4, 5,4,3,4,4,3,4,5,4] }, // 東36 + 西36 = 72
+};
+
+// ── Handicap Demo State ──
+// Toggle: false = locked (2/5), true = unlocked
+let hcpUnlocked = false;
+
+function toggleHcp() {
+    hcpUnlocked = !hcpUnlocked;
+    renderHcp();
+}
+
+function renderHcp() {
+    if (hcpUnlocked) {
+        document.getElementById('hcp-locked-view').style.display = 'none';
+        document.getElementById('hcp-unlocked-view').style.display = 'block';
+        document.getElementById('hcp-big').style.display = 'block';
+        document.getElementById('hcp-big').textContent = '12.8';
+        document.getElementById('hcp-display').textContent = '12.8';
+    } else {
+        document.getElementById('hcp-locked-view').style.display = 'block';
+        document.getElementById('hcp-unlocked-view').style.display = 'none';
+        document.getElementById('hcp-big').style.display = 'none';
+        document.getElementById('hcp-display').textContent = '--';
+    }
+}
+// Click header to toggle demo
+document.querySelector('.hcp-block-header').addEventListener('click', toggleHcp);
+
+// ── Navigation ──
+function go(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+
+    const isRecord = name === 'record';
+    document.getElementById('main-header').style.display = isRecord ? 'none' : 'flex';
+    document.getElementById('main-nav').style.display = isRecord ? 'none' : 'flex';
+    document.getElementById('fab').style.display = (name === 'feed' || name === 'scores') ? 'flex' : 'none';
+
+    if (el && el.classList.contains('nav-item')) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+}
+
+document.getElementById('fab').addEventListener('click', () => {
+    go('record', null);
+    buildScorecard();
+});
+
+// ── Scorecard Builder ──
+function loadCoursePars() { buildScorecard(); }
+
+function buildScorecard() {
+    const courseKey = document.getElementById('course-select').value;
+    const holesOpt = document.getElementById('holes-select').value;
+    const course = COURSES[courseKey];
+    let holes, pars;
+
+    if (holesOpt === '18') {
+        holes = Array.from({length:18}, (_,i) => i+1);
+        pars = course.par;
+    } else if (holesOpt === '9f') {
+        holes = Array.from({length:9}, (_,i) => i+1);
+        pars = course.par.slice(0,9);
+    } else {
+        holes = Array.from({length:9}, (_,i) => i+10);
+        pars = course.par.slice(9,18);
+    }
+
+    const front = holes.slice(0, Math.min(9, holes.length));
+    const back  = holes.length > 9 ? holes.slice(9) : [];
+
+    let html = '';
+
+    // Front 9
+    html += buildHalf(front, pars.slice(0, front.length), '前九洞');
+    if (back.length) {
+        html += buildHalf(back, pars.slice(9, 9+back.length), '後九洞');
+    }
+
+    document.getElementById('scorecard-table').innerHTML = html;
+    document.querySelectorAll('.hole-input').forEach(inp => {
+        inp.addEventListener('input', calcTotals);
+    });
+    calcTotals();
+}
+
+function buildHalf(holes, pars, label) {
+    const parSum = pars.reduce((a,b) => a+b, 0);
+    let headCells = `<th>${label}</th>` + holes.map(h => `<th>${h}</th>`).join('') + `<th>計</th>`;
+    let parCells  = `<td>Par</td>` + pars.map(p => `<td>${p}</td>`).join('') + `<td>${parSum}</td>`;
+    let scoreCells = `<td>桿數</td>` + holes.map(h => `<td><input class="hole-input" type="number" min="1" max="12" id="h${h}" placeholder="-"></td>`).join('') + `<td id="sub${holes[0]}">--</td>`;
+    return `<tr>${headCells}</tr><tr class="par-row">${parCells}</tr><tr class="score-row">${scoreCells}</tr>`;
+}
+
+function calcTotals() {
+    const courseKey = document.getElementById('course-select').value;
+    const holesOpt = document.getElementById('holes-select').value;
+    const course = COURSES[courseKey];
+
+    let allHoles, allPars;
+    if (holesOpt === '18') { allHoles = Array.from({length:18},(_,i)=>i+1); allPars = course.par; }
+    else if (holesOpt === '9f') { allHoles = Array.from({length:9},(_,i)=>i+1); allPars = course.par.slice(0,9); }
+    else { allHoles = Array.from({length:9},(_,i)=>i+10); allPars = course.par.slice(9); }
+
+    let gross = 0, filled = 0;
+    allHoles.forEach((h, i) => {
+        const inp = document.getElementById('h'+h);
+        if (inp && inp.value) {
+            const v = parseInt(inp.value);
+            gross += v; filled++;
+            const p = allPars[i];
+            inp.className = 'hole-input';
+            if (v <= p-1) inp.classList.add('birdie');
+            else if (v === p) inp.classList.add('par');
+            else if (v === p+1) inp.classList.add('bogey');
+            else if (v >= p+2) inp.classList.add('double');
+        }
+    });
+
+    // Sub-totals
+    const f9 = allHoles.slice(0,9);
+    let s1=0; f9.forEach(h=>{const el=document.getElementById('h'+h); if(el&&el.value)s1+=parseInt(el.value);});
+    const sub1 = document.getElementById('sub'+(allHoles[0]));
+    if (sub1) sub1.textContent = s1 || '--';
+
+    if (allHoles.length > 9) {
+        let s2=0; allHoles.slice(9).forEach(h=>{const el=document.getElementById('h'+h); if(el&&el.value)s2+=parseInt(el.value);});
+        const sub2 = document.getElementById('sub'+(allHoles[9]));
+        if (sub2) sub2.textContent = s2 || '--';
+    }
+
+    const totalPar = allPars.reduce((a,b)=>a+b,0);
+    document.getElementById('total-gross').textContent = filled > 0 ? gross : '--';
+}
+
+function submitScore() {
+    const gross = document.getElementById('total-gross').textContent;
+    if (gross === '--') { alert('請至少輸入部分洞的桿數'); return; }
+    const course = COURSES[document.getElementById('course-select').value].name;
+    alert(`✅ 成績已儲存！\n\n${course}\n總桿：${gross}\n\n成績卡已加入你的動態，並計入球場排行榜 🏆`);
+    go('scores', document.querySelectorAll('.nav-item')[3]);
+}
+
+// ── Misc ──
+document.querySelectorAll('.course-tab').forEach(t => t.addEventListener('click', function() {
+    document.querySelectorAll('.course-tab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+}));
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', function() {
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+}));
+
+// Init
+buildScorecard();
+</script>
+</body>
+</html>
