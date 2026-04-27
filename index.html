@@ -151,6 +151,19 @@
         .d-par    { background: #e8f5e9; color: #333; }
         .d-bogey  { background: #fff3e0; color: #bf5000; }
         .d-double { background: #fce4ec; color: #b71c1c; }
+        .dream-switch-btn { font-size:11px; color:var(--green); margin-top:5px; cursor:pointer; display:inline-block; }
+        .dream-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:flex-end; justify-content:center; }
+        .dream-overlay.show { display:flex; }
+        .dream-sheet { background:white; width:100%; max-width:430px; border-radius:16px 16px 0 0; padding-bottom:36px; }
+        .dream-sheet-title { font-size:13px; font-weight:600; color:var(--gray); padding:14px 16px 12px; border-bottom:1px solid var(--border); }
+        .dream-sheet-item { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; }
+        .dream-sheet-item:active { background:#f5f9f6; }
+        .dream-sheet-item.current { background:#f5f9f6; }
+        .dream-sheet-name { font-size:14px; font-weight:500; }
+        .dream-sheet-item.current .dream-sheet-name { color:var(--green); font-weight:600; }
+        .dream-sheet-meta { font-size:11px; color:var(--gray); margin-top:2px; }
+        .dream-sheet-score { font-size:20px; font-weight:700; color:var(--green); text-align:right; }
+        .dream-sheet-diff { font-size:11px; color:var(--gray); }
 
         /* ── Profile ── */
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
@@ -366,6 +379,7 @@
             <div>
                 <div style="font-size:14px;font-weight:600" id="dream-course-name">龍潭高爾夫球場</div>
                 <div style="font-size:12px;color:var(--gray);margin-top:2px" id="dream-round-count">基於 8 場紀錄</div>
+                <div class="dream-switch-btn" onclick="openDreamSheet()">切換球場 ›</div>
             </div>
             <div style="text-align:right">
                 <div style="font-size:30px;font-weight:700;color:var(--green);line-height:1" id="dream-total-score">64</div>
@@ -489,6 +503,14 @@
     <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">共打 7 場</div></div><div class="history-score" style="color:var(--gold);font-size:13px">本月 #23</div></div>
     <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">共打 3 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #8</div></div>
     <div class="history-item" style="margin-bottom:12px"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">共打 2 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #12</div></div>
+</div>
+
+<!-- Dream Course Switcher Sheet -->
+<div class="dream-overlay" id="dream-overlay" onclick="closeDreamSheet(event)">
+    <div class="dream-sheet">
+        <div class="dream-sheet-title">選擇顯示的球場</div>
+        <div id="dream-sheet-list"></div>
+    </div>
 </div>
 
 <button class="fab" id="fab">+</button>
@@ -719,8 +741,32 @@ const DREAM_DATA = {
             {h:13,par:4, best:4, r:3}, {h:14,par:5, best:4, r:8}, {h:15,par:4, best:3, r:4},
             {h:16,par:3, best:3, r:1}, {h:17,par:4, best:4, r:6}, {h:18,par:5, best:4, r:8}
         ]
+    },
+    tsaihing: {
+        name: '再興高爾夫俱樂部', rounds: 5, bestActual: 82,
+        holes: [
+            {h:1, par:4, best:4, r:2}, {h:2, par:4, best:4, r:4}, {h:3, par:3, best:3, r:1},
+            {h:4, par:5, best:5, r:3}, {h:5, par:5, best:4, r:5}, {h:6, par:4, best:4, r:2},
+            {h:7, par:4, best:4, r:4}, {h:8, par:3, best:2, r:3}, {h:9, par:5, best:5, r:1},
+            {h:10,par:4, best:4, r:3}, {h:11,par:5, best:5, r:5}, {h:12,par:4, best:4, r:2},
+            {h:13,par:3, best:3, r:4}, {h:14,par:4, best:4, r:1}, {h:15,par:3, best:3, r:5},
+            {h:16,par:5, best:5, r:3}, {h:17,par:4, best:4, r:2}, {h:18,par:3, best:3, r:4}
+        ]
+    },
+    nanfeng: {
+        name: '南峰高爾夫球俱樂部', rounds: 3, bestActual: 85,
+        holes: [
+            {h:1, par:5, best:5, r:1}, {h:2, par:4, best:4, r:2}, {h:3, par:4, best:4, r:3},
+            {h:4, par:3, best:3, r:1}, {h:5, par:4, best:5, r:2}, {h:6, par:4, best:4, r:3},
+            {h:7, par:3, best:2, r:2}, {h:8, par:5, best:5, r:3}, {h:9, par:4, best:4, r:1},
+            {h:10,par:5, best:5, r:2}, {h:11,par:3, best:3, r:1}, {h:12,par:4, best:4, r:3},
+            {h:13,par:4, best:4, r:2}, {h:14,par:3, best:3, r:1}, {h:15,par:4, best:5, r:3},
+            {h:16,par:5, best:5, r:2}, {h:17,par:4, best:4, r:3}, {h:18,par:4, best:4, r:1}
+        ]
     }
 };
+
+let activeDream = 'lungtan';
 
 function dreamCellClass(best, par) {
     const d = best - par;
@@ -746,20 +792,56 @@ function buildDreamHalf(holes, tableId, label) {
         `<tr>${head}</tr><tr class="par-row">${pars}</tr><tr>${bests}</tr>`;
 }
 
-function renderDream() {
-    const d = DREAM_DATA.lungtan;
+function renderDream(key) {
+    if (key) activeDream = key;
+    const d = DREAM_DATA[activeDream];
     buildDreamHalf(d.holes.slice(0,9), 'dream-out', '前九洞');
     buildDreamHalf(d.holes.slice(9),   'dream-in',  '後九洞');
     const totalBest = d.holes.reduce((a,x)=>a+x.best, 0);
     const totalPar  = d.holes.reduce((a,x)=>a+x.par,  0);
     const diff = totalBest - totalPar;
+    const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : ''+diff);
+    document.getElementById('dream-course-name').textContent = d.name;
     document.getElementById('dream-total-score').textContent = totalBest;
-    document.getElementById('dream-vs-par').textContent = (diff>0?'+':'')+diff+' · 夢幻輪';
+    document.getElementById('dream-vs-par').textContent = diffStr + ' · 夢幻輪';
     document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場紀錄`;
     const aDiff = d.bestActual - totalPar;
     document.getElementById('dream-actual-score').innerHTML =
         `${d.bestActual} <span style="font-size:11px;font-weight:400;color:var(--gray)">${aDiff>0?'+':''}${aDiff}</span>`;
     document.getElementById('dream-gap').textContent = d.bestActual - totalBest;
+}
+
+function openDreamSheet() {
+    const list = document.getElementById('dream-sheet-list');
+    list.innerHTML = Object.entries(DREAM_DATA).map(([key, d]) => {
+        const totalBest = d.holes.reduce((a,x)=>a+x.best, 0);
+        const totalPar  = d.holes.reduce((a,x)=>a+x.par,  0);
+        const diff = totalBest - totalPar;
+        const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : ''+diff);
+        const isCurrent = key === activeDream;
+        return `<div class="dream-sheet-item${isCurrent?' current':''}" onclick="selectDream('${key}')">
+            <div>
+                <div class="dream-sheet-name">${d.name}${isCurrent ? ' ✓' : ''}</div>
+                <div class="dream-sheet-meta">${d.rounds} 場紀錄 · 最佳單場 ${d.bestActual}</div>
+            </div>
+            <div style="text-align:right">
+                <div class="dream-sheet-score">${totalBest}</div>
+                <div class="dream-sheet-diff">${diffStr}</div>
+            </div>
+        </div>`;
+    }).join('');
+    document.getElementById('dream-overlay').classList.add('show');
+}
+
+function selectDream(key) {
+    renderDream(key);
+    document.getElementById('dream-overlay').classList.remove('show');
+}
+
+function closeDreamSheet(e) {
+    if (e.target === document.getElementById('dream-overlay')) {
+        document.getElementById('dream-overlay').classList.remove('show');
+    }
 }
 
 // Init
