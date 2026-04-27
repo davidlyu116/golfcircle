@@ -799,6 +799,12 @@ function showShareModal(round, dreamUpdates) {
     document.getElementById('share-overlay').classList.add('show');
 }
 
+function reshareRound(id) {
+    const data = loadData();
+    const round = data.rounds.find(r => r.id === id);
+    if (round) showShareModal(round, []);
+}
+
 function doShare() {
     if (!_shareRound) return;
     const par = _shareRound.pars.reduce((a,b)=>a+b,0);
@@ -867,6 +873,7 @@ function refreshScoresPage() {
             <div class="history-score">
                 <div class="history-num">${r.total}</div>
                 <div class="history-net">${diffStr}</div>
+                <div onclick="reshareRound(${r.id})" style="font-size:11px;color:var(--green);cursor:pointer;margin-top:4px">↗ 分享</div>
             </div>
         </div>`;
     }).join('');
