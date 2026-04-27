@@ -136,6 +136,22 @@
         .hcp-round-best { color: var(--green); font-weight: 600; }
         .hcp-result { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 600; }
 
+        /* ── Dream Round ── */
+        .dream-section { padding: 0 8px 4px; }
+        .dream-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        .dream-table th { background: linear-gradient(135deg,#1a5c38,#2d7a50); color: white; padding: 5px 1px; text-align: center; font-weight: 600; font-size: 11px; }
+        .dream-table th:first-child { text-align: left; padding-left: 4px; width: 36px; }
+        .dream-table td { padding: 3px 1px; text-align: center; border-bottom: 1px solid var(--border); }
+        .dream-table td:first-child { text-align: left; padding-left: 4px; font-size: 11px; color: var(--gray); font-weight: 500; }
+        .dream-table tr.par-row td { background: #f5f9f6; font-weight: 600; color: var(--green); font-size: 11px; }
+        .d-cell { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 4px; font-weight: 700; font-size: 12px; position: relative; }
+        .d-badge { position: absolute; bottom: 1px; right: 1px; font-size: 7px; font-weight: 500; opacity: 0.5; line-height: 1; }
+        .d-eagle  { background: #ffd700; color: #6b4c00; }
+        .d-birdie { background: #d4edda; color: var(--green); border: 1.5px solid var(--green); }
+        .d-par    { background: #e8f5e9; color: #333; }
+        .d-bogey  { background: #fff3e0; color: #bf5000; }
+        .d-double { background: #fce4ec; color: #b71c1c; }
+
         /* ── Profile ── */
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
         .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.5); }
@@ -344,7 +360,38 @@
         </div>
     </div>
 
-    <div class="section-label" style="margin-top:4px">最近成績</div>
+    <div class="section-label" style="margin-top:4px">🌟 夢幻輪</div>
+    <div class="card" style="margin-bottom:10px;overflow:hidden">
+        <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+                <div style="font-size:14px;font-weight:600" id="dream-course-name">龍潭高爾夫球場</div>
+                <div style="font-size:12px;color:var(--gray);margin-top:2px" id="dream-round-count">基於 8 場紀錄</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:30px;font-weight:700;color:var(--green);line-height:1" id="dream-total-score">64</div>
+                <div style="font-size:11px;color:var(--gray);margin-top:2px" id="dream-vs-par">-8 · 夢幻輪</div>
+            </div>
+        </div>
+        <div class="dream-section">
+            <table class="dream-table" id="dream-out"></table>
+            <table class="dream-table" style="margin-top:4px" id="dream-in"></table>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#f5f9f6;border-top:1px solid var(--border)">
+            <div>
+                <div style="font-size:11px;color:var(--gray)">實際最佳單場</div>
+                <div style="font-size:18px;font-weight:700;color:#555" id="dream-actual-score">78 <span style="font-size:11px;font-weight:400;color:var(--gray)">+6</span></div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:11px;color:var(--gray)">夢幻輪合計</div>
+                <div style="font-size:18px;font-weight:700;color:var(--green)">64 <span style="font-size:11px;font-weight:400">-8</span></div>
+            </div>
+        </div>
+        <div style="background:#fffbe6;padding:10px 14px;font-size:12px;color:#7a5a00;border-top:1px solid #f5e6a0">
+            💡 若能單場打出夢幻輪，將比目前最佳再進步 <strong id="dream-gap">14</strong> 桿
+        </div>
+    </div>
+
+    <div class="section-label" style="margin-top:0">最近成績</div>
     <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">2026年4月22日 · 18洞</div></div><div class="history-score"><div class="history-num">82</div><div class="history-net">淨桿 76</div></div></div>
     <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">2026年4月15日 · 18洞</div></div><div class="history-score"><div class="history-num">88</div><div class="history-net">淨桿 79</div></div></div>
     <div class="history-item"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">2026年4月8日 · 18洞</div></div><div class="history-score"><div class="history-num">85</div><div class="history-net">淨桿 78</div></div></div>
@@ -660,7 +707,63 @@ document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', func
     this.classList.add('active');
 }));
 
+// ── Dream Round ──
+const DREAM_DATA = {
+    lungtan: {
+        name: '龍潭高爾夫球場', rounds: 8, bestActual: 78,
+        holes: [
+            {h:1, par:4, best:4, r:3}, {h:2, par:4, best:3, r:6}, {h:3, par:3, best:2, r:5},
+            {h:4, par:5, best:4, r:8}, {h:5, par:4, best:4, r:1}, {h:6, par:4, best:4, r:2},
+            {h:7, par:3, best:3, r:4}, {h:8, par:5, best:4, r:7}, {h:9, par:4, best:4, r:6},
+            {h:10,par:4, best:3, r:5}, {h:11,par:4, best:4, r:2}, {h:12,par:3, best:3, r:7},
+            {h:13,par:4, best:4, r:3}, {h:14,par:5, best:4, r:8}, {h:15,par:4, best:3, r:4},
+            {h:16,par:3, best:3, r:1}, {h:17,par:4, best:4, r:6}, {h:18,par:5, best:4, r:8}
+        ]
+    }
+};
+
+function dreamCellClass(best, par) {
+    const d = best - par;
+    if (d <= -2) return 'd-eagle';
+    if (d === -1) return 'd-birdie';
+    if (d === 0)  return 'd-par';
+    if (d === 1)  return 'd-bogey';
+    return 'd-double';
+}
+
+function buildDreamHalf(holes, tableId, label) {
+    const parSum  = holes.reduce((a,x) => a + x.par, 0);
+    const bestSum = holes.reduce((a,x) => a + x.best, 0);
+    const diff = bestSum - parSum;
+    const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : ''+diff);
+    const head  = `<th>${label}</th>` + holes.map(x=>`<th>${x.h}</th>`).join('') + `<th>計</th>`;
+    const pars  = `<td>Par</td>` + holes.map(x=>`<td>${x.par}</td>`).join('') + `<td>${parSum}</td>`;
+    const bests = `<td>最佳</td>` + holes.map(x => {
+        const cls = dreamCellClass(x.best, x.par);
+        return `<td><div class="d-cell ${cls}">${x.best}<span class="d-badge">${x.r}</span></div></td>`;
+    }).join('') + `<td style="font-weight:700;color:var(--green);font-size:12px">${bestSum}<br><span style="font-size:9px;color:var(--gray)">${diffStr}</span></td>`;
+    document.getElementById(tableId).innerHTML =
+        `<tr>${head}</tr><tr class="par-row">${pars}</tr><tr>${bests}</tr>`;
+}
+
+function renderDream() {
+    const d = DREAM_DATA.lungtan;
+    buildDreamHalf(d.holes.slice(0,9), 'dream-out', '前九洞');
+    buildDreamHalf(d.holes.slice(9),   'dream-in',  '後九洞');
+    const totalBest = d.holes.reduce((a,x)=>a+x.best, 0);
+    const totalPar  = d.holes.reduce((a,x)=>a+x.par,  0);
+    const diff = totalBest - totalPar;
+    document.getElementById('dream-total-score').textContent = totalBest;
+    document.getElementById('dream-vs-par').textContent = (diff>0?'+':'')+diff+' · 夢幻輪';
+    document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場紀錄`;
+    const aDiff = d.bestActual - totalPar;
+    document.getElementById('dream-actual-score').innerHTML =
+        `${d.bestActual} <span style="font-size:11px;font-weight:400;color:var(--gray)">${aDiff>0?'+':''}${aDiff}</span>`;
+    document.getElementById('dream-gap').textContent = d.bestActual - totalBest;
+}
+
 // Init
+renderDream();
 buildScorecard();
 </script>
 </body>
