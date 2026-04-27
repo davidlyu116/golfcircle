@@ -337,13 +337,13 @@
 <div class="page" id="page-scores">
     <div class="score-summary">
         <h2>本月最佳成績</h2>
-        <div class="big-score">82</div>
-        <div class="score-type">總桿 · 長庚高爾夫球場</div>
+        <div class="big-score" id="best-gross">--</div>
+        <div class="score-type" id="best-course">尚無成績記錄</div>
     </div>
     <div class="stats-row">
-        <div class="stat-item"><div class="stat-val">76</div><div class="stat-lbl">淨桿最佳</div></div>
+        <div class="stat-item"><div class="stat-val" id="best-net">--</div><div class="stat-lbl">最佳總桿</div></div>
         <div class="stat-item"><div class="stat-val" id="hcp-display">--</div><div class="stat-lbl">我的差點</div></div>
-        <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">本年場數</div></div>
+        <div class="stat-item"><div class="stat-val" id="yearly-rounds">0</div><div class="stat-lbl">累積場數</div></div>
     </div>
 
     <!-- Handicap Block -->
@@ -406,17 +406,15 @@
     </div>
 
     <div class="section-label" style="margin-top:0">最近成績</div>
-    <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">2026年4月22日 · 18洞</div></div><div class="history-score"><div class="history-num">82</div><div class="history-net">淨桿 76</div></div></div>
-    <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">2026年4月15日 · 18洞</div></div><div class="history-score"><div class="history-num">88</div><div class="history-net">淨桿 79</div></div></div>
-    <div class="history-item"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">2026年4月8日 · 18洞</div></div><div class="history-score"><div class="history-num">85</div><div class="history-net">淨桿 78</div></div></div>
-    <div class="history-item"><div class="history-icon">🌿</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">2026年3月28日 · 18洞</div></div><div class="history-score"><div class="history-num">84</div><div class="history-net">淨桿 77</div></div></div>
-    <div class="history-item" style="margin-bottom:12px"><div class="history-icon">🏆</div><div class="history-info"><div class="history-course">台北高爾夫俱樂部</div><div class="history-date">2026年3月20日 · 18洞</div></div><div class="history-score"><div class="history-num">91</div><div class="history-net">淨桿 82</div></div></div>
+    <div id="rounds-history" style="margin-bottom:12px">
+        <div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">尚無成績記錄<br><br>點 <strong>+</strong> 開始記錄你的第一場 ⛳</div>
+    </div>
 </div>
 
 <!-- ════ RECORD SCORE ════ -->
 <div class="page" id="page-record">
     <div class="record-header">
-        <button class="back-btn" onclick="go('scores', document.querySelectorAll('.nav-item')[3])">‹</button>
+        <button class="back-btn" onclick="go('scores', document.querySelectorAll('.nav-item')[2])">‹</button>
         <h2>記錄這場成績</h2>
     </div>
 
@@ -521,9 +519,6 @@
     </div>
     <div class="nav-item" onclick="go('leaderboard',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>排行榜
-    </div>
-    <div class="nav-item" onclick="go('buddies',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>找球友
     </div>
     <div class="nav-item" onclick="go('scores',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>成績
@@ -711,12 +706,99 @@ function calcTotals() {
     document.getElementById('total-gross').textContent = filled > 0 ? gross : '--';
 }
 
+// ── LocalStorage ──
+const LS_KEY = 'gc_data';
+function loadData() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || {rounds:[], dreamBests:{}}; }
+    catch { return {rounds:[], dreamBests:{}}; }
+}
+function saveData(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+
+function refreshScoresPage() {
+    const data = loadData();
+    const rounds = data.rounds;
+    const fullRounds = rounds.filter(r => r.holesOpt === '18');
+
+    // Stats
+    const yrEl = document.getElementById('yearly-rounds');
+    if (yrEl) yrEl.textContent = rounds.length;
+    if (fullRounds.length > 0) {
+        const best = fullRounds.reduce((b,r) => r.total < b.total ? r : b, fullRounds[0]);
+        document.getElementById('best-gross').textContent = best.total;
+        document.getElementById('best-net').textContent = best.total;
+        document.getElementById('best-course').textContent = `總桿 · ${best.courseName}`;
+    }
+
+    // Handicap progress
+    const fc = fullRounds.length;
+    document.getElementById('hcp-progress-text').textContent = `${Math.min(fc,5)} / 5 場`;
+    document.getElementById('hcp-bar').style.width = Math.min(fc/5*100,100) + '%';
+    const hint = document.querySelector('.progress-hint');
+    if (hint && fc < 5) hint.innerHTML = `再打 <strong>${5-fc} 場</strong>即可解鎖你的專屬差點指數 ⛳`;
+
+    // History
+    const hist = document.getElementById('rounds-history');
+    if (!hist) return;
+    if (rounds.length === 0) {
+        hist.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">尚無成績記錄<br><br>點 <strong>+</strong> 開始記錄你的第一場 ⛳</div>';
+        return;
+    }
+    const icons = ['⛳','🏌️','🎯','🌿','🏆'];
+    hist.innerHTML = rounds.slice(0,10).map((r,i) => {
+        const par = r.pars.reduce((a,b)=>a+b,0);
+        const diff = r.total - par;
+        const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
+        const d = r.date.split('-');
+        const dateStr = `${d[0]}年${parseInt(d[1])}月${parseInt(d[2])}日`;
+        const holeStr = r.holesOpt==='18'?'18洞':'9洞';
+        return `<div class="history-item">
+            <div class="history-icon">${icons[i%5]}</div>
+            <div class="history-info">
+                <div class="history-course">${r.courseName}</div>
+                <div class="history-date">${dateStr} · ${holeStr}</div>
+            </div>
+            <div class="history-score">
+                <div class="history-num">${r.total}</div>
+                <div class="history-net">${diffStr}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
 function submitScore() {
-    const gross = document.getElementById('total-gross').textContent;
-    if (gross === '--') { alert('請至少輸入部分洞的桿數'); return; }
-    const course = COURSES[document.getElementById('course-select').value].name;
-    alert(`✅ 成績已儲存！\n\n${course}\n總桿：${gross}\n\n成績卡已加入你的動態，並計入球場排行榜 🏆`);
-    go('scores', document.querySelectorAll('.nav-item')[3]);
+    if (document.getElementById('total-gross').textContent === '--') {
+        alert('請至少輸入部分洞的桿數'); return;
+    }
+    const courseKey = document.getElementById('course-select').value;
+    const holesOpt  = document.getElementById('holes-select').value;
+    const date      = document.getElementById('round-date').value;
+    const course    = COURSES[courseKey];
+
+    let allHoles, allPars;
+    if (holesOpt==='18')      { allHoles=Array.from({length:18},(_,i)=>i+1);  allPars=course.par; }
+    else if (holesOpt==='9f') { allHoles=Array.from({length:9},(_,i)=>i+1);   allPars=course.par.slice(0,9); }
+    else                      { allHoles=Array.from({length:9},(_,i)=>i+10);  allPars=course.par.slice(9); }
+
+    const scores = allHoles.map(h => { const v=parseInt((document.getElementById('h'+h)||{}).value); return isNaN(v)||v<1?null:v; });
+    const total  = scores.reduce((a,v)=>a+(v||0),0);
+
+    const data = loadData();
+    const courseRoundNum = data.rounds.filter(r=>r.courseKey===courseKey).length + 1;
+
+    data.rounds.unshift({ id:Date.now(), courseKey, courseName:course.name, date, holesOpt, holeNums:allHoles, scores, pars:allPars, total });
+
+    if (!data.dreamBests[courseKey]) data.dreamBests[courseKey] = { holes:{} };
+    const db = data.dreamBests[courseKey];
+    allHoles.forEach((h,i) => {
+        const s = scores[i]; if (s===null) return;
+        if (!db.holes[h] || s < db.holes[h].best) db.holes[h] = { best:s, roundNum:courseRoundNum };
+    });
+
+    saveData(data);
+    refreshScoresPage();
+    renderDream();
+    go('scores', document.querySelectorAll('.nav-item')[2]);
+    alert(`✅ 成績已儲存！\n${course.name}　總桿：${total}\n\n夢幻輪已更新 🌟`);
 }
 
 // ── Misc ──
@@ -792,37 +874,66 @@ function buildDreamHalf(holes, tableId, label) {
         `<tr>${head}</tr><tr class="par-row">${pars}</tr><tr>${bests}</tr>`;
 }
 
+function getDreamForCourse(courseKey) {
+    const data = loadData();
+    const lsDB = (data.dreamBests[courseKey] || {}).holes || {};
+    const lsRounds = data.rounds.filter(r => r.courseKey === courseKey);
+    if (lsRounds.length > 0 && Object.keys(lsDB).length > 0) {
+        const course = COURSES[courseKey];
+        if (!course) return DREAM_DATA[courseKey] || null;
+        const holes = course.par.map((par,idx) => {
+            const h = idx+1, hd = lsDB[h];
+            return { h, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
+        });
+        const bestActual = lsRounds.reduce((b,r) => Math.min(b,r.total), 999);
+        return { name:course.name, rounds:lsRounds.length, bestActual, holes };
+    }
+    return DREAM_DATA[courseKey] || null;
+}
+
+function getAllDreamKeys() {
+    const data = loadData();
+    const keys = new Set([...Object.keys(DREAM_DATA), ...Object.keys(data.dreamBests).filter(k=>data.rounds.some(r=>r.courseKey===k))]);
+    return [...keys];
+}
+
 function renderDream(key) {
     if (key) activeDream = key;
-    const d = DREAM_DATA[activeDream];
+    const d = getDreamForCourse(activeDream);
+    if (!d) return;
     buildDreamHalf(d.holes.slice(0,9), 'dream-out', '前九洞');
     buildDreamHalf(d.holes.slice(9),   'dream-in',  '後九洞');
-    const totalBest = d.holes.reduce((a,x)=>a+x.best, 0);
-    const totalPar  = d.holes.reduce((a,x)=>a+x.par,  0);
+    const totalBest = d.holes.reduce((a,x)=>a+x.best,0);
+    const totalPar  = d.holes.reduce((a,x)=>a+x.par, 0);
     const diff = totalBest - totalPar;
-    const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : ''+diff);
+    const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
     document.getElementById('dream-course-name').textContent = d.name;
     document.getElementById('dream-total-score').textContent = totalBest;
     document.getElementById('dream-vs-par').textContent = diffStr + ' · 夢幻輪';
     document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場紀錄`;
-    const aDiff = d.bestActual - totalPar;
-    document.getElementById('dream-actual-score').innerHTML =
-        `${d.bestActual} <span style="font-size:11px;font-weight:400;color:var(--gray)">${aDiff>0?'+':''}${aDiff}</span>`;
-    document.getElementById('dream-gap').textContent = d.bestActual - totalBest;
+    if (d.bestActual) {
+        const aDiff = d.bestActual - totalPar;
+        document.getElementById('dream-actual-score').innerHTML =
+            `${d.bestActual} <span style="font-size:11px;font-weight:400;color:var(--gray)">${aDiff>0?'+':''}${aDiff}</span>`;
+        document.getElementById('dream-gap').textContent = d.bestActual - totalBest;
+    }
 }
 
 function openDreamSheet() {
     const list = document.getElementById('dream-sheet-list');
-    list.innerHTML = Object.entries(DREAM_DATA).map(([key, d]) => {
-        const totalBest = d.holes.reduce((a,x)=>a+x.best, 0);
-        const totalPar  = d.holes.reduce((a,x)=>a+x.par,  0);
+    list.innerHTML = getAllDreamKeys().map(key => {
+        const d = getDreamForCourse(key);
+        if (!d) return '';
+        const totalBest = d.holes.reduce((a,x)=>a+x.best,0);
+        const totalPar  = d.holes.reduce((a,x)=>a+x.par, 0);
         const diff = totalBest - totalPar;
-        const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : ''+diff);
+        const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
         const isCurrent = key === activeDream;
+        const bestStr = d.bestActual ? ` · 最佳 ${d.bestActual}` : '';
         return `<div class="dream-sheet-item${isCurrent?' current':''}" onclick="selectDream('${key}')">
             <div>
-                <div class="dream-sheet-name">${d.name}${isCurrent ? ' ✓' : ''}</div>
-                <div class="dream-sheet-meta">${d.rounds} 場紀錄 · 最佳單場 ${d.bestActual}</div>
+                <div class="dream-sheet-name">${d.name}${isCurrent?' ✓':''}</div>
+                <div class="dream-sheet-meta">${d.rounds} 場紀錄${bestStr}</div>
             </div>
             <div style="text-align:right">
                 <div class="dream-sheet-score">${totalBest}</div>
@@ -845,6 +956,7 @@ function closeDreamSheet(e) {
 }
 
 // Init
+refreshScoresPage();
 renderDream();
 buildScorecard();
 </script>
