@@ -227,10 +227,13 @@
         .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px 8px; }
         .badge-grid-item { border: 2px solid var(--border); border-radius: 14px; padding: 14px 8px 10px; text-align: center; cursor: pointer; transition: all 0.15s; background: white; }
         .badge-grid-item.active { border-color: var(--gold); background: #fffbf0; }
+        .badge-grid-item.locked { background: #f7f7f7; cursor: default; opacity: 0.55; }
         .badge-grid-item .bg-icon { font-size: 28px; margin-bottom: 6px; }
         .badge-grid-item .bg-name { font-size: 10px; font-weight: 600; color: var(--text); line-height: 1.3; }
         .badge-grid-item .bg-type { font-size: 9px; color: var(--gray); margin-top: 2px; }
+        .badge-grid-item .bg-unlock { font-size: 8.5px; color: var(--gray); margin-top: 5px; line-height: 1.4; }
         .badge-selected-chip { display: inline-block; background: var(--gold); color: white; font-size: 9px; padding: 1px 6px; border-radius: 8px; margin-top: 4px; }
+        .badge-lock-icon { font-size: 12px; display: block; margin-bottom: 2px; }
         .empty-state { text-align: center; padding: 56px 24px; color: var(--gray); }
         .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
         .empty-state-text { font-size: 14px; line-height: 1.6; }
@@ -672,12 +675,15 @@ document.querySelector('.hcp-block-header').addEventListener('click', toggleHcp)
 // ── Navigation ──
 // ── Badge System ──
 const DEMO_BADGES = [
-    { id: 'q1_champ',    icon: '🏆', name: '龍潭 Q1 冠軍', type: '季度冠軍' },
-    { id: 'birdie_master', icon: '🐦', name: '小鳥達人',   type: '成就徽章' },
-    { id: 'eagle_club',  icon: '🦅', name: '老鷹俱樂部',  type: '成就徽章' },
-    { id: 'founder',     icon: '⭐', name: '創始會員',     type: '特別勳章' },
-    { id: 'streak',      icon: '🔥', name: '月度連勝',     type: '挑戰徽章' },
-    { id: 'hcp_unlock',  icon: '🎯', name: '差點解鎖',     type: '里程碑'   },
+    { id: 'founder',      icon: '⭐', name: '創始會員',    type: '特別勳章', earned: true,  unlock: '' },
+    { id: 'hcp_unlock',   icon: '🎯', name: '差點解鎖',   type: '里程碑',   earned: true,  unlock: '' },
+    { id: 'birdie_master',icon: '🐦', name: '小鳥達人',   type: '成就徽章', earned: true,  unlock: '' },
+    { id: 'q1_champ',     icon: '🏆', name: '龍潭 Q1 冠軍',type: '季度冠軍', earned: false, unlock: '訂閱會員 · 季度球場排名第一' },
+    { id: 'eagle_club',   icon: '🦅', name: '老鷹俱樂部', type: '成就徽章', earned: false, unlock: '完成一次老鷹（Eagle）' },
+    { id: 'streak',       icon: '🔥', name: '月度連勝',   type: '挑戰徽章', earned: false, unlock: '同一球場連續三個月進前三' },
+    { id: 'sub_3m',       icon: '💎', name: '鑽石會員',   type: '訂閱勳章', earned: false, unlock: '連續訂閱滿 3 個月' },
+    { id: 'explorer',     icon: '🗺️', name: '球場探索家', type: '里程碑',   earned: false, unlock: '累積打過 10 個不同球場' },
+    { id: 'ace',          icon: '🕳️', name: 'Hole in One', type: '傳奇成就', earned: false, unlock: '完成一桿進洞' },
 ];
 const BADGE_KEY = 'gc_selected_badge';
 
@@ -703,13 +709,24 @@ function renderProfileBadge() {
 function openBadgeSheet() {
     const selectedId = getSelectedBadge();
     const grid = document.getElementById('badge-grid');
-    grid.innerHTML = DEMO_BADGES.map(b => `
-        <div class="badge-grid-item ${b.id === selectedId ? 'active' : ''}" onclick="pickBadge('${b.id}')">
-            <div class="bg-icon">${b.icon}</div>
-            <div class="bg-name">${b.name}</div>
-            <div class="bg-type">${b.type}</div>
-            ${b.id === selectedId ? '<div class="badge-selected-chip">✓ 顯示中</div>' : ''}
-        </div>`).join('');
+    grid.innerHTML = DEMO_BADGES.map(b => {
+        if (b.earned) {
+            const isActive = b.id === selectedId;
+            return `<div class="badge-grid-item ${isActive ? 'active' : ''}" onclick="pickBadge('${b.id}')">
+                <div class="bg-icon">${b.icon}</div>
+                <div class="bg-name">${b.name}</div>
+                <div class="bg-type">${b.type}</div>
+                ${isActive ? '<div class="badge-selected-chip">✓ 顯示中</div>' : ''}
+            </div>`;
+        } else {
+            return `<div class="badge-grid-item locked">
+                <div class="bg-icon" style="filter:grayscale(1)">${b.icon}</div>
+                <div class="bg-name">${b.name}</div>
+                <div class="bg-type">${b.type}</div>
+                <div class="bg-unlock">🔒 ${b.unlock}</div>
+            </div>`;
+        }
+    }).join('');
     document.getElementById('badge-overlay').classList.add('show');
 }
 
@@ -720,8 +737,9 @@ function closeBadgeSheet(e) {
 }
 
 function pickBadge(id) {
+    const badge = DEMO_BADGES.find(b => b.id === id);
+    if (!badge || !badge.earned) return;
     const current = getSelectedBadge();
-    // 點擊已選的 → 取消選擇
     setSelectedBadge(current === id ? '' : id);
     document.getElementById('badge-overlay').classList.remove('show');
     renderProfileBadge();
