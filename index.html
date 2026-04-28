@@ -764,10 +764,11 @@ function renderProfile() {
         const diff = parTotal ? r.total - parTotal : null;
         const diffStr = diff !== null ? (diff > 0 ? `+${diff}` : diff === 0 ? 'E' : `${diff}`) : '';
         const diffColor = diff === null ? 'var(--gray)' : diff <= 0 ? 'var(--green)' : diff <= 8 ? 'var(--text)' : '#e53e3e';
+        const badgeHtml = r.badge ? `<span class="post-badge" style="font-size:9px;padding:1px 7px">${r.badge.icon} ${r.badge.name}</span>` : '';
         return `<div class="history-item" onclick="viewRound(${r.id})">
             <div class="history-icon">⛳</div>
             <div class="history-info">
-                <div class="history-course">${r.courseName}</div>
+                <div class="post-name-row" style="margin-bottom:2px"><span class="history-course">${r.courseName}</span>${badgeHtml}</div>
                 <div class="history-date">${r.date} · ${r.holesOpt}洞</div>
             </div>
             <div class="history-score" style="color:${diffColor}">
@@ -1073,7 +1074,9 @@ function submitScore() {
         }
     });
 
-    const round = { id:Date.now(), courseKey, courseName:course.name, date, holesOpt, holeNums:allHoles, scores, pars:allPars, total };
+    const selectedBadgeId = getSelectedBadge();
+    const badgeAtPost = selectedBadgeId ? (DEMO_BADGES.find(b => b.id === selectedBadgeId) || null) : null;
+    const round = { id:Date.now(), courseKey, courseName:course.name, date, holesOpt, holeNums:allHoles, scores, pars:allPars, total, badge: badgeAtPost };
     data.rounds.unshift(round);
     saveData(data);
     refreshScoresPage();
