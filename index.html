@@ -205,6 +205,18 @@
         .ach-icon { font-size: 28px; }
         .ach-name { font-size: 10px; color: var(--gray); margin-top: 4px; }
 
+        /* ── Profile Tabs ── */
+        .profile-tabs { display: flex; background: white; border-bottom: 1px solid var(--border); position: sticky; top: 52px; z-index: 10; }
+        .profile-tab { flex: 1; text-align: center; padding: 12px 0; font-size: 13px; font-weight: 500; color: var(--gray); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+        .profile-tab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+        .profile-tab-content { display: none; }
+        .profile-tab-content.active { display: block; }
+        .profile-badge-tags { display: flex; justify-content: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; min-height: 24px; }
+        .profile-badge-tag { background: var(--gold); color: white; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 3px; }
+        .empty-state { text-align: center; padding: 56px 24px; color: var(--gray); }
+        .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state-text { font-size: 14px; line-height: 1.6; }
+
         /* ── Record Score Page ── */
         .record-header { background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
         .record-header h2 { font-size: 16px; font-weight: 600; }
@@ -508,28 +520,35 @@
         <div class="profile-pic">😊</div>
         <div class="profile-name">David</div>
         <div class="profile-sub">台北市 · 高爾夫愛好者</div>
-        <div class="hcp-badge">差點 12.8</div>
+        <div class="hcp-badge" id="profile-hcp-badge">差點 --</div>
+        <div class="profile-badge-tags" id="profile-badge-tags"></div>
     </div>
     <div class="profile-stats">
-        <div class="stat-item"><div class="stat-val">12</div><div class="stat-lbl">本年場數</div></div>
-        <div class="stat-item"><div class="stat-val">82</div><div class="stat-lbl">個人最佳</div></div>
-        <div class="stat-item"><div class="stat-val">23</div><div class="stat-lbl">球友人數</div></div>
-        <div class="stat-item"><div class="stat-val">#23</div><div class="stat-lbl">本月排名</div></div>
+        <div class="stat-item"><div class="stat-val" id="profile-rounds">0</div><div class="stat-lbl">累積場數</div></div>
+        <div class="stat-item"><div class="stat-val" id="profile-best">-</div><div class="stat-lbl">個人最佳</div></div>
+        <div class="stat-item"><div class="stat-val" id="profile-courses">0</div><div class="stat-lbl">球場數</div></div>
+        <div class="stat-item"><div class="stat-val">-</div><div class="stat-lbl">本月排名</div></div>
     </div>
-    <div class="achievements">
-        <div class="ach-title">成就徽章</div>
-        <div class="ach-list">
-            <div class="ach-item"><div class="ach-icon">🏌️</div><div class="ach-name">10場達成</div></div>
-            <div class="ach-item"><div class="ach-icon">🐦</div><div class="ach-name">首次小鳥</div></div>
-            <div class="ach-item"><div class="ach-icon">⛳</div><div class="ach-name">5球場探索</div></div>
-            <div class="ach-item"><div class="ach-icon">👥</div><div class="ach-name">10位球友</div></div>
-            <div class="ach-item"><div class="ach-icon">🎯</div><div class="ach-name">差點解鎖</div></div>
+    <div class="profile-tabs">
+        <div class="profile-tab active" onclick="switchProfileTab('scores',this)">成績</div>
+        <div class="profile-tab" onclick="switchProfileTab('posts',this)">發文</div>
+        <div class="profile-tab" onclick="switchProfileTab('saved',this)">收藏</div>
+    </div>
+    <div class="profile-tab-content active" id="ptab-scores">
+        <div id="profile-rounds-list" style="margin-bottom:12px"></div>
+    </div>
+    <div class="profile-tab-content" id="ptab-posts">
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-text">還沒有發過文章</div>
         </div>
     </div>
-    <div class="section-label">最常打的球場</div>
-    <div class="history-item"><div class="history-icon">⛳</div><div class="history-info"><div class="history-course">長庚高爾夫球場</div><div class="history-date">共打 7 場</div></div><div class="history-score" style="color:var(--gold);font-size:13px">本月 #23</div></div>
-    <div class="history-item"><div class="history-icon">🏌️</div><div class="history-info"><div class="history-course">林口高爾夫球場</div><div class="history-date">共打 3 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #8</div></div>
-    <div class="history-item" style="margin-bottom:12px"><div class="history-icon">🎯</div><div class="history-info"><div class="history-course">大溪高爾夫球場</div><div class="history-date">共打 2 場</div></div><div class="history-score" style="color:var(--gray);font-size:13px">本月 #12</div></div>
+    <div class="profile-tab-content" id="ptab-saved">
+        <div class="empty-state">
+            <div class="empty-state-icon">🔖</div>
+            <div class="empty-state-text">還沒有收藏任何內容</div>
+        </div>
+    </div>
 </div>
 
 <!-- Share Modal -->
@@ -623,6 +642,56 @@ function renderHcp() {
 document.querySelector('.hcp-block-header').addEventListener('click', toggleHcp);
 
 // ── Navigation ──
+function switchProfileTab(tab, el) {
+    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('ptab-' + tab).classList.add('active');
+}
+
+function renderProfile() {
+    const data = loadData();
+    const rounds = data.rounds;
+
+    // Stats
+    document.getElementById('profile-rounds').textContent = rounds.length;
+
+    const full18 = rounds.filter(r => r.holesOpt === '18');
+    const bestEl = document.getElementById('profile-best');
+    if (full18.length > 0) {
+        bestEl.textContent = Math.min(...full18.map(r => r.total));
+    } else {
+        bestEl.textContent = '-';
+    }
+
+    const uniqueCourses = new Set(rounds.map(r => r.courseKey));
+    document.getElementById('profile-courses').textContent = uniqueCourses.size;
+
+    // Rounds list in 成績 tab
+    const list = document.getElementById('profile-rounds-list');
+    if (rounds.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⛳</div><div class="empty-state-text">還沒有成績紀錄<br>去打第一場吧！</div></div>';
+        return;
+    }
+    list.innerHTML = rounds.map(r => {
+        const parTotal = r.pars ? r.pars.reduce((a, b) => a + b, 0) : null;
+        const diff = parTotal ? r.total - parTotal : null;
+        const diffStr = diff !== null ? (diff > 0 ? `+${diff}` : diff === 0 ? 'E' : `${diff}`) : '';
+        const diffColor = diff === null ? 'var(--gray)' : diff <= 0 ? 'var(--green)' : diff <= 8 ? 'var(--text)' : '#e53e3e';
+        return `<div class="history-item" onclick="viewRound(${r.id})">
+            <div class="history-icon">⛳</div>
+            <div class="history-info">
+                <div class="history-course">${r.courseName}</div>
+                <div class="history-date">${r.date} · ${r.holesOpt}洞</div>
+            </div>
+            <div class="history-score" style="color:${diffColor}">
+                <div style="font-size:18px;font-weight:700">${r.total}</div>
+                <div style="font-size:11px">${diffStr}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
 function go(name, el) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
@@ -636,6 +705,7 @@ function go(name, el) {
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
+    if (name === 'profile') renderProfile();
     window.scrollTo(0, 0);
 }
 
