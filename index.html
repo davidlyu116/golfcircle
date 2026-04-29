@@ -487,11 +487,8 @@
             <div class="progress-hint">再打 <strong>3 場</strong>即可解鎖你的專屬差點指數 ⛳</div>
         </div>
         <div id="hcp-unlocked-view" class="hcp-unlocked" style="display:none">
-            <div style="font-size:13px;color:var(--gray);margin-bottom:8px">根據你的成績計算：</div>
-            <div class="hcp-formula" id="hcp-formula-rows"></div>
-            <button class="hcp-note-toggle" onclick="toggleHcpNote()">💡 差點怎麼算？<span id="hcp-note-arrow">▼</span></button>
+            <button class="hcp-note-toggle" onclick="toggleHcpNote()">查看計算明細 <span id="hcp-note-arrow">▼</span></button>
             <div id="hcp-method-note" class="hcp-note-body"></div>
-            <div style="font-size:11px;color:var(--gray);margin-top:8px;line-height:1.5">* 此為平台估算值。正式差點認證請洽台灣高爾夫協會。</div>
         </div>
     </div>
 
@@ -1612,16 +1609,18 @@ function refreshScoresPage() {
             return `<div class="hcp-round-row hcp-round-best"><span>${r.courseName} ${r.total}桿${suffix}</span><span>${diffStr}</span></div>`;
         }).join('');
         const avgStr = avg >= 0 ? '+' + avg.toFixed(1) : avg.toFixed(1);
-        document.getElementById('hcp-formula-rows').innerHTML = `
-            <div class="hcp-formula-title">${methodLabel}</div>
-            ${rowsHtml}
-            <div class="hcp-result"><span>Differential 平均</span><span>${avgStr}</span></div>
-            <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.96）</span><span>≈ <strong>${hcpStr}</strong></span></div>`;
-
-        document.getElementById('hcp-method-note').innerHTML =
-            `<strong>差點是什麼？</strong><br>` +
-            `代表你平均比標準桿多幾桿的能力指標。差點 0 = 標準桿水準，數字越低越強。` +
-            `<br><br>${accuracyNote}`;
+        document.getElementById('hcp-method-note').innerHTML = `
+            <div style="font-size:13px;color:var(--gray);margin-bottom:8px">根據你的成績計算：</div>
+            <div class="hcp-formula">
+                <div class="hcp-formula-title">${methodLabel}</div>
+                ${rowsHtml}
+                <div class="hcp-result"><span>Differential 平均</span><span>${avgStr}</span></div>
+                <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.96）</span><span>≈ <strong>${hcpStr}</strong></span></div>
+            </div>
+            <div style="margin-top:10px;background:#f0f7f2;border-radius:8px;padding:10px 12px;font-size:12px;color:#2d6a44;line-height:1.6">
+                <strong>差點是什麼？</strong><br>代表你平均比標準桿多幾桿的能力指標。差點 0 = 標準桿水準，數字越低越強。<br><br>${accuracyNote}
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:8px;line-height:1.5">* 此為平台估算值。正式差點認證請洽台灣高爾夫協會。</div>`;
     } else {
         if (hint) hint.innerHTML = `再打 <strong>${5-fc} 場</strong>即可解鎖你的專屬差點指數 ⛳`;
         document.getElementById('hcp-locked-view').style.display = 'block';
