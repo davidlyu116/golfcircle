@@ -1031,10 +1031,10 @@ const _bgImgs = BG_PRESETS.map(p => { const img = new Image(); img.src = p.src; 
 
 const CARD_THEMES = {
     green:     [['#0d3d1a',0],['#1a6030',.35],['#2a8042',.65],['#0d3d1a',1]],
-    blue:      [['#0a1c48',0],['#122868',.40],['#1c3a8a',.70],['#0a1c48',1]],
-    gray:      [['#1a2535',0],['#253545',.40],['#304560',.70],['#1a2535',1]],
-    champagne: [['#2c2000',0],['#3e2e08',.40],['#503c12',.70],['#2c2000',1]],
-    rose:      [['#200814',0],['#2e1022',.35],['#421836',.60],['#200814',1]],
+    blue:      [['#112258',0],['#183480',.40],['#2248a8',.70],['#112258',1]],
+    gray:      [['#202e3e',0],['#2e4055',.40],['#3a5070',.70],['#202e3e',1]],
+    champagne: [['#342800',0],['#4c3a0a',.40],['#604e18',.70],['#342800',1]],
+    rose:      [['#280a18',0],['#3c1028',.35],['#541840',.60],['#280a18',1]],
 };
 
 function showShareModal(round, dreamUpdates) {
@@ -1166,19 +1166,17 @@ function drawCard() {
     const diffColor= diff<0?'#5dda80':diff===0?'#a8e6bf':'#ff6e6e';
     const is18  = _shareRound.holesOpt === '18';
 
-    // 5. ⛳ flag  (GolfCircle logo moved to bottom-right)
-    ctx.font = `50px serif`;
+    // 5. Course name + ⛳ (left-aligned, logo after name)
+    ctx.font = `bold 50px ${F}`;
     ctx.textAlign = 'left';
     ctx.fillStyle = 'white';
-    ctx.fillText('⛳', PAD, 90);
-
-    // 7. Course name (truncate if needed)
-    ctx.font = `bold 50px ${F}`;
-    ctx.fillStyle = 'white';
     let cn = _shareRound.courseName;
-    const maxCnW = W - PAD - 68 - 210;
+    const maxCnW = W - PAD * 2 - 240;
     while (ctx.measureText(cn).width > maxCnW && cn.length > 3) cn = cn.slice(0, -1);
-    ctx.fillText(cn, PAD + 64, 86);
+    ctx.fillText(cn, PAD, 86);
+    const cnW = ctx.measureText(cn).width;
+    ctx.font = `42px serif`;
+    ctx.fillText('⛳', PAD + cnW + 12, 86);
 
     // 8. Total score (right, dominant)
     ctx.font = `bold 90px ${F}`;
@@ -1192,14 +1190,14 @@ function drawCard() {
     ctx.textAlign = 'right';
     ctx.fillText(diffStr, W - PAD, 152);
 
-    // 10. Date / holes / weather
+    // 10. Date / holes / weather (left-aligned with course name)
     const dp = _shareRound.date.split('-');
     const dateStr  = `${dp[0]}.${dp[1]}.${dp[2]}`;
     const holesStr = is18 ? '18洞' : '9洞';
     ctx.font = `32px ${F}`;
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255,255,255,0.56)';
-    ctx.fillText(`${dateStr}  ·  ${holesStr}  ·  ${_shareWeather}`, PAD + 64, 128);
+    ctx.fillText(`${dateStr}  ·  ${holesStr}  ·  ${_shareWeather}`, PAD, 128);
 
     // 11. Par label
     ctx.font = `26px ${F}`;
