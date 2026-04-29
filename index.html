@@ -477,29 +477,31 @@
         <div class="form-row">
             <label class="form-label">球場</label>
             <select class="form-select" id="course-select" onchange="loadCoursePars()">
-                <optgroup label="── 已驗證球場 ──">
+                <optgroup label="── 大台北／新北 ──">
+                <option value="oldtamsui">老淡水高爾夫球場</option>
+                <option value="linkou_ew">林口高爾夫球場（東區＋西區）</option>
+                <option value="linkou_es">林口高爾夫球場（東區＋南區）</option>
+                <option value="linkou_ws">林口高爾夫球場（西區＋南區）</option>
+                </optgroup>
+                <optgroup label="── 桃園 ──">
                 <option value="lungtan">龍潭高爾夫球場</option>
                 <option value="tsaihing">再興高爾夫俱樂部</option>
+                <option value="changgeng_nm">長庚高爾夫球場（北區＋中區）</option>
+                <option value="changgeng_ns">長庚高爾夫球場（北區＋南區）</option>
+                <option value="changgeng_ms">長庚高爾夫球場（中區＋南區）</option>
+                <option value="taoyuan_es">桃園高爾夫俱樂部（東區＋南區）</option>
+                <option value="taoyuan_sw">桃園高爾夫俱樂部（南區＋西區）</option>
+                <option value="taoyuan_ew">桃園高爾夫俱樂部（東區＋西區）</option>
+                </optgroup>
+                <optgroup label="── 新竹 ──">
+                <option value="laoyeguan">老爺關西高爾夫球場</option>
+                </optgroup>
+                <optgroup label="── 台中 ──">
                 <option value="nanfeng">南峰高爾夫球俱樂部</option>
                 <option value="quanguo">全國花園鄉村俱樂部</option>
                 <option value="taichung_em">台中國際（東區＋中區）</option>
                 <option value="taichung_mw">台中國際（中區＋西區）</option>
                 <option value="taichung_ew">台中國際（東區＋西區）</option>
-                <option value="taoyuan_es">桃園高爾夫俱樂部（東區＋南區）Par 73</option>
-                <option value="taoyuan_sw">桃園高爾夫俱樂部（南區＋西區）Par 72</option>
-                <option value="taoyuan_ew">桃園高爾夫俱樂部（東區＋西區）Par 73</option>
-                </optgroup>
-                <optgroup label="── 其他球場 ──">
-                <option value="changgeng_nm">長庚高爾夫球場（北區＋中區）</option>
-                <option value="changgeng_ns">長庚高爾夫球場（北區＋南區）</option>
-                <option value="changgeng_ms">長庚高爾夫球場（中區＋南區）</option>
-                <option value="linkou_ew">林口高爾夫球場（東區＋西區）Par 71</option>
-                <option value="linkou_es">林口高爾夫球場（東區＋南區）Par 71</option>
-                <option value="linkou_ws">林口高爾夫球場（西區＋南區）</option>
-                <option value="dasi">大溪高爾夫球場</option>
-                <option value="taipei">台北高爾夫俱樂部</option>
-                <option value="shimen">石門水庫球場</option>
-                <option value="oldtamsui">老淡水高爾夫球場</option>
                 </optgroup>
             </select>
         </div>
@@ -657,9 +659,6 @@ const COURSES = {
     linkou_ew:    { name: '林口高爾夫球場（東區＋西區）', par: [4,3,4,4,4,3,4,4,5, 5,3,4,4,4,4,4,3,5] }, // 35+36=71
     linkou_es:    { name: '林口高爾夫球場（東區＋南區）', par: [4,3,4,4,4,3,4,4,5, 5,4,4,5,3,4,4,3,4] }, // 35+36=71
     linkou_ws:    { name: '林口高爾夫球場（西區＋南區）', par: [5,3,4,4,4,4,4,3,5, 5,4,4,5,3,4,4,3,4] }, // 36+36=72
-    dasi:      { name: '大溪高爾夫球場', par: [5,4,3,4,4,4,3,5,4, 4,4,3,5,4,3,4,4,5] },
-    taipei:    { name: '台北高爾夫俱樂部', par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },
-    shimen:    { name: '石門水庫球場',   par: [4,5,3,4,4,3,5,4,4, 4,4,3,5,4,4,3,4,4] },
     oldtamsui: { name: '老淡水高爾夫球場', par: [4,3,4,4,4,5,5,3,4, 3,4,4,5,4,5,4,3,4] }, // OUT 36 / IN 36 = 72
     // ── 實際驗證資料 ──
     lungtan:   { name: '龍潭高爾夫球場',   par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },  // OUT 36 / IN 36 = 72
