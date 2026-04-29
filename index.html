@@ -660,30 +660,6 @@
             </div>
         </div>
 
-        <div class="bg-preset-row-label">預設背景</div>
-        <div class="bg-preset-row" id="bg-preset-row">
-            <div class="bg-thumb-wrap" onclick="setBgPreset(0)">
-                <div class="bg-thumb" id="bg-thumb-0" style="background-image:url('assets/bg/bg1-green-flag.svg')"></div>
-                <span class="bg-thumb-lbl">果嶺</span>
-            </div>
-            <div class="bg-thumb-wrap" onclick="setBgPreset(1)">
-                <div class="bg-thumb" id="bg-thumb-1" style="background-image:url('assets/bg/bg2-fairway.svg')"></div>
-                <span class="bg-thumb-lbl">球道</span>
-            </div>
-            <div class="bg-thumb-wrap" onclick="setBgPreset(2)">
-                <div class="bg-thumb" id="bg-thumb-2" style="background-image:url('assets/bg/bg3-mountain.svg')"></div>
-                <span class="bg-thumb-lbl">山景</span>
-            </div>
-            <div class="bg-thumb-wrap" onclick="setBgPreset(3)">
-                <div class="bg-thumb" id="bg-thumb-3" style="background-image:url('assets/bg/bg4-bluesky.svg')"></div>
-                <span class="bg-thumb-lbl">藍天</span>
-            </div>
-            <div class="bg-thumb-wrap" onclick="setBgPreset(4)">
-                <div class="bg-thumb" id="bg-thumb-4" style="background-image:url('assets/bg/bg5-swing.svg')"></div>
-                <span class="bg-thumb-lbl">揮桿</span>
-            </div>
-        </div>
-
         <div class="theme-picker">
             <div class="tp-dot active" data-theme="green"     style="background:linear-gradient(135deg,#1a5c2a,#0a2e14)" onclick="setTheme(this,'green')"></div>
             <div class="tp-dot"        data-theme="blue"      style="background:linear-gradient(135deg,#0c2262,#04091a)" onclick="setTheme(this,'blue')"></div>
@@ -1054,11 +1030,11 @@ const BG_PRESETS = [
 const _bgImgs = BG_PRESETS.map(p => { const img = new Image(); img.src = p.src; return img; });
 
 const CARD_THEMES = {
-    green:     [['#061a0c',0],['#0e3a1a',.35],['#1a5c2a',.65],['#0a2e14',1]],
-    blue:      [['#04091a',0],['#081848',.40],['#0c2262',.70],['#060f2e',1]],
-    gray:      [['#0e1217',0],['#18232f',.40],['#1e2f40',.70],['#121b26',1]],
-    champagne: [['#1c1400',0],['#2e2000',.40],['#3a2c06',.70],['#241900',1]],
-    rose:      [['#120408',0],['#200818',.35],['#300c24',.60],['#1e0814',1]],
+    green:     [['#0d3d1a',0],['#1a6030',.35],['#2a8042',.65],['#0d3d1a',1]],
+    blue:      [['#0a1c48',0],['#122868',.40],['#1c3a8a',.70],['#0a1c48',1]],
+    gray:      [['#1a2535',0],['#253545',.40],['#304560',.70],['#1a2535',1]],
+    champagne: [['#2c2000',0],['#3e2e08',.40],['#503c12',.70],['#2c2000',1]],
+    rose:      [['#200814',0],['#2e1022',.35],['#421836',.60],['#200814',1]],
 };
 
 function showShareModal(round, dreamUpdates) {
@@ -1169,18 +1145,18 @@ function drawCard() {
 
     // 3. Top gradient overlay
     const tg = ctx.createLinearGradient(0, 0, 0, 220);
-    tg.addColorStop(0, 'rgba(0,0,0,0.76)');
-    tg.addColorStop(0.62, 'rgba(0,0,0,0.44)');
+    tg.addColorStop(0, 'rgba(0,0,0,0.62)');
+    tg.addColorStop(0.62, 'rgba(0,0,0,0.32)');
     tg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = tg; ctx.fillRect(0, 0, W, 220);
 
     // 4. Bottom overlay
-    const bg2 = ctx.createLinearGradient(0, 548, 0, H);
+    const bg2 = ctx.createLinearGradient(0, 580, 0, H);
     bg2.addColorStop(0, 'rgba(0,0,0,0)');
-    bg2.addColorStop(0.16, 'rgba(0,0,0,0.62)');
-    bg2.addColorStop(0.40, 'rgba(0,0,0,0.88)');
-    bg2.addColorStop(1, 'rgba(0,0,0,0.95)');
-    ctx.fillStyle = bg2; ctx.fillRect(0, 548, W, H - 548);
+    bg2.addColorStop(0.14, 'rgba(0,0,0,0.48)');
+    bg2.addColorStop(0.38, 'rgba(0,0,0,0.74)');
+    bg2.addColorStop(1, 'rgba(0,0,0,0.82)');
+    ctx.fillStyle = bg2; ctx.fillRect(0, 580, W, H - 580);
 
     const pars  = _shareRound.pars;
     const scores= _shareRound.scores;
@@ -1232,7 +1208,7 @@ function drawCard() {
     ctx.fillText(`Par ${par}`, W - PAD, 182);
 
     // 12. Score grid
-    const GRID_TOP = is18 ? 606 : 672;
+    const GRID_TOP = is18 ? 655 : 800;
     const ROW_H    = 50;
     const LABEL_W  = 78;
     const SUM_SEP  = W - PAD - 68;
@@ -1305,20 +1281,15 @@ function drawCard() {
         drawHalf(1, divY + 20, 'IN');
     }
 
-    // Hashtags (bottom-left) + GolfCircle logo (bottom-right)
-    const short = _shareRound.courseName.replace(/高爾夫.*$|俱樂部.*$|球場.*$/, '');
+    // GolfCircle logo (bottom-right)
     ctx.textBaseline = 'alphabetic';
-    ctx.font = `26px ${F}`; ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.fillText(`#GolfCircle  #高爾夫  #${short}`, PAD, H - 34);
-
-    ctx.font = `bold 30px ${F}`;
+    ctx.font = `bold 32px ${F}`;
     const gcGolfW = ctx.measureText('Golf').width;
     const logoX = W - PAD - ctx.measureText('GolfCircle').width;
-    ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.textAlign = 'left';
-    ctx.fillText('Golf', logoX, H - 34);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.textAlign = 'left';
+    ctx.fillText('Golf', logoX, H - 38);
     ctx.fillStyle = '#5dba7a';
-    ctx.fillText('Circle', logoX + gcGolfW, H - 34);
+    ctx.fillText('Circle', logoX + gcGolfW, H - 38);
 }
 
 function drawScoreCell(ctx, score, par, cx, cy, F) {
