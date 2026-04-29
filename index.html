@@ -479,16 +479,7 @@
         </div>
         <div id="hcp-unlocked-view" class="hcp-unlocked" style="display:none">
             <div style="font-size:13px;color:var(--gray);margin-bottom:8px">根據你最近的成績計算：</div>
-            <div class="hcp-formula">
-                <div class="hcp-formula-title">最佳 5 場成績（超出 Par）</div>
-                <div class="hcp-round-row hcp-round-best"><span>長庚 82桿</span><span>+10</span></div>
-                <div class="hcp-round-row hcp-round-best"><span>大溪 85桿</span><span>+13</span></div>
-                <div class="hcp-round-row hcp-round-best"><span>長庚 84桿</span><span>+12</span></div>
-                <div class="hcp-round-row"><span>林口 88桿</span><span>+17</span></div>
-                <div class="hcp-round-row"><span>台北俱樂部 91桿</span><span>+19</span></div>
-                <div class="hcp-result"><span>平均超過 Par</span><span>+14.2</span></div>
-                <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.9）</span><span>≈ <strong>12.8</strong></span></div>
-            </div>
+            <div class="hcp-formula" id="hcp-formula-rows"></div>
             <div style="font-size:11px;color:var(--gray);margin-top:8px;line-height:1.5">* 此為平台估算值，採用簡化計算方式。正式差點認證請洽台灣高爾夫協會。</div>
         </div>
     </div>
@@ -1556,7 +1547,44 @@ function refreshScoresPage() {
     document.getElementById('hcp-progress-text').textContent = `${Math.min(fc,5)} / 5 場`;
     document.getElementById('hcp-bar').style.width = Math.min(fc/5*100,100) + '%';
     const hint = document.querySelector('.progress-hint');
-    if (hint && fc < 5) hint.innerHTML = `再打 <strong>${5-fc} 場</strong>即可解鎖你的專屬差點指數 ⛳`;
+
+    if (fc >= 5) {
+        // Real handicap calculation: best 5 of all 18-hole rounds × 0.9
+        const sorted18 = [...fullRounds].sort((a,b) => a.total - b.total);
+        const best5 = sorted18.slice(0, 5);
+        const avgOverPar = best5.reduce((sum, r) => {
+            const par = r.pars.reduce((a,b) => a+b, 0);
+            return sum + (r.total - par);
+        }, 0) / best5.length;
+        const hcpIndex = Math.round(avgOverPar * 0.9 * 10) / 10;
+
+        document.getElementById('hcp-locked-view').style.display = 'none';
+        document.getElementById('hcp-unlocked-view').style.display = 'block';
+        document.getElementById('hcp-big').style.display = 'block';
+        document.getElementById('hcp-big').textContent = hcpIndex.toFixed(1);
+        document.getElementById('hcp-display').textContent = hcpIndex.toFixed(1);
+        const badge = document.getElementById('profile-hcp-badge');
+        if (badge) badge.textContent = `差點 ${hcpIndex.toFixed(1)}`;
+
+        const avgStr = avgOverPar >= 0 ? '+' + avgOverPar.toFixed(1) : avgOverPar.toFixed(1);
+        const rowsHtml = best5.map(r => {
+            const par = r.pars.reduce((a,b) => a+b, 0);
+            const diff = r.total - par;
+            const diffStr = diff >= 0 ? '+' + diff : '' + diff;
+            return `<div class="hcp-round-row hcp-round-best"><span>${r.courseName} ${r.total}桿</span><span>${diffStr}</span></div>`;
+        }).join('');
+        document.getElementById('hcp-formula-rows').innerHTML = `
+            <div class="hcp-formula-title">最佳 5 場成績（超出 Par）</div>
+            ${rowsHtml}
+            <div class="hcp-result"><span>平均超過 Par</span><span>${avgStr}</span></div>
+            <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.9）</span><span>≈ <strong>${hcpIndex.toFixed(1)}</strong></span></div>`;
+    } else {
+        if (hint) hint.innerHTML = `再打 <strong>${5-fc} 場</strong>即可解鎖你的專屬差點指數 ⛳`;
+        document.getElementById('hcp-locked-view').style.display = 'block';
+        document.getElementById('hcp-unlocked-view').style.display = 'none';
+        document.getElementById('hcp-big').style.display = 'none';
+        document.getElementById('hcp-display').textContent = '--';
+    }
 
     // History
     const hist = document.getElementById('rounds-history');
