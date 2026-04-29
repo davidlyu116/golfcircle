@@ -289,8 +289,9 @@
         .course-option:last-child { border-bottom: none; }
         .course-option:hover { background: rgba(26,92,42,0.05); }
         .course-option.selected { background: rgba(26,92,42,0.08); }
-        .course-option-main { font-size: 14px; color: var(--dark); line-height: 1.3; }
-        .course-option-sub { font-size: 11px; color: #888; margin-top: 2px; }
+        .course-option-main { font-size: 14px; color: var(--dark); line-height: 1.5; }
+        .course-option-sub { font-size: 11px; color: #aaa; margin-left: 3px; }
+        .course-trigger-sub { font-size: 11px; color: #aaa; margin-left: 3px; }
 
         /* Scorecard grid */
         .scorecard { margin-top: 4px; }
@@ -1733,8 +1734,8 @@ function buildCourseDropdown() {
             const item = document.createElement('div');
             item.className = 'course-option';
             item.dataset.value = opt.value;
-            item.innerHTML = `<div class="course-option-main">${mainText}</div>` +
-                (subText ? `<div class="course-option-sub">${subText}</div>` : '');
+            item.innerHTML = `<div class="course-option-main">${mainText}` +
+                (subText ? `<span class="course-option-sub">${subText}</span>` : '') + `</div>`;
             item.addEventListener('click', () => pickCourse(opt.value, mainText, subText));
             panel.appendChild(item);
         });
@@ -1744,8 +1745,8 @@ function buildCourseDropdown() {
 function pickCourse(value, mainText, subText) {
     document.getElementById('course-select').value = value;
     const wrap = document.getElementById('course-trigger-text');
-    wrap.innerHTML = `<span class="course-trigger-main">${mainText}</span>` +
-        (subText ? `<span class="course-trigger-sub">${subText}</span>` : '');
+    wrap.innerHTML = `<span class="course-trigger-main">${mainText}` +
+        (subText ? `<span class="course-trigger-sub">${subText}</span>` : '') + `</span>`;
     document.querySelectorAll('.course-option').forEach(el =>
         el.classList.toggle('selected', el.dataset.value === value));
     closeCourseDropdown();
