@@ -493,6 +493,7 @@
         </div>
     </div>
 
+    <div id="dream-section-wrap" style="display:none">
     <div class="section-label" style="margin-top:4px">🌟 夢幻輪</div>
     <div class="card" style="margin-bottom:10px;overflow:hidden">
         <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
@@ -524,6 +525,7 @@
             💡 若能單場打出夢幻輪，將比目前最佳再進步 <strong id="dream-gap">14</strong> 桿
         </div>
     </div>
+    </div><!-- /dream-section-wrap -->
 
     <div class="section-label" style="margin-top:0">最近成績</div>
     <div id="rounds-history" style="margin-bottom:12px">
@@ -1630,43 +1632,7 @@ document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', func
 }));
 
 // ── Dream Round ──
-const DREAM_DATA = {
-    lungtan: {
-        name: '龍潭高爾夫球場', rounds: 8, bestActual: 78,
-        holes: [
-            {h:1, par:4, best:4, r:3}, {h:2, par:4, best:3, r:6}, {h:3, par:3, best:2, r:5},
-            {h:4, par:5, best:4, r:8}, {h:5, par:4, best:4, r:1}, {h:6, par:4, best:4, r:2},
-            {h:7, par:3, best:3, r:4}, {h:8, par:5, best:4, r:7}, {h:9, par:4, best:4, r:6},
-            {h:10,par:4, best:3, r:5}, {h:11,par:4, best:4, r:2}, {h:12,par:3, best:3, r:7},
-            {h:13,par:4, best:4, r:3}, {h:14,par:5, best:4, r:8}, {h:15,par:4, best:3, r:4},
-            {h:16,par:3, best:3, r:1}, {h:17,par:4, best:4, r:6}, {h:18,par:5, best:4, r:8}
-        ]
-    },
-    tsaihing: {
-        name: '再興高爾夫俱樂部', rounds: 5, bestActual: 82,
-        holes: [
-            {h:1, par:4, best:4, r:2}, {h:2, par:4, best:4, r:4}, {h:3, par:3, best:3, r:1},
-            {h:4, par:5, best:5, r:3}, {h:5, par:5, best:4, r:5}, {h:6, par:4, best:4, r:2},
-            {h:7, par:4, best:4, r:4}, {h:8, par:3, best:2, r:3}, {h:9, par:5, best:5, r:1},
-            {h:10,par:4, best:4, r:3}, {h:11,par:5, best:5, r:5}, {h:12,par:4, best:4, r:2},
-            {h:13,par:3, best:3, r:4}, {h:14,par:4, best:4, r:1}, {h:15,par:3, best:3, r:5},
-            {h:16,par:5, best:5, r:3}, {h:17,par:4, best:4, r:2}, {h:18,par:3, best:3, r:4}
-        ]
-    },
-    nanfeng: {
-        name: '南峰高爾夫球俱樂部', rounds: 3, bestActual: 85,
-        holes: [
-            {h:1, par:5, best:5, r:1}, {h:2, par:4, best:4, r:2}, {h:3, par:4, best:4, r:3},
-            {h:4, par:3, best:3, r:1}, {h:5, par:4, best:5, r:2}, {h:6, par:4, best:4, r:3},
-            {h:7, par:3, best:2, r:2}, {h:8, par:5, best:5, r:3}, {h:9, par:4, best:4, r:1},
-            {h:10,par:5, best:5, r:2}, {h:11,par:3, best:3, r:1}, {h:12,par:4, best:4, r:3},
-            {h:13,par:4, best:4, r:2}, {h:14,par:3, best:3, r:1}, {h:15,par:4, best:5, r:3},
-            {h:16,par:5, best:5, r:2}, {h:17,par:4, best:4, r:3}, {h:18,par:4, best:4, r:1}
-        ]
-    }
-};
-
-let activeDream = 'lungtan';
+let activeDream = '';
 
 function dreamCellClass(best, par) {
     const d = best - par;
@@ -1696,27 +1662,29 @@ function getDreamForCourse(courseKey) {
     const data = loadData();
     const lsDB = (data.dreamBests[courseKey] || {}).holes || {};
     const lsRounds = data.rounds.filter(r => r.courseKey === courseKey);
-    if (lsRounds.length > 0 && Object.keys(lsDB).length > 0) {
-        const course = COURSES[courseKey];
-        if (!course) return DREAM_DATA[courseKey] || null;
-        const holes = course.par.map((par,idx) => {
-            const h = idx+1, hd = lsDB[h];
-            return { h, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
-        });
-        const bestActual = lsRounds.reduce((b,r) => Math.min(b,r.total), 999);
-        return { name:course.name, rounds:lsRounds.length, bestActual, holes };
-    }
-    return DREAM_DATA[courseKey] || null;
+    if (lsRounds.length === 0 || Object.keys(lsDB).length === 0) return null;
+    const course = COURSES[courseKey];
+    if (!course) return null;
+    const holes = course.par.map((par, idx) => {
+        const h = idx + 1, hd = lsDB[h];
+        return { h, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
+    });
+    const bestActual = lsRounds.reduce((b, r) => Math.min(b, r.total), 999);
+    return { name: course.name, rounds: lsRounds.length, bestActual, holes };
 }
 
 function getAllDreamKeys() {
     const data = loadData();
-    const keys = new Set([...Object.keys(DREAM_DATA), ...Object.keys(data.dreamBests).filter(k=>data.rounds.some(r=>r.courseKey===k))]);
-    return [...keys];
+    return [...new Set(Object.keys(data.dreamBests).filter(k => data.rounds.some(r => r.courseKey === k)))];
 }
 
 function renderDream(key) {
     if (key) activeDream = key;
+    const keys = getAllDreamKeys();
+    const wrap = document.getElementById('dream-section-wrap');
+    if (keys.length === 0) { if (wrap) wrap.style.display = 'none'; return; }
+    if (!keys.includes(activeDream)) activeDream = keys[0];
+    if (wrap) wrap.style.display = '';
     const d = getDreamForCourse(activeDream);
     if (!d) return;
     buildDreamHalf(d.holes.slice(0,9), 'dream-out', '前九洞');
