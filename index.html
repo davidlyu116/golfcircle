@@ -248,6 +248,42 @@
         }
         .form-select:focus, .form-input:focus { border-color: var(--green); }
 
+        /* Custom course dropdown */
+        .course-select-wrap { position: relative; }
+        .course-select-trigger {
+            width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; background: white; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            min-height: 42px; box-sizing: border-box;
+        }
+        .course-select-trigger.open { border-color: var(--green); }
+        .course-trigger-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+        .course-trigger-main { font-size: 14px; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .course-trigger-sub { font-size: 11px; color: #888; }
+        .course-trigger-placeholder { font-size: 14px; color: #aaa; }
+        .course-trigger-arrow { font-size: 11px; color: #888; flex-shrink: 0; margin-left: 8px; transition: transform 0.2s; }
+        .course-select-trigger.open .course-trigger-arrow { transform: rotate(180deg); }
+        .course-dropdown-panel {
+            display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+            background: white; border: 1.5px solid var(--border); border-radius: 10px;
+            max-height: 300px; overflow-y: auto; z-index: 200;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+        }
+        .course-dropdown-panel.open { display: block; }
+        .course-region-header {
+            padding: 8px 14px 4px; font-size: 11px; color: #999; font-weight: 600;
+            letter-spacing: 0.5px; border-top: 1px solid #f0f0f0; background: #fafafa;
+        }
+        .course-region-header:first-child { border-top: none; }
+        .course-option {
+            padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f5f5f5;
+        }
+        .course-option:last-child { border-bottom: none; }
+        .course-option:hover { background: rgba(26,92,42,0.05); }
+        .course-option.selected { background: rgba(26,92,42,0.08); }
+        .course-option-main { font-size: 14px; color: var(--dark); line-height: 1.3; }
+        .course-option-sub { font-size: 11px; color: #888; margin-top: 2px; }
+
         /* Scorecard grid */
         .scorecard { margin-top: 4px; }
         .sc-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
@@ -476,7 +512,16 @@
         <h3>基本資訊</h3>
         <div class="form-row">
             <label class="form-label">球場</label>
-            <select class="form-select" id="course-select" onchange="loadCoursePars()">
+            <div class="course-select-wrap">
+                <div class="course-select-trigger" id="course-trigger" onclick="toggleCourseDropdown()">
+                    <div class="course-trigger-text" id="course-trigger-text">
+                        <span class="course-trigger-placeholder">選擇球場</span>
+                    </div>
+                    <span class="course-trigger-arrow">▾</span>
+                </div>
+                <div class="course-dropdown-panel" id="course-dropdown-panel"></div>
+            </div>
+            <select id="course-select" style="display:none">
                 <optgroup label="── 大台北／新北 ──">
                 <option value="oldtamsui">老淡水高爾夫球場</option>
                 <option value="linkou_ew">林口高爾夫球場（東區＋西區）</option>
@@ -1609,9 +1654,65 @@ function closeDreamSheet(e) {
     }
 }
 
+// ── Custom Course Dropdown ──
+function buildCourseDropdown() {
+    const sel = document.getElementById('course-select');
+    const panel = document.getElementById('course-dropdown-panel');
+    panel.innerHTML = '';
+    Array.from(sel.children).forEach(group => {
+        if (group.tagName !== 'OPTGROUP') return;
+        const header = document.createElement('div');
+        header.className = 'course-region-header';
+        header.textContent = group.label.replace(/──\s*/g, '').replace(/\s*──/g, '').trim();
+        panel.appendChild(header);
+        Array.from(group.children).forEach(opt => {
+            const text = opt.textContent.trim();
+            const bi = text.indexOf('（');
+            const mainText = bi !== -1 ? text.substring(0, bi) : text;
+            const subText  = bi !== -1 ? text.substring(bi) : '';
+            const item = document.createElement('div');
+            item.className = 'course-option';
+            item.dataset.value = opt.value;
+            item.innerHTML = `<div class="course-option-main">${mainText}</div>` +
+                (subText ? `<div class="course-option-sub">${subText}</div>` : '');
+            item.addEventListener('click', () => pickCourse(opt.value, mainText, subText));
+            panel.appendChild(item);
+        });
+    });
+}
+
+function pickCourse(value, mainText, subText) {
+    document.getElementById('course-select').value = value;
+    const wrap = document.getElementById('course-trigger-text');
+    wrap.innerHTML = `<span class="course-trigger-main">${mainText}</span>` +
+        (subText ? `<span class="course-trigger-sub">${subText}</span>` : '');
+    document.querySelectorAll('.course-option').forEach(el =>
+        el.classList.toggle('selected', el.dataset.value === value));
+    closeCourseDropdown();
+    loadCoursePars();
+}
+
+function toggleCourseDropdown() {
+    const trigger = document.getElementById('course-trigger');
+    const panel   = document.getElementById('course-dropdown-panel');
+    if (panel.classList.contains('open')) { closeCourseDropdown(); return; }
+    trigger.classList.add('open');
+    panel.classList.add('open');
+}
+
+function closeCourseDropdown() {
+    document.getElementById('course-trigger').classList.remove('open');
+    document.getElementById('course-dropdown-panel').classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.course-select-wrap')) closeCourseDropdown();
+});
+
 // Init
 refreshScoresPage();
 renderDream();
+buildCourseDropdown();
 buildScorecard();
 initPhotoInteraction();
 </script>
