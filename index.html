@@ -167,31 +167,26 @@
         .dream-sheet-score { font-size:20px; font-weight:700; color:var(--green); text-align:right; }
         .dream-sheet-diff { font-size:11px; color:var(--gray); }
 
-        /* ── Share Modal ── */
-        .share-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; align-items:flex-end; justify-content:center; }
+        /* ── Share Modal (Canvas版) ── */
+        .share-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:300; align-items:flex-end; justify-content:center; }
         .share-overlay.show { display:flex; }
-        .share-modal { background:white; width:100%; max-width:430px; border-radius:20px 20px 0 0; padding:20px 0 40px; }
-        .share-card-wrap { padding:0 16px; }
-        .share-card { background:linear-gradient(145deg,#1a5c38 0%,#2d7a50 60%,#1e6b42 100%); border-radius:16px; padding:22px 20px 18px; color:white; }
-        .sc-logo { font-size:13px; font-weight:700; letter-spacing:0.5px; opacity:0.8; margin-bottom:10px; }
-        .sc-logo span { color:var(--gold); }
-        .sc-course { font-size:16px; font-weight:700; margin-bottom:2px; }
-        .sc-date { font-size:12px; opacity:0.65; margin-bottom:18px; }
-        .sc-score-row { display:flex; align-items:flex-end; gap:12px; }
-        .sc-big { font-size:64px; font-weight:700; line-height:1; }
-        .sc-right { padding-bottom:6px; }
-        .sc-diff { font-size:22px; font-weight:700; }
-        .sc-label { font-size:11px; opacity:0.65; margin-top:2px; }
-        .sc-breakdown { display:flex; gap:0; margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.18); justify-content:space-around; }
-        .sc-stat { text-align:center; }
-        .sc-stat-val { font-size:18px; font-weight:700; }
-        .sc-stat-lbl { font-size:9px; opacity:0.65; margin-top:2px; letter-spacing:0.3px; text-transform:uppercase; }
-        .sc-dream { background:rgba(255,255,255,0.13); border-radius:8px; padding:8px 12px; margin-top:12px; font-size:12px; display:flex; align-items:center; gap:6px; }
-        .sc-tags { font-size:11px; opacity:0.5; margin-top:10px; }
-        .share-btns { padding:16px 16px 0; display:flex; flex-direction:column; gap:10px; }
-        .share-btn-main { background:var(--green); color:white; border:none; padding:14px; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; width:100%; }
-        .share-btn-sub { background:none; border:1.5px solid var(--border); color:var(--text); padding:11px; border-radius:12px; font-size:14px; cursor:pointer; width:100%; }
-        .share-tip { font-size:11px; color:var(--gray); text-align:center; margin-top:10px; padding:0 16px; }
+        .share-modal { background:#1a1a1a; width:100%; max-width:430px; border-radius:20px 20px 0 0; padding-bottom:env(safe-area-inset-bottom,16px); overflow:hidden; }
+        .share-handle { width:36px; height:4px; background:#3a3a3a; border-radius:2px; margin:14px auto 0; }
+        .share-title { text-align:center; font-size:13px; font-weight:600; color:#aaa; padding:10px 0 12px; }
+        .share-canvas-wrap { display:flex; justify-content:center; padding:0 16px; }
+        .share-canvas-wrap canvas { width:300px; height:300px; border-radius:10px; display:block; box-shadow:0 6px 24px rgba(0,0,0,0.6); }
+        .share-ctrl-row { display:flex; align-items:center; gap:8px; padding:12px 16px 6px; }
+        .share-photo-btn { background:#2a2a2a; border:1px solid #3a3a3a; color:#ccc; font-size:12px; padding:8px 14px; border-radius:20px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+        .weather-picker { display:flex; gap:4px; flex:1; justify-content:flex-end; }
+        .wp-opt { font-size:20px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
+        .wp-opt.active { border-color:var(--green); background:rgba(26,92,56,0.3); }
+        .theme-picker { display:flex; gap:10px; padding:6px 16px 10px; justify-content:center; }
+        .tp-dot { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
+        .tp-dot.active { border-color:white; transform:scale(1.18); }
+        .share-action-row { display:flex; gap:10px; padding:6px 16px 8px; }
+        .share-btn-dl { flex:1; background:#2a2a2a; color:#ccc; border:1px solid #3a3a3a; padding:13px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; }
+        .share-btn-go { flex:1; background:var(--green); color:white; border:none; padding:13px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; }
+        .share-btn-cls { display:block; width:calc(100% - 32px); margin:0 16px 14px; background:none; border:1px solid #2e2e2e; color:#666; padding:11px; border-radius:12px; font-size:14px; cursor:pointer; }
 
         /* ── Profile ── */
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
@@ -582,17 +577,42 @@
     </div>
 </div>
 
-<!-- Share Modal -->
-<div class="share-overlay" id="share-overlay">
+<!-- Share Modal (Canvas版) -->
+<div class="share-overlay" id="share-overlay" onclick="shareOverlayTap(event)">
     <div class="share-modal">
-        <div class="share-card-wrap">
-            <div class="share-card" id="share-card-body"></div>
+        <div class="share-handle"></div>
+        <div class="share-title">分享成績卡</div>
+
+        <div class="share-canvas-wrap">
+            <canvas id="share-canvas" width="1080" height="1080"></canvas>
         </div>
-        <div class="share-btns">
-            <button class="share-btn-main" onclick="doShare()">↗ 分享成績</button>
-            <button class="share-btn-sub" onclick="document.getElementById('share-overlay').classList.remove('show')">關閉</button>
+        <div id="share-photo-hint" style="display:none;text-align:center;font-size:11px;color:#555;padding:4px 0 0;letter-spacing:.02em">拖曳調整位置 · 雙指縮放 · 雙擊重置</div>
+
+        <div class="share-ctrl-row">
+            <label class="share-photo-btn" for="share-photo-input">📸 <span id="photo-btn-lbl">加入照片</span></label>
+            <input type="file" id="share-photo-input" accept="image/*" style="display:none" onchange="onPhotoSelect(this)">
+            <div class="weather-picker">
+                <span class="wp-opt" onclick="setWeather(this,'☀️')">☀️</span>
+                <span class="wp-opt" onclick="setWeather(this,'🌤️')">🌤️</span>
+                <span class="wp-opt active" onclick="setWeather(this,'⛅')">⛅</span>
+                <span class="wp-opt" onclick="setWeather(this,'🌧️')">🌧️</span>
+                <span class="wp-opt" onclick="setWeather(this,'💨')">💨</span>
+            </div>
         </div>
-        <div class="share-tip" id="share-tip">長按成績卡可截圖儲存</div>
+
+        <div class="theme-picker">
+            <div class="tp-dot active" data-theme="green"     style="background:linear-gradient(135deg,#1a5c2a,#0a2e14)" onclick="setTheme(this,'green')"></div>
+            <div class="tp-dot"        data-theme="blue"      style="background:linear-gradient(135deg,#0c2262,#04091a)" onclick="setTheme(this,'blue')"></div>
+            <div class="tp-dot"        data-theme="gray"      style="background:linear-gradient(135deg,#1e2f40,#0e1217)" onclick="setTheme(this,'gray')"></div>
+            <div class="tp-dot"        data-theme="champagne" style="background:linear-gradient(135deg,#3a2c06,#1c1400)" onclick="setTheme(this,'champagne')"></div>
+            <div class="tp-dot"        data-theme="rose"      style="background:linear-gradient(135deg,#300c24,#120408)" onclick="setTheme(this,'rose')"></div>
+        </div>
+
+        <div class="share-action-row">
+            <button class="share-btn-dl" onclick="downloadCard()">⬇ 儲存圖片</button>
+            <button class="share-btn-go" onclick="doShareCard()">↗ 分享</button>
+        </div>
+        <button class="share-btn-cls" onclick="closeShare()">關閉</button>
     </div>
 </div>
 
@@ -928,57 +948,40 @@ function calcTotals() {
     document.getElementById('total-gross').textContent = filled > 0 ? gross : '--';
 }
 
-// ── Share Card ──
+// ── Share Card (Canvas版) ──
 let _shareRound = null;
+let _sharePhoto = null;
+let _shareTheme = 'green';
+let _shareWeather = '⛅';
+let _photoOffsetX = 0, _photoOffsetY = 0, _photoScale = 1.0;
+
+const CARD_THEMES = {
+    green:     [['#061a0c',0],['#0e3a1a',.35],['#1a5c2a',.65],['#0a2e14',1]],
+    blue:      [['#04091a',0],['#081848',.40],['#0c2262',.70],['#060f2e',1]],
+    gray:      [['#0e1217',0],['#18232f',.40],['#1e2f40',.70],['#121b26',1]],
+    champagne: [['#1c1400',0],['#2e2000',.40],['#3a2c06',.70],['#241900',1]],
+    rose:      [['#120408',0],['#200818',.35],['#300c24',.60],['#1e0814',1]],
+};
 
 function showShareModal(round, dreamUpdates) {
     _shareRound = round;
-    const par = round.pars.reduce((a,b)=>a+b,0);
-    const diff = round.total - par;
-    const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
-    const diffColor = diff<0?'#ffd700':(diff===0?'#a8e6bf':'#ffb3b3');
-
-    let eagles=0,birdies=0,gpars=0,bogeys=0,doubles=0;
-    round.scores.forEach((s,i)=>{
-        if(s===null) return;
-        const d=s-round.pars[i];
-        if(d<=-2) eagles++; else if(d===-1) birdies++;
-        else if(d===0) gpars++; else if(d===1) bogeys++; else doubles++;
-    });
-
-    const stats = [
-        eagles  ? `<div class="sc-stat"><div class="sc-stat-val">🦅 ${eagles}</div><div class="sc-stat-lbl">Eagle</div></div>` : '',
-        birdies ? `<div class="sc-stat"><div class="sc-stat-val">🐦 ${birdies}</div><div class="sc-stat-lbl">Birdie</div></div>` : '',
-        `<div class="sc-stat"><div class="sc-stat-val">${gpars}</div><div class="sc-stat-lbl">Par</div></div>`,
-        `<div class="sc-stat"><div class="sc-stat-val">${bogeys}</div><div class="sc-stat-lbl">Bogey</div></div>`,
-        doubles ? `<div class="sc-stat"><div class="sc-stat-val">${doubles}</div><div class="sc-stat-lbl">Double+</div></div>` : ''
-    ].filter(Boolean).join('');
-
-    const dreamHtml = dreamUpdates.length
-        ? `<div class="sc-dream">🌟 夢幻輪更新：第 ${dreamUpdates.join('、')} 洞創下新紀錄</div>` : '';
-
-    const dp = round.date.split('-');
-    const dateStr = `${dp[0]}年${parseInt(dp[1])}月${parseInt(dp[2])}日`;
-
-    document.getElementById('share-card-body').innerHTML = `
-        <div class="sc-logo">Golf<span>Circle</span></div>
-        <div class="sc-course">${round.courseName}</div>
-        <div class="sc-date">${dateStr} · ${round.holesOpt==='18'?'18洞':'9洞'}</div>
-        <div class="sc-score-row">
-            <div class="sc-big">${round.total}</div>
-            <div class="sc-right">
-                <div class="sc-diff" style="color:${diffColor}">${diffStr}</div>
-                <div class="sc-label">vs Par ${par}</div>
-            </div>
-        </div>
-        <div class="sc-breakdown">${stats}</div>
-        ${dreamHtml}
-        <div class="sc-tags">#GolfCircle #高爾夫 #${round.courseName.replace(/高爾夫.*$/,'')}</div>
-    `;
-
-    document.getElementById('share-tip').textContent =
-        navigator.share ? '點「分享成績」選擇分享到哪裡' : '截圖成績卡後分享，或複製連結';
+    _sharePhoto = null;
+    _shareTheme = 'green';
+    _shareWeather = '⛅';
+    document.getElementById('photo-btn-lbl').textContent = '加入照片';
+    document.getElementById('share-photo-input').value = '';
+    document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === 'green'));
+    document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
     document.getElementById('share-overlay').classList.add('show');
+    setTimeout(drawCard, 60);
+}
+
+function closeShare() {
+    document.getElementById('share-overlay').classList.remove('show');
+}
+
+function shareOverlayTap(e) {
+    if (e.target === e.currentTarget) closeShare();
 }
 
 function reshareRound(id) {
@@ -987,18 +990,357 @@ function reshareRound(id) {
     if (round) showShareModal(round, []);
 }
 
-function doShare() {
+function onPhotoSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+            _sharePhoto = img;
+            _photoOffsetX = 0; _photoOffsetY = 0; _photoScale = 1.0;
+            document.getElementById('photo-btn-lbl').textContent = '換照片';
+            document.getElementById('share-photo-hint').style.display = 'block';
+            drawCard();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function setWeather(el, w) {
+    _shareWeather = w;
+    document.querySelectorAll('.wp-opt').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    drawCard();
+}
+
+function setTheme(el, t) {
+    _shareTheme = t;
+    document.querySelectorAll('.tp-dot').forEach(d => d.classList.remove('active'));
+    el.classList.add('active');
+    drawCard();
+}
+
+// ── Canvas Drawing ──
+function drawCard() {
     if (!_shareRound) return;
-    const par = _shareRound.pars.reduce((a,b)=>a+b,0);
-    const diff = _shareRound.total - par;
-    const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
-    const text = `我在${_shareRound.courseName}打了 ${_shareRound.total} 桿（${diffStr}）🏌️ 快來 GolfCircle 挑戰我！`;
-    if (navigator.share) {
-        navigator.share({ title:'GolfCircle 成績', text, url:'https://davidlyu116.github.io/golfcircle/' }).catch(()=>{});
-    } else {
-        navigator.clipboard?.writeText(text + '\nhttps://davidlyu116.github.io/golfcircle/');
-        alert('連結已複製到剪貼簿！');
+    const canvas = document.getElementById('share-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = 1080, H = 1080;
+    const PAD = 48;
+    const F = 'system-ui,-apple-system,BlinkMacSystemFont,sans-serif';
+
+    // 1. Background gradient
+    const stops = CARD_THEMES[_shareTheme];
+    const bg = ctx.createLinearGradient(W * 0.5, 0, W * 0.15, H);
+    stops.forEach(([c, s]) => bg.addColorStop(s, c));
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Photo (full bleed with pan/zoom)
+    if (_sharePhoto) {
+        const img = _sharePhoto;
+        const base = Math.max(W / img.width, H / img.height) * _photoScale;
+        const drawW = img.width * base, drawH = img.height * base;
+        const dx = (W - drawW) / 2 + _photoOffsetX;
+        const dy = (H - drawH) / 2 + _photoOffsetY;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+        ctx.restore();
     }
+
+    // 3. Top gradient overlay
+    const tg = ctx.createLinearGradient(0, 0, 0, 220);
+    tg.addColorStop(0, 'rgba(0,0,0,0.76)');
+    tg.addColorStop(0.62, 'rgba(0,0,0,0.44)');
+    tg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = tg; ctx.fillRect(0, 0, W, 220);
+
+    // 4. Bottom overlay
+    const bg2 = ctx.createLinearGradient(0, 548, 0, H);
+    bg2.addColorStop(0, 'rgba(0,0,0,0)');
+    bg2.addColorStop(0.16, 'rgba(0,0,0,0.62)');
+    bg2.addColorStop(0.40, 'rgba(0,0,0,0.88)');
+    bg2.addColorStop(1, 'rgba(0,0,0,0.95)');
+    ctx.fillStyle = bg2; ctx.fillRect(0, 548, W, H - 548);
+
+    const pars  = _shareRound.pars;
+    const scores= _shareRound.scores;
+    const par   = pars.reduce((a,b)=>a+b,0);
+    const diff  = _shareRound.total - par;
+    const diffStr  = diff===0?'E':(diff>0?'+'+diff:''+diff);
+    const diffColor= diff<0?'#5dda80':diff===0?'#a8e6bf':'#ff6e6e';
+    const is18  = _shareRound.holesOpt === '18';
+
+    // 5. ⛳ flag  (GolfCircle logo moved to bottom-right)
+    ctx.font = `50px serif`;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'white';
+    ctx.fillText('⛳', PAD, 90);
+
+    // 7. Course name (truncate if needed)
+    ctx.font = `bold 50px ${F}`;
+    ctx.fillStyle = 'white';
+    let cn = _shareRound.courseName;
+    const maxCnW = W - PAD - 68 - 210;
+    while (ctx.measureText(cn).width > maxCnW && cn.length > 3) cn = cn.slice(0, -1);
+    ctx.fillText(cn, PAD + 64, 86);
+
+    // 8. Total score (right, dominant)
+    ctx.font = `bold 90px ${F}`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'white';
+    ctx.fillText(_shareRound.total, W - PAD, 104);
+
+    // 9. Diff (below total)
+    ctx.font = `bold 44px ${F}`;
+    ctx.fillStyle = diffColor;
+    ctx.textAlign = 'right';
+    ctx.fillText(diffStr, W - PAD, 152);
+
+    // 10. Date / holes / weather
+    const dp = _shareRound.date.split('-');
+    const dateStr  = `${dp[0]}.${dp[1]}.${dp[2]}`;
+    const holesStr = is18 ? '18洞' : '9洞';
+    ctx.font = `32px ${F}`;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,255,255,0.56)';
+    ctx.fillText(`${dateStr}  ·  ${holesStr}  ·  ${_shareWeather}`, PAD + 64, 128);
+
+    // 11. Par label
+    ctx.font = `26px ${F}`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.36)';
+    ctx.fillText(`Par ${par}`, W - PAD, 182);
+
+    // 12. Score grid
+    const GRID_TOP = is18 ? 606 : 672;
+    const ROW_H    = 50;
+    const LABEL_W  = 78;
+    const SUM_SEP  = W - PAD - 68;
+    const SUM_CX   = W - PAD - 34;
+    const CELL_W   = (SUM_SEP - PAD - LABEL_W) / 9;
+
+    const cellCX = k => PAD + LABEL_W + (k + 0.5) * CELL_W;
+
+    const drawHalf = (halfIdx, yTop, labelStr) => {
+        const start = halfIdx * 9;
+        const hp    = pars.slice(start, start + 9);
+        const hs    = scores.slice(start, start + 9);
+        const hNums = Array.from({length:9}, (_,i) => start + i + 1);
+        const parSum   = hp.reduce((a,b)=>a+b,0);
+        const scoreSum = hs.reduce((a,s)=>a+(s!=null?s:0),0);
+
+        // Row: hole label + numbers
+        ctx.font = `600 27px ${F}`; ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,255,255,0.42)';
+        ctx.fillText(labelStr, PAD, yTop + ROW_H * 0.72);
+
+        ctx.font = `26px ${F}`; ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.28)';
+        hNums.forEach((h, k) => ctx.fillText(h, cellCX(k), yTop + ROW_H * 0.72));
+        ctx.fillStyle = 'rgba(255,255,255,0.32)';
+        ctx.fillText('∑', SUM_CX, yTop + ROW_H * 0.72);
+
+        // Row: par
+        ctx.font = `28px ${F}`; ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,255,255,0.38)';
+        ctx.fillText('P', PAD, yTop + ROW_H + ROW_H * 0.72);
+        ctx.textAlign = 'center';
+        hp.forEach((p, k) => {
+            ctx.fillStyle = 'rgba(255,255,255,0.36)';
+            ctx.fillText(p, cellCX(k), yTop + ROW_H + ROW_H * 0.72);
+        });
+        ctx.fillStyle = 'rgba(255,255,255,0.52)';
+        ctx.fillText(parSum, SUM_CX, yTop + ROW_H + ROW_H * 0.72);
+
+        // Row: scores (circles / colors)
+        const sy = yTop + ROW_H * 2 + ROW_H * 0.5;
+        hs.forEach((s, k) => {
+            if (s == null) return;
+            drawScoreCell(ctx, s, hp[k], cellCX(k), sy, F);
+        });
+        ctx.font = `bold 34px ${F}`; ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.fillText(scoreSum, SUM_CX, sy + 2);
+
+        // Vertical separator before sum
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(SUM_SEP, yTop);
+        ctx.lineTo(SUM_SEP, yTop + ROW_H * 3);
+        ctx.stroke();
+
+        return yTop + ROW_H * 3;
+    };
+
+    let endY = drawHalf(0, GRID_TOP, 'OUT');
+
+    if (is18) {
+        const divY = endY + 18;
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(PAD, divY); ctx.lineTo(W - PAD, divY);
+        ctx.stroke();
+        drawHalf(1, divY + 20, 'IN');
+    }
+
+    // Hashtags (bottom-left) + GolfCircle logo (bottom-right)
+    const short = _shareRound.courseName.replace(/高爾夫.*$|俱樂部.*$|球場.*$/, '');
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = `26px ${F}`; ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillText(`#GolfCircle  #高爾夫  #${short}`, PAD, H - 34);
+
+    ctx.font = `bold 30px ${F}`;
+    const gcGolfW = ctx.measureText('Golf').width;
+    const logoX = W - PAD - ctx.measureText('GolfCircle').width;
+    ctx.fillStyle = 'rgba(255,255,255,0.72)'; ctx.textAlign = 'left';
+    ctx.fillText('Golf', logoX, H - 34);
+    ctx.fillStyle = '#5dba7a';
+    ctx.fillText('Circle', logoX + gcGolfW, H - 34);
+}
+
+function drawScoreCell(ctx, score, par, cx, cy, F) {
+    const d = score - par;
+    const R = 22;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (d <= -2) {
+        // Eagle: double gold circle
+        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, R + 10, 0, Math.PI * 2); ctx.stroke();
+        ctx.shadowColor = 'rgba(255,215,0,0.55)'; ctx.shadowBlur = 18;
+        ctx.fillStyle = '#ffe082';
+        ctx.font = `bold 34px ${F}`; ctx.fillText(score, cx, cy + 1);
+        ctx.shadowBlur = 0;
+    } else if (d === -1) {
+        // Birdie: gold circle
+        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ffd54f';
+        ctx.font = `bold 34px ${F}`; ctx.fillText(score, cx, cy + 1);
+    } else if (d === 0) {
+        ctx.fillStyle = 'white';
+        ctx.font = `bold 34px ${F}`; ctx.fillText(score, cx, cy + 1);
+    } else if (d === 1) {
+        ctx.fillStyle = '#ff6e6e';
+        ctx.font = `bold 34px ${F}`; ctx.fillText(score, cx, cy + 1);
+    } else {
+        ctx.fillStyle = '#e53935';
+        ctx.font = `bold 36px ${F}`; ctx.fillText(score, cx, cy + 1);
+    }
+    ctx.restore();
+}
+
+function downloadCard() {
+    if (!_shareRound) return;
+    const canvas = document.getElementById('share-canvas');
+    const link = document.createElement('a');
+    const dp = _shareRound.date.replace(/-/g, '');
+    link.download = `GolfCircle_${dp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+async function doShareCard() {
+    if (!_shareRound) return;
+    const canvas = document.getElementById('share-canvas');
+    if (navigator.share && navigator.canShare) {
+        try {
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+            const file = new File([blob], 'GolfCircle.png', { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'GolfCircle 成績' });
+                return;
+            }
+        } catch(e) {}
+    }
+    downloadCard();
+}
+
+// ── Photo pan / pinch-zoom ──
+const _CS = 1080 / 300; // canvas px per display px
+let _dragOn = false, _drag0X = 0, _drag0Y = 0;
+let _pinchOn = false, _pinch0D = 0, _pinch0S = 1;
+
+function clampPhoto() {
+    if (!_sharePhoto) return;
+    const W = 1080;
+    const base = Math.max(W / _sharePhoto.width, W / _sharePhoto.height) * _photoScale;
+    const dW = _sharePhoto.width * base, dH = _sharePhoto.height * base;
+    _photoOffsetX = Math.max(-(dW - W) / 2, Math.min((dW - W) / 2, _photoOffsetX));
+    _photoOffsetY = Math.max(-(dH - W) / 2, Math.min((dH - W) / 2, _photoOffsetY));
+}
+
+function initPhotoInteraction() {
+    const cv = document.getElementById('share-canvas');
+
+    // Mouse drag
+    cv.addEventListener('mousedown', e => {
+        if (!_sharePhoto) return;
+        _dragOn = true; _drag0X = e.clientX; _drag0Y = e.clientY;
+        cv.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', e => {
+        if (!_dragOn) return;
+        _photoOffsetX += (e.clientX - _drag0X) * _CS;
+        _photoOffsetY += (e.clientY - _drag0Y) * _CS;
+        _drag0X = e.clientX; _drag0Y = e.clientY;
+        clampPhoto(); drawCard();
+    });
+    window.addEventListener('mouseup', () => {
+        _dragOn = false;
+        document.getElementById('share-canvas').style.cursor = _sharePhoto ? 'grab' : 'default';
+    });
+    cv.addEventListener('dblclick', () => {
+        if (!_sharePhoto) return;
+        _photoOffsetX = 0; _photoOffsetY = 0; _photoScale = 1.0; drawCard();
+    });
+
+    // Touch drag + pinch
+    cv.addEventListener('touchstart', e => {
+        if (!_sharePhoto) return;
+        e.preventDefault();
+        if (e.touches.length === 1) {
+            _dragOn = true; _pinchOn = false;
+            _drag0X = e.touches[0].clientX; _drag0Y = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            _dragOn = false; _pinchOn = true;
+            _pinch0D = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            _pinch0S = _photoScale;
+        }
+    }, { passive: false });
+
+    cv.addEventListener('touchmove', e => {
+        if (!_sharePhoto) return;
+        e.preventDefault();
+        if (_dragOn && e.touches.length === 1) {
+            _photoOffsetX += (e.touches[0].clientX - _drag0X) * _CS;
+            _photoOffsetY += (e.touches[0].clientY - _drag0Y) * _CS;
+            _drag0X = e.touches[0].clientX; _drag0Y = e.touches[0].clientY;
+            clampPhoto(); drawCard();
+        } else if (_pinchOn && e.touches.length === 2) {
+            const d = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            _photoScale = Math.max(0.8, Math.min(4.0, _pinch0S * (d / _pinch0D)));
+            clampPhoto(); drawCard();
+        }
+    }, { passive: false });
+
+    cv.addEventListener('touchend', () => { _dragOn = false; _pinchOn = false; });
 }
 
 // ── LocalStorage ──
@@ -1261,6 +1603,7 @@ function closeDreamSheet(e) {
 refreshScoresPage();
 renderDream();
 buildScorecard();
+initPhotoInteraction();
 </script>
 </body>
 </html>
