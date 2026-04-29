@@ -469,7 +469,7 @@
     <!-- Handicap Block -->
     <div class="hcp-block">
         <div class="hcp-block-header">
-            <div><div class="hcp-block-title">🎯 我的差點指數</div><div class="hcp-block-sub">GolfCircle 平台估算</div></div>
+            <div><div class="hcp-block-title">🎯 我的差點指數</div><div class="hcp-block-sub">採用 WHS 簡化版公式</div></div>
             <div id="hcp-big" class="hcp-number" style="display:none"></div>
         </div>
         <div id="hcp-locked-view" class="hcp-locked">
@@ -755,29 +755,18 @@ const COURSES = {
 
 // ── Handicap Demo State ──
 // Toggle: false = locked (2/5), true = unlocked
-let hcpUnlocked = false;
-
-function toggleHcp() {
-    hcpUnlocked = !hcpUnlocked;
-    renderHcp();
+// WHS lookup: [minRounds, take, adjustment]
+function whsLookup(n) {
+    if (n >= 20) return { take: 8, adj: 0 };
+    if (n >= 19) return { take: 7, adj: 0 };
+    if (n >= 17) return { take: 6, adj: 0 };
+    if (n >= 15) return { take: 5, adj: 0 };
+    if (n >= 12) return { take: 4, adj: 0 };
+    if (n >= 9)  return { take: 3, adj: 0 };
+    if (n >= 7)  return { take: 2, adj: 0 };
+    if (n >= 6)  return { take: 2, adj: -1 };
+    return { take: 1, adj: 0 }; // 5 rounds
 }
-
-function renderHcp() {
-    if (hcpUnlocked) {
-        document.getElementById('hcp-locked-view').style.display = 'none';
-        document.getElementById('hcp-unlocked-view').style.display = 'block';
-        document.getElementById('hcp-big').style.display = 'block';
-        document.getElementById('hcp-big').textContent = '12.8';
-        document.getElementById('hcp-display').textContent = '12.8';
-    } else {
-        document.getElementById('hcp-locked-view').style.display = 'block';
-        document.getElementById('hcp-unlocked-view').style.display = 'none';
-        document.getElementById('hcp-big').style.display = 'none';
-        document.getElementById('hcp-display').textContent = '--';
-    }
-}
-// Click header to toggle demo
-document.querySelector('.hcp-block-header').addEventListener('click', toggleHcp);
 
 // ── Navigation ──
 // ── Badge System ──
@@ -1542,42 +1531,48 @@ function refreshScoresPage() {
         document.getElementById('best-course').textContent = `總桿 · ${best.courseName}`;
     }
 
-    // Handicap progress
-    const fc = fullRounds.length;
+    // Handicap (WHS 簡化版) — all rounds count (9-hole differential ×2)
+    const fc = rounds.length;
     document.getElementById('hcp-progress-text').textContent = `${Math.min(fc,5)} / 5 場`;
-    document.getElementById('hcp-bar').style.width = Math.min(fc/5*100,100) + '%';
+    document.getElementById('hcp-bar').style.width = Math.min(fc/5*100, 100) + '%';
     const hint = document.querySelector('.progress-hint');
 
     if (fc >= 5) {
-        // Real handicap calculation: best 5 of all 18-hole rounds × 0.9
-        const sorted18 = [...fullRounds].sort((a,b) => a.total - b.total);
-        const best5 = sorted18.slice(0, 5);
-        const avgOverPar = best5.reduce((sum, r) => {
+        // Build differentials: 9-hole ×2, 18-hole as-is
+        const withDiff = rounds.map(r => {
             const par = r.pars.reduce((a,b) => a+b, 0);
-            return sum + (r.total - par);
-        }, 0) / best5.length;
-        const hcpIndex = Math.round(avgOverPar * 0.9 * 10) / 10;
+            const raw = r.total - par;
+            return { ...r, diff: r.holesOpt === '9' ? raw * 2 : raw };
+        }).sort((a,b) => a.diff - b.diff);
+
+        const { take, adj } = whsLookup(fc);
+        const selected = withDiff.slice(0, take);
+        const avg = selected.reduce((s,r) => s + r.diff, 0) / selected.length;
+        const hcpIndex = Math.round((avg + adj) * 10) / 10;
+        const hcpStr = hcpIndex.toFixed(1);
 
         document.getElementById('hcp-locked-view').style.display = 'none';
         document.getElementById('hcp-unlocked-view').style.display = 'block';
         document.getElementById('hcp-big').style.display = 'block';
-        document.getElementById('hcp-big').textContent = hcpIndex.toFixed(1);
-        document.getElementById('hcp-display').textContent = hcpIndex.toFixed(1);
+        document.getElementById('hcp-big').textContent = hcpStr;
+        document.getElementById('hcp-display').textContent = hcpStr;
         const badge = document.getElementById('profile-hcp-badge');
-        if (badge) badge.textContent = `差點 ${hcpIndex.toFixed(1)}`;
+        if (badge) badge.textContent = `差點 ${hcpStr}`;
 
-        const avgStr = avgOverPar >= 0 ? '+' + avgOverPar.toFixed(1) : avgOverPar.toFixed(1);
-        const rowsHtml = best5.map(r => {
-            const par = r.pars.reduce((a,b) => a+b, 0);
-            const diff = r.total - par;
-            const diffStr = diff >= 0 ? '+' + diff : '' + diff;
-            return `<div class="hcp-round-row hcp-round-best"><span>${r.courseName} ${r.total}桿</span><span>${diffStr}</span></div>`;
+        const rowsHtml = selected.map(r => {
+            const suffix = r.holesOpt === '9' ? '（9洞×2）' : '';
+            const diffStr = r.diff >= 0 ? '+' + r.diff : '' + r.diff;
+            return `<div class="hcp-round-row hcp-round-best"><span>${r.courseName} ${r.total}桿${suffix}</span><span>${diffStr}</span></div>`;
         }).join('');
+        const avgStr = avg >= 0 ? '+' + avg.toFixed(1) : avg.toFixed(1);
+        const adjHtml = adj !== 0 ? `<div class="hcp-result"><span>場次調整</span><span>${adj}</span></div>` : '';
+        const takeLabel = take === 1 ? `最低 1 場 Differential` : `最低 ${take} 場 Differential 平均`;
         document.getElementById('hcp-formula-rows').innerHTML = `
-            <div class="hcp-formula-title">最佳 5 場成績（超出 Par）</div>
+            <div class="hcp-formula-title">${takeLabel}（共 ${fc} 場紀錄）</div>
             ${rowsHtml}
-            <div class="hcp-result"><span>平均超過 Par</span><span>${avgStr}</span></div>
-            <div class="hcp-result" style="color:var(--green)"><span>差點指數（× 0.9）</span><span>≈ <strong>${hcpIndex.toFixed(1)}</strong></span></div>`;
+            <div class="hcp-result"><span>Differential 平均</span><span>${avgStr}</span></div>
+            ${adjHtml}
+            <div class="hcp-result" style="color:var(--green)"><span>差點指數（WHS 簡化版）</span><span>≈ <strong>${hcpStr}</strong></span></div>`;
     } else {
         if (hint) hint.innerHTML = `再打 <strong>${5-fc} 場</strong>即可解鎖你的專屬差點指數 ⛳`;
         document.getElementById('hcp-locked-view').style.display = 'block';
