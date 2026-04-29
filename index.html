@@ -325,7 +325,28 @@
 
         /* ── Misc ── */
         .section-label { font-size: 12px; font-weight: 600; color: var(--gray); padding: 12px 14px 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .fab { position: fixed; bottom: 80px; right: calc(50% - 215px + 16px); width: 52px; height: 52px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26,92,56,0.4); cursor: pointer; z-index: 99; }
+        .fab { position: fixed; bottom: 80px; left: calc(50% - 215px + 16px); width: 52px; height: 52px; border-radius: 50%; background: var(--green); color: white; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26,92,56,0.4); cursor: pointer; z-index: 99; }
+        /* Round detail modal */
+        .round-detail-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:300; align-items:flex-end; justify-content:center; }
+        .round-detail-overlay.show { display:flex; }
+        .round-detail-sheet { background:white; width:100%; max-width:430px; border-radius:20px 20px 0 0; max-height:86vh; overflow-y:auto; position:relative; }
+        .rd-header { padding:18px 16px 10px; }
+        .rd-close-btn { position:sticky; top:0; display:flex; justify-content:flex-end; padding:12px 16px 0; background:white; z-index:1; }
+        .rd-close-btn button { background:none; border:none; font-size:20px; color:var(--gray); cursor:pointer; line-height:1; }
+        .rd-course { font-size:17px; font-weight:700; color:var(--dark); }
+        .rd-meta { font-size:12px; color:var(--gray); margin-top:3px; }
+        .rd-score-bar { display:flex; gap:28px; padding:10px 16px 14px; border-bottom:1px solid var(--border); }
+        .rd-total { font-size:34px; font-weight:800; color:var(--green); line-height:1; }
+        .rd-diff-num { font-size:18px; font-weight:700; line-height:1; margin-top:6px; }
+        .rd-lbl { font-size:11px; color:var(--gray); margin-top:3px; }
+        .rd-sc-wrap { padding:12px 12px 0; }
+        .rd-score { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; font-size:13px; font-weight:700; border-radius:4px; }
+        .rd-eagle  { color:#997a00; border:2px solid #ffd700; border-radius:50%; outline:2px solid #ffd700; outline-offset:1px; }
+        .rd-birdie { color:#997a00; border:2px solid #ffd700; border-radius:50%; }
+        .rd-on-par { color:#1a5c2a; }
+        .rd-bogey  { color:#e65100; }
+        .rd-double { color:#c62828; }
+
         ::-webkit-scrollbar { display: none; }
         .mt10 { margin-top: 10px; }
         .mt12 { margin-top: 12px; }
@@ -663,7 +684,7 @@
         <div class="theme-picker">
             <div class="tp-dot active" data-theme="green"     style="background:linear-gradient(135deg,#1a5c2a,#0a2e14)" onclick="setTheme(this,'green')"></div>
             <div class="tp-dot"        data-theme="blue"      style="background:linear-gradient(135deg,#0c2262,#04091a)" onclick="setTheme(this,'blue')"></div>
-            <div class="tp-dot"        data-theme="gray"      style="background:linear-gradient(135deg,#1e2f40,#0e1217)" onclick="setTheme(this,'gray')"></div>
+            <div class="tp-dot"        data-theme="pink"      style="background:linear-gradient(135deg,#7e1a4e,#300818)" onclick="setTheme(this,'pink')"></div>
             <div class="tp-dot"        data-theme="champagne" style="background:linear-gradient(135deg,#3a2c06,#1c1400)" onclick="setTheme(this,'champagne')"></div>
             <div class="tp-dot"        data-theme="rose"      style="background:linear-gradient(135deg,#300c24,#120408)" onclick="setTheme(this,'rose')"></div>
         </div>
@@ -673,6 +694,14 @@
             <button class="share-btn-go" onclick="doShareCard()">↗ 分享</button>
         </div>
         <button class="share-btn-cls" onclick="closeShare()">關閉</button>
+    </div>
+</div>
+
+<!-- Round Detail Modal -->
+<div class="round-detail-overlay" id="round-detail-overlay" onclick="closeRoundDetail()">
+    <div class="round-detail-sheet" onclick="event.stopPropagation()">
+        <div class="rd-close-btn"><button onclick="closeRoundDetail()">✕</button></div>
+        <div id="rd-content"></div>
     </div>
 </div>
 
@@ -1032,7 +1061,7 @@ const _bgImgs = BG_PRESETS.map(p => { const img = new Image(); img.src = p.src; 
 const CARD_THEMES = {
     green:     [['#0d3d1a',0],['#1a6030',.35],['#2a8042',.65],['#0d3d1a',1]],
     blue:      [['#112258',0],['#183480',.40],['#2248a8',.70],['#112258',1]],
-    gray:      [['#202e3e',0],['#2e4055',.40],['#3a5070',.70],['#202e3e',1]],
+    pink:      [['#300818',0],['#5a1235',.40],['#7e1a4e',.70],['#300818',1]],
     champagne: [['#342800',0],['#4c3a0a',.40],['#604e18',.70],['#342800',1]],
     rose:      [['#280a18',0],['#3c1028',.35],['#541840',.60],['#280a18',1]],
 };
@@ -1361,8 +1390,12 @@ function clampPhoto() {
     const W = 1080;
     const base = Math.max(W / _sharePhoto.width, W / _sharePhoto.height) * _photoScale;
     const dW = _sharePhoto.width * base, dH = _sharePhoto.height * base;
-    _photoOffsetX = Math.max(-(dW - W) / 2, Math.min((dW - W) / 2, _photoOffsetX));
-    _photoOffsetY = Math.max(-(dH - W) / 2, Math.min((dH - W) / 2, _photoOffsetY));
+    // When photo fills canvas: constrain so no black edges appear
+    // When photo is smaller (zoomed out): allow free movement within ±W range
+    const limX = dW > W ? (dW - W) / 2 : W * 0.8;
+    const limY = dH > W ? (dH - W) / 2 : W * 0.8;
+    _photoOffsetX = Math.max(-limX, Math.min(limX, _photoOffsetX));
+    _photoOffsetY = Math.max(-limY, Math.min(limY, _photoOffsetY));
 }
 
 function initPhotoInteraction() {
@@ -1436,6 +1469,62 @@ function loadData() {
 }
 function saveData(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
 
+function viewRoundDetail(id) {
+    const data = loadData();
+    const r = data.rounds.find(r => r.id === id);
+    if (!r) return;
+    const par = r.pars.reduce((a,b)=>a+b,0);
+    const diff = r.total - par;
+    const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
+    const diffColor = diff<0?'var(--green)':diff>0?'#e65100':'#555';
+    const d = r.date.split('-');
+    const dateStr = `${d[0]}年${parseInt(d[1])}月${parseInt(d[2])}日`;
+    const holeStr = r.holesOpt==='18'?'18洞':'9洞';
+
+    function halfTable(start, label) {
+        const hp = r.pars.slice(start, start+9);
+        const hs = r.scores.slice(start, start+9);
+        const holeNums = Array.from({length:9},(_,i)=>start+i+1);
+        const parSum   = hp.reduce((a,b)=>a+b,0);
+        const scoreSum = hs.reduce((a,s)=>a+(s||0),0);
+        const holeCells  = holeNums.map(h=>`<th>${h}</th>`).join('');
+        const parCells   = hp.map(p=>`<td>${p}</td>`).join('');
+        const scoreCells = hs.map((s,k)=>{
+            if (!s) return '<td style="color:#bbb">-</td>';
+            const dv = s - hp[k];
+            const cls = dv<=-2?'eagle':dv===-1?'birdie':dv===0?'on-par':dv===1?'bogey':'double';
+            return `<td><span class="rd-score rd-${cls}">${s}</span></td>`;
+        }).join('');
+        return `<table class="sc-table" style="margin-bottom:10px">
+            <tr><th>${label}</th>${holeCells}<th>∑</th></tr>
+            <tr class="par-row"><td>P</td>${parCells}<td>${parSum}</td></tr>
+            <tr class="score-row"><td></td>${scoreCells}<td style="font-weight:700">${scoreSum||'-'}</td></tr>
+        </table>`;
+    }
+
+    let scHTML = halfTable(0, 'OUT');
+    if (r.holesOpt==='18') scHTML += halfTable(9, 'IN');
+
+    document.getElementById('rd-content').innerHTML = `
+        <div class="rd-header">
+            <div class="rd-course">${r.courseName}</div>
+            <div class="rd-meta">${dateStr} · ${holeStr}</div>
+        </div>
+        <div class="rd-score-bar">
+            <div><div class="rd-total">${r.total}</div><div class="rd-lbl">總桿</div></div>
+            <div><div class="rd-diff-num" style="color:${diffColor}">${diffStr}</div><div class="rd-lbl">vs Par ${par}</div></div>
+        </div>
+        <div class="rd-sc-wrap">${scHTML}</div>
+        <div style="text-align:center;padding:16px 0 20px">
+            <button onclick="closeRoundDetail();reshareRound(${r.id})" style="background:var(--green);color:white;border:none;border-radius:10px;padding:11px 32px;font-size:14px;font-weight:700;cursor:pointer">↗ 分享這場成績</button>
+        </div>`;
+    document.getElementById('round-detail-overlay').classList.add('show');
+}
+
+function closeRoundDetail() {
+    document.getElementById('round-detail-overlay').classList.remove('show');
+}
+
 function refreshScoresPage() {
     const data = loadData();
     const rounds = data.rounds;
@@ -1473,7 +1562,7 @@ function refreshScoresPage() {
         const d = r.date.split('-');
         const dateStr = `${d[0]}年${parseInt(d[1])}月${parseInt(d[2])}日`;
         const holeStr = r.holesOpt==='18'?'18洞':'9洞';
-        return `<div class="history-item">
+        return `<div class="history-item" onclick="viewRoundDetail(${r.id})" style="cursor:pointer">
             <div class="history-icon">${icons[i%5]}</div>
             <div class="history-info">
                 <div class="history-course">${r.courseName}</div>
@@ -1482,7 +1571,7 @@ function refreshScoresPage() {
             <div class="history-score">
                 <div class="history-num">${r.total}</div>
                 <div class="history-net">${diffStr}</div>
-                <div onclick="reshareRound(${r.id})" style="font-size:11px;color:var(--green);cursor:pointer;margin-top:4px">↗ 分享</div>
+                <div onclick="event.stopPropagation();reshareRound(${r.id})" style="font-size:11px;color:var(--green);cursor:pointer;margin-top:4px">↗ 分享</div>
             </div>
         </div>`;
     }).join('');
