@@ -518,7 +518,7 @@
             </div>
             <div style="text-align:right">
                 <div style="font-size:11px;color:var(--gray)">夢幻輪合計</div>
-                <div style="font-size:18px;font-weight:700;color:var(--green)">64 <span style="font-size:11px;font-weight:400">-8</span></div>
+                <div style="font-size:18px;font-weight:700;color:var(--green)" id="dream-total-compare">-- <span style="font-size:11px;font-weight:400" id="dream-total-diff"></span></div>
             </div>
         </div>
         <div style="background:#fffbe6;padding:10px 14px;font-size:12px;color:#7a5a00;border-top:1px solid #f5e6a0">
@@ -665,6 +665,7 @@
     <div class="share-modal">
         <div class="share-handle"></div>
         <div class="share-title">分享成績卡</div>
+        <div id="dream-update-banner" style="display:none;background:#e8f5e9;color:#1a5c2a;font-size:13px;font-weight:600;padding:10px 16px;border-bottom:1px solid #c8e6c9;text-align:center;"></div>
 
         <div class="share-canvas-wrap">
             <canvas id="share-canvas" width="1080" height="1080"></canvas>
@@ -1079,6 +1080,14 @@ function showShareModal(round, dreamUpdates) {
     document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === 'green'));
     document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
     document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+    // Dream update banner
+    const banner = document.getElementById('dream-update-banner');
+    if (dreamUpdates && dreamUpdates.length > 0) {
+        banner.textContent = `🌟 夢幻輪更新：第 ${dreamUpdates.join('、')} 洞新最佳！`;
+        banner.style.display = 'block';
+    } else {
+        banner.style.display = 'none';
+    }
     document.getElementById('share-overlay').classList.add('show');
     setTimeout(drawCard, 60);
 }
@@ -1557,7 +1566,8 @@ function refreshScoresPage() {
         return;
     }
     const icons = ['⛳','🏌️','🎯','🌿','🏆'];
-    hist.innerHTML = rounds.slice(0,10).map((r,i) => {
+    const sorted = [...rounds].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+    hist.innerHTML = sorted.slice(0,10).map((r,i) => {
         const par = r.pars.reduce((a,b)=>a+b,0);
         const diff = r.total - par;
         const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
@@ -1697,6 +1707,8 @@ function renderDream(key) {
     document.getElementById('dream-total-score').textContent = totalBest;
     document.getElementById('dream-vs-par').textContent = diffStr + ' · 夢幻輪';
     document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場紀錄`;
+    document.getElementById('dream-total-compare').firstChild.textContent = totalBest + ' ';
+    document.getElementById('dream-total-diff').textContent = diffStr;
     if (d.bestActual) {
         const aDiff = d.bestActual - totalPar;
         document.getElementById('dream-actual-score').innerHTML =
