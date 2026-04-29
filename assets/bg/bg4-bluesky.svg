@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="b4sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0E4FA0"/>
+      <stop offset="50%" stop-color="#3E8FD8"/>
+      <stop offset="100%" stop-color="#7EC8F0"/>
+    </linearGradient>
+    <linearGradient id="b4grass1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#56C46C"/>
+      <stop offset="100%" stop-color="#38934A"/>
+    </linearGradient>
+    <linearGradient id="b4grass2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#44B05A"/>
+      <stop offset="100%" stop-color="#2A7838"/>
+    </linearGradient>
+    <linearGradient id="b4fg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#308040"/>
+      <stop offset="100%" stop-color="#1A5028"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky - vivid blue -->
+  <rect width="800" height="800" fill="url(#b4sky)"/>
+
+  <!-- Big cumulus clouds - main feature -->
+  <!-- Cloud group 1 - center-left hero cloud -->
+  <g fill="white">
+    <ellipse cx="250" cy="200" rx="130" ry="55" opacity="0.95"/>
+    <ellipse cx="178" cy="220" rx="80" ry="42" opacity="0.90"/>
+    <ellipse cx="330" cy="215" rx="90" ry="44" opacity="0.90"/>
+    <ellipse cx="220" cy="238" rx="110" ry="36" opacity="0.88"/>
+    <ellipse cx="285" cy="235" rx="100" ry="35" opacity="0.85"/>
+    <ellipse cx="250" cy="248" rx="132" ry="28" opacity="0.82"/>
+    <!-- Cloud shadow base -->
+    <ellipse cx="250" cy="252" rx="132" ry="20" fill="#D8E8F0" opacity="0.30"/>
+  </g>
+
+  <!-- Cloud group 2 - right -->
+  <g fill="white">
+    <ellipse cx="620" cy="150" rx="105" ry="42" opacity="0.92"/>
+    <ellipse cx="555" cy="168" rx="65" ry="34" opacity="0.87"/>
+    <ellipse cx="688" cy="165" rx="72" ry="35" opacity="0.87"/>
+    <ellipse cx="590" cy="183" rx="88" ry="28" opacity="0.82"/>
+    <ellipse cx="645" cy="180" rx="80" ry="26" opacity="0.80"/>
+    <ellipse cx="620" cy="192" rx="108" ry="22" opacity="0.78"/>
+    <ellipse cx="620" cy="196" rx="106" ry="16" fill="#D8E8F0" opacity="0.25"/>
+  </g>
+
+  <!-- Cloud group 3 - small high right -->
+  <g fill="white" opacity="0.75">
+    <ellipse cx="750" cy="280" rx="45" ry="16"/>
+    <ellipse cx="720" cy="288" rx="30" ry="13"/>
+    <ellipse cx="778" cy="287" rx="33" ry="14"/>
+  </g>
+
+  <!-- Cloud group 4 - small left -->
+  <g fill="white" opacity="0.70">
+    <ellipse cx="60" cy="310" rx="50" ry="18"/>
+    <ellipse cx="28" cy="318" rx="32" ry="14"/>
+    <ellipse cx="94" cy="317" rx="36" ry="15"/>
+  </g>
+
+  <!-- Horizon hills - very gentle rolling -->
+  <path d="M0,455 Q200,420 400,435 Q600,418 800,430 L800,470 L0,470Z" fill="#4CAE62" opacity="0.55"/>
+
+  <!-- Wide open grass field - gentle undulation -->
+  <path d="M0,475 Q100,455 220,462 Q340,448 460,458 Q580,445 700,455 Q750,451 800,454 L800,560 L0,560Z" fill="url(#b4grass1)"/>
+
+  <!-- Mowing stripes (horizontal bands subtle) -->
+  <g opacity="0.12">
+    <rect x="0" y="475" width="800" height="18" fill="#70D885"/>
+    <rect x="0" y="511" width="800" height="18" fill="#70D885"/>
+    <rect x="0" y="547" width="800" height="13" fill="#70D885"/>
+  </g>
+
+  <!-- Second grass plane -->
+  <path d="M0,575 Q200,555 400,562 Q600,552 800,560 L800,680 L0,680Z" fill="url(#b4grass2)"/>
+
+  <!-- A few flag pins scattered on course (multiple holes visible) -->
+  <!-- Flag 1 -->
+  <line x1="200" y1="495" x2="200" y2="475" stroke="#DDD" stroke-width="2"/>
+  <path d="M200,475 C207,472 215,474 222,471 C215,477 207,480 200,482Z" fill="#E83040"/>
+  <!-- Flag 2 -->
+  <line x1="530" y1="488" x2="530" y2="468" stroke="#DDD" stroke-width="2"/>
+  <path d="M530,468 C537,465 545,467 552,464 C545,470 537,474 530,475Z" fill="#1A6AFF"/>
+  <!-- Flag 3 -->
+  <line x1="680" y1="500" x2="680" y2="480" stroke="#DDD" stroke-width="2"/>
+  <path d="M680,480 C687,477 695,479 702,476 C695,482 687,486 680,487Z" fill="#F0A020"/>
+
+  <!-- Cart path hint -->
+  <path d="M0,545 Q200,540 320,544 Q400,542 460,544 Q560,540 800,543" stroke="#D8D0B0" stroke-width="5" fill="none" opacity="0.5"/>
+
+  <!-- Scattered trees (individual specimens on open course) -->
+  <g>
+    <!-- Tree 1 -->
+    <rect x="124" y="516" width="6" height="28" fill="#5C3A1E"/>
+    <ellipse cx="127" cy="510" rx="22" ry="28" fill="#236B30"/>
+    <ellipse cx="127" cy="508" rx="18" ry="22" fill="#2E8040"/>
+
+    <!-- Tree 2 -->
+    <rect x="414" y="510" width="6" height="26" fill="#5C3A1E"/>
+    <ellipse cx="417" cy="504" rx="20" ry="26" fill="#1C5E28"/>
+    <ellipse cx="417" cy="502" rx="16" ry="20" fill="#267535"/>
+
+    <!-- Tree 3 -->
+    <rect x="724" y="518" width="6" height="28" fill="#5C3A1E"/>
+    <ellipse cx="727" cy="512" rx="21" ry="27" fill="#236B30"/>
+    <ellipse cx="727" cy="510" rx="17" ry="21" fill="#2E8040"/>
+  </g>
+
+  <!-- Foreground -->
+  <path d="M0,700 Q200,682 400,690 Q600,680 800,688 L800,800 L0,800Z" fill="url(#b4fg)"/>
+
+  <!-- Birds - multiple small flocks -->
+  <g stroke="#2060A0" stroke-width="1.6" fill="none" opacity="0.50">
+    <path d="M85,245 Q90,240 95,245"/> <path d="M99,242 Q104,237 109,242"/>
+    <path d="M115,250 Q120,245 125,250"/>
+    <path d="M480,130 Q485,125 490,130"/> <path d="M494,127 Q499,122 504,127"/>
+    <path d="M340,310 Q345,305 350,310"/> <path d="M354,307 Q359,302 364,307"/>
+    <path d="M668,220 Q673,215 678,220"/> <path d="M682,217 Q687,212 692,217"/>
+  </g>
+</svg>

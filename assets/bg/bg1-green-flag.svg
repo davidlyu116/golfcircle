@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="b1sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A7BC4"/>
+      <stop offset="60%" stop-color="#5AB4E8"/>
+      <stop offset="100%" stop-color="#A8D9F2"/>
+    </linearGradient>
+    <linearGradient id="b1hills1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5DBF72"/>
+      <stop offset="100%" stop-color="#3E9E52"/>
+    </linearGradient>
+    <linearGradient id="b1hills2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#47B05E"/>
+      <stop offset="100%" stop-color="#2E8B40"/>
+    </linearGradient>
+    <linearGradient id="b1green" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#4CBB66"/>
+      <stop offset="50%" stop-color="#3DA852"/>
+      <stop offset="100%" stop-color="#25793A"/>
+    </linearGradient>
+    <linearGradient id="b1fg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2A8B3C"/>
+      <stop offset="100%" stop-color="#1A5C28"/>
+    </linearGradient>
+    <radialGradient id="b1sun" cx="72%" cy="16%" r="18%">
+      <stop offset="0%" stop-color="#FFFDE0"/>
+      <stop offset="35%" stop-color="#FFE87A" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#87CEEB" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b1halo" cx="72%" cy="16%" r="30%">
+      <stop offset="0%" stop-color="#FFF6A0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#87CEEB" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="800" fill="url(#b1sky)"/>
+  <!-- Sun halo -->
+  <rect width="800" height="800" fill="url(#b1halo)"/>
+  <!-- Sun -->
+  <circle cx="578" cy="128" r="48" fill="#FFFCE0"/>
+  <circle cx="578" cy="128" r="38" fill="#FFF8C0"/>
+  <rect width="800" height="800" fill="url(#b1sun)"/>
+
+  <!-- Clouds -->
+  <g fill="white">
+    <ellipse cx="170" cy="155" rx="72" ry="26" opacity="0.92"/>
+    <ellipse cx="125" cy="165" rx="48" ry="21" opacity="0.88"/>
+    <ellipse cx="215" cy="163" rx="54" ry="22" opacity="0.88"/>
+    <ellipse cx="505" cy="105" rx="58" ry="20" opacity="0.90"/>
+    <ellipse cx="462" cy="113" rx="38" ry="17" opacity="0.85"/>
+    <ellipse cx="550" cy="112" rx="42" ry="18" opacity="0.85"/>
+    <ellipse cx="680" cy="175" rx="44" ry="16" opacity="0.78"/>
+    <ellipse cx="648" cy="182" rx="30" ry="14" opacity="0.75"/>
+    <ellipse cx="714" cy="181" rx="34" ry="14" opacity="0.75"/>
+  </g>
+
+  <!-- Distant hills layer 1 -->
+  <path d="M0,400 Q80,355 160,372 Q240,340 330,365 Q420,338 510,360 Q590,342 680,358 Q730,350 800,360 L800,430 L0,430Z" fill="url(#b1hills1)" opacity="0.55"/>
+  <!-- Distant hills layer 2 -->
+  <path d="M0,430 Q120,390 240,408 Q360,374 480,396 Q600,375 700,392 Q750,385 800,390 L800,455 L0,455Z" fill="url(#b1hills2)" opacity="0.70"/>
+
+  <!-- Mid ground terrain -->
+  <path d="M0,490 Q100,460 220,474 Q350,452 480,468 Q610,452 750,465 L800,470 L800,540 L0,540Z" fill="#3DA850"/>
+
+  <!-- Tree cluster - left -->
+  <ellipse cx="90" cy="485" rx="42" ry="55" fill="#236B30"/>
+  <ellipse cx="125" cy="472" rx="36" ry="48" fill="#2B7E3A"/>
+  <ellipse cx="60" cy="495" rx="32" ry="44" fill="#1F5E2A"/>
+  <rect x="104" y="520" width="8" height="22" fill="#5C3A1E"/>
+
+  <!-- Tree cluster - right -->
+  <ellipse cx="718" cy="480" rx="40" ry="52" fill="#236B30"/>
+  <ellipse cx="750" cy="488" rx="34" ry="46" fill="#1F5E2A"/>
+  <ellipse cx="690" cy="490" rx="30" ry="42" fill="#2B7E3A"/>
+  <rect x="712" y="518" width="8" height="22" fill="#5C3A1E"/>
+
+  <!-- Fairway corridor to green -->
+  <path d="M310,540 Q360,555 390,585 Q410,610 415,645 Q420,680 410,720 L390,800 L250,800 L230,720 Q218,680 225,645 Q232,610 255,585 Q282,555 310,540Z" fill="#38A04A"/>
+
+  <!-- Putting green surface -->
+  <ellipse cx="400" cy="660" rx="265" ry="78" fill="url(#b1green)"/>
+  <!-- Mowing stripe rings -->
+  <ellipse cx="400" cy="660" rx="245" ry="70" fill="none" stroke="#4EC865" stroke-width="7" opacity="0.30"/>
+  <ellipse cx="400" cy="660" rx="205" ry="58" fill="none" stroke="#4EC865" stroke-width="7" opacity="0.30"/>
+  <ellipse cx="400" cy="660" rx="160" ry="45" fill="none" stroke="#4EC865" stroke-width="7" opacity="0.30"/>
+  <!-- Green shadow -->
+  <ellipse cx="405" cy="680" rx="200" ry="22" fill="rgba(0,0,0,0.09)"/>
+
+  <!-- Flag pole -->
+  <line x1="445" y1="615" x2="445" y2="548" stroke="#DEDEDF" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Flag waving -->
+  <path d="M445,548 C460,542 475,545 488,540 C475,548 460,555 445,558Z" fill="#E8394A"/>
+  <!-- GC on flag (subtle) -->
+  <text x="462" y="550" font-family="Arial" font-size="7" fill="white" font-weight="bold" opacity="0.85">GC</text>
+  <!-- Hole cup -->
+  <ellipse cx="445" cy="616" rx="9" ry="5" fill="#1A5230"/>
+  <ellipse cx="445" cy="616" rx="7" ry="3.5" fill="#0D3A1E"/>
+
+  <!-- Foreground rough -->
+  <path d="M0,740 Q200,718 400,728 Q600,716 800,732 L800,800 L0,800Z" fill="url(#b1fg)"/>
+  <!-- Grass blades hint -->
+  <g stroke="#2A8040" stroke-width="2" opacity="0.4">
+    <line x1="50" y1="760" x2="48" y2="745"/> <line x1="56" y1="758" x2="55" y2="744"/>
+    <line x1="150" y1="755" x2="148" y2="740"/> <line x1="156" y1="753" x2="155" y2="739"/>
+    <line x1="650" y1="758" x2="648" y2="743"/> <line x1="656" y1="756" x2="655" y2="742"/>
+    <line x1="750" y1="760" x2="748" y2="745"/> <line x1="756" y1="758" x2="755" y2="744"/>
+  </g>
+</svg>

@@ -180,6 +180,14 @@
         .weather-picker { display:flex; gap:4px; flex:1; justify-content:flex-end; }
         .wp-opt { font-size:20px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
         .wp-opt.active { border-color:var(--green); background:rgba(26,92,56,0.3); }
+        .bg-preset-row { display:flex; gap:8px; padding:0 16px 8px; overflow-x:auto; scrollbar-width:none; }
+        .bg-preset-row::-webkit-scrollbar { display:none; }
+        .bg-preset-row-label { font-size:10px; color:#555; padding:4px 16px 0; letter-spacing:.04em; }
+        .bg-thumb-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; cursor:pointer; }
+        .bg-thumb { width:54px; height:54px; border-radius:9px; border:2px solid transparent; transition:all 0.15s;
+                    background-size:cover; background-position:center; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+        .bg-thumb.active { border-color:var(--green); box-shadow:0 0 0 3px var(--green), 0 2px 8px rgba(0,0,0,0.4); }
+        .bg-thumb-lbl { font-size:9px; color:#666; }
         .theme-picker { display:flex; gap:10px; padding:6px 16px 10px; justify-content:center; }
         .tp-dot { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
         .tp-dot.active { border-color:white; transform:scale(1.18); }
@@ -651,6 +659,30 @@
             </div>
         </div>
 
+        <div class="bg-preset-row-label">預設背景</div>
+        <div class="bg-preset-row" id="bg-preset-row">
+            <div class="bg-thumb-wrap" onclick="setBgPreset(0)">
+                <div class="bg-thumb" id="bg-thumb-0" style="background-image:url('assets/bg/bg1-green-flag.svg')"></div>
+                <span class="bg-thumb-lbl">果嶺</span>
+            </div>
+            <div class="bg-thumb-wrap" onclick="setBgPreset(1)">
+                <div class="bg-thumb" id="bg-thumb-1" style="background-image:url('assets/bg/bg2-fairway.svg')"></div>
+                <span class="bg-thumb-lbl">球道</span>
+            </div>
+            <div class="bg-thumb-wrap" onclick="setBgPreset(2)">
+                <div class="bg-thumb" id="bg-thumb-2" style="background-image:url('assets/bg/bg3-mountain.svg')"></div>
+                <span class="bg-thumb-lbl">山景</span>
+            </div>
+            <div class="bg-thumb-wrap" onclick="setBgPreset(3)">
+                <div class="bg-thumb" id="bg-thumb-3" style="background-image:url('assets/bg/bg4-bluesky.svg')"></div>
+                <span class="bg-thumb-lbl">藍天</span>
+            </div>
+            <div class="bg-thumb-wrap" onclick="setBgPreset(4)">
+                <div class="bg-thumb" id="bg-thumb-4" style="background-image:url('assets/bg/bg5-swing.svg')"></div>
+                <span class="bg-thumb-lbl">揮桿</span>
+            </div>
+        </div>
+
         <div class="theme-picker">
             <div class="tp-dot active" data-theme="green"     style="background:linear-gradient(135deg,#1a5c2a,#0a2e14)" onclick="setTheme(this,'green')"></div>
             <div class="tp-dot"        data-theme="blue"      style="background:linear-gradient(135deg,#0c2262,#04091a)" onclick="setTheme(this,'blue')"></div>
@@ -1006,9 +1038,19 @@ function calcTotals() {
 // ── Share Card (Canvas版) ──
 let _shareRound = null;
 let _sharePhoto = null;
+let _shareBgPreset = null;
 let _shareTheme = 'green';
 let _shareWeather = '⛅';
 let _photoOffsetX = 0, _photoOffsetY = 0, _photoScale = 1.0;
+
+const BG_PRESETS = [
+    { src: 'assets/bg/bg1-green-flag.svg', label: '果嶺' },
+    { src: 'assets/bg/bg2-fairway.svg',    label: '球道' },
+    { src: 'assets/bg/bg3-mountain.svg',   label: '山景' },
+    { src: 'assets/bg/bg4-bluesky.svg',    label: '藍天' },
+    { src: 'assets/bg/bg5-swing.svg',      label: '揮桿' },
+];
+const _bgImgs = BG_PRESETS.map(p => { const img = new Image(); img.src = p.src; return img; });
 
 const CARD_THEMES = {
     green:     [['#061a0c',0],['#0e3a1a',.35],['#1a5c2a',.65],['#0a2e14',1]],
@@ -1021,12 +1063,14 @@ const CARD_THEMES = {
 function showShareModal(round, dreamUpdates) {
     _shareRound = round;
     _sharePhoto = null;
+    _shareBgPreset = null;
     _shareTheme = 'green';
     _shareWeather = '⛅';
     document.getElementById('photo-btn-lbl').textContent = '加入照片';
     document.getElementById('share-photo-input').value = '';
     document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === 'green'));
     document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
+    document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
     document.getElementById('share-overlay').classList.add('show');
     setTimeout(drawCard, 60);
 }
@@ -1053,6 +1097,8 @@ function onPhotoSelect(input) {
         const img = new Image();
         img.onload = () => {
             _sharePhoto = img;
+            _shareBgPreset = null;
+            document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
             _photoOffsetX = 0; _photoOffsetY = 0; _photoScale = 1.0;
             document.getElementById('photo-btn-lbl').textContent = '換照片';
             document.getElementById('share-photo-hint').style.display = 'block';
@@ -1061,6 +1107,18 @@ function onPhotoSelect(input) {
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+}
+
+function setBgPreset(idx) {
+    _sharePhoto = null;
+    _shareBgPreset = (_shareBgPreset === idx) ? null : idx;
+    document.getElementById('photo-btn-lbl').textContent = '加入照片';
+    document.getElementById('share-photo-hint').style.display = 'none';
+    document.getElementById('share-photo-input').value = '';
+    document.querySelectorAll('.bg-thumb').forEach((t, i) =>
+        t.classList.toggle('active', _shareBgPreset === i));
+    const bgImg = _shareBgPreset !== null ? _bgImgs[_shareBgPreset] : null;
+    if (bgImg && !bgImg.complete) { bgImg.onload = drawCard; } else { drawCard(); }
 }
 
 function setWeather(el, w) {
@@ -1093,13 +1151,15 @@ function drawCard() {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    // 2. Photo (full bleed with pan/zoom)
-    if (_sharePhoto) {
-        const img = _sharePhoto;
-        const base = Math.max(W / img.width, H / img.height) * _photoScale;
-        const drawW = img.width * base, drawH = img.height * base;
-        const dx = (W - drawW) / 2 + _photoOffsetX;
-        const dy = (H - drawH) / 2 + _photoOffsetY;
+    // 2. Photo or preset background (full bleed)
+    const _activeBg = _sharePhoto || (_shareBgPreset !== null ? _bgImgs[_shareBgPreset] : null);
+    if (_activeBg && _activeBg.complete && _activeBg.naturalWidth > 0) {
+        const img = _activeBg;
+        const isPreset = !_sharePhoto;
+        const base = Math.max(W / img.naturalWidth, H / img.naturalHeight) * (isPreset ? 1.0 : _photoScale);
+        const drawW = img.naturalWidth * base, drawH = img.naturalHeight * base;
+        const dx = isPreset ? (W - drawW) / 2 : (W - drawW) / 2 + _photoOffsetX;
+        const dy = isPreset ? (H - drawH) / 2 : (H - drawH) / 2 + _photoOffsetY;
         ctx.save();
         ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
         ctx.drawImage(img, dx, dy, drawW, drawH);

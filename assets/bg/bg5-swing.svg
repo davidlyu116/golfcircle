@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="b5sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1B5FA8"/>
+      <stop offset="40%" stop-color="#4A9AD8"/>
+      <stop offset="75%" stop-color="#90C8E8"/>
+      <stop offset="100%" stop-color="#C8E4F4"/>
+    </linearGradient>
+    <linearGradient id="b5grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5DC470"/>
+      <stop offset="100%" stop-color="#2E7A40"/>
+    </linearGradient>
+    <linearGradient id="b5fg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E8040"/>
+      <stop offset="100%" stop-color="#1A5028"/>
+    </linearGradient>
+    <radialGradient id="b5glow" cx="62%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#FFE888" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#FFE888" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="b5blur">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="800" fill="url(#b5sky)"/>
+
+  <!-- Warm morning light glow (right side) -->
+  <rect width="800" height="800" fill="url(#b5glow)"/>
+
+  <!-- Sun - bright morning -->
+  <circle cx="660" cy="145" r="50" fill="#FFFDE8" opacity="0.96"/>
+  <circle cx="660" cy="145" r="65" fill="#FFE880" opacity="0.22"/>
+  <circle cx="660" cy="145" r="85" fill="#FFD840" opacity="0.10"/>
+
+  <!-- Light rays from sun -->
+  <g opacity="0.12" stroke="#FFE880" stroke-width="8" stroke-linecap="round">
+    <line x1="660" y1="80" x2="660" y2="55"/>
+    <line x1="700" y1="95" x2="718" y2="76"/>
+    <line x1="718" y1="135" x2="742" y2="128"/>
+    <line x1="718" y1="175" x2="742" y2="186"/>
+    <line x1="700" y1="200" x2="718" y2="218"/>
+    <line x1="620" y1="95" x2="602" y2="76"/>
+    <line x1="602" y1="135" x2="578" y2="128"/>
+    <line x1="602" y1="175" x2="578" y2="186"/>
+    <line x1="620" y1="200" x2="602" y2="218"/>
+  </g>
+
+  <!-- Clouds -->
+  <g fill="white">
+    <ellipse cx="200" cy="115" rx="95" ry="36" opacity="0.90"/>
+    <ellipse cx="143" cy="128" rx="60" ry="29" opacity="0.85"/>
+    <ellipse cx="260" cy="126" rx="70" ry="30" opacity="0.85"/>
+    <ellipse cx="200" cy="143" rx="98" ry="24" opacity="0.80"/>
+
+    <ellipse cx="460" cy="80" rx="75" ry="26" opacity="0.85"/>
+    <ellipse cx="412" cy="91" rx="48" ry="21" opacity="0.80"/>
+    <ellipse cx="510" cy="89" rx="54" ry="22" opacity="0.80"/>
+    <ellipse cx="460" cy="100" rx="78" ry="19" opacity="0.75"/>
+  </g>
+
+  <!-- Distant course hills -->
+  <path d="M0,430 Q150,388 300,408 Q450,378 600,400 Q700,382 800,392 L800,455 L0,455Z" fill="#4AB060" opacity="0.55"/>
+
+  <!-- Mid-ground course -->
+  <path d="M0,478 Q150,452 300,464 Q450,448 600,460 Q700,450 800,456 L800,540 L0,540Z" fill="url(#b5grass)"/>
+
+  <!-- Gentle rolling stripe pattern on fairway -->
+  <g opacity="0.14" fill="#70D882">
+    <rect x="0" y="480" width="800" height="16"/>
+    <rect x="0" y="512" width="800" height="16"/>
+    <rect x="0" y="544" width="800" height="12"/>
+  </g>
+
+  <!-- GOLFER SILHOUETTE - impact position, follow-through -->
+  <!-- Shadow (blurred) -->
+  <g filter="url(#b5blur)" opacity="0.25" transform="translate(308,460) skewX(-15) scale(1,0.35)">
+    <!-- Body shadow silhouette rough shape -->
+    <ellipse cx="100" cy="160" rx="55" ry="18" fill="#1A3A20"/>
+  </g>
+
+  <!-- Golfer silhouette (dark, backlit) - impact moment -->
+  <g transform="translate(300,345)" fill="#1A3A22">
+    <!-- Legs - wide stance at impact -->
+    <!-- Left leg (target side) - straight, weight forward -->
+    <path d="M88,185 Q84,210 80,235 Q78,245 72,260 L88,260 Q92,245 96,230 Q100,210 100,185Z"/>
+    <!-- Right leg - flexed -->
+    <path d="M112,185 Q120,210 122,232 Q124,244 128,260 L144,260 Q140,244 136,230 Q130,210 122,185Z"/>
+    <!-- Feet -->
+    <ellipse cx="79" cy="261" rx="12" ry="5"/>
+    <ellipse cx="138" cy="261" rx="14" ry="5"/>
+
+    <!-- Hips / torso lower -->
+    <path d="M75,148 Q88,140 100,138 Q112,136 125,140 Q132,148 128,170 Q122,185 112,185 Q100,186 88,185 Q78,178 75,165Z"/>
+
+    <!-- Torso - rotated through impact -->
+    <path d="M82,90 Q90,78 100,74 Q112,72 120,78 Q130,88 128,110 Q126,130 120,145 Q110,150 100,150 Q88,148 80,140 Q74,128 75,110Z"/>
+
+    <!-- Head -->
+    <ellipse cx="102" cy="64" rx="18" ry="20"/>
+
+    <!-- Left arm - extended toward target, high -->
+    <path d="M82,95 Q60,80 38,65 Q26,56 20,48 L28,38 Q36,48 48,56 Q70,70 92,85Z"/>
+
+    <!-- Right arm - tucked in, club through -->
+    <path d="M118,95 Q138,82 152,70 Q160,62 164,56 L172,62 Q168,70 160,78 Q144,92 124,104Z"/>
+
+    <!-- Club - extended through impact, club head low-right -->
+    <path d="M20,48 L28,38 L-20,8 L-26,18Z" fill="#2A2A2A"/>
+    <!-- Club shaft - follow through arc -->
+    <path d="M28,38 Q90,18 160,62" stroke="#1A3A22" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- Ball in flight (small white dot with motion trail) -->
+  <ellipse cx="620" cy="360" rx="6" ry="6" fill="white" opacity="0.90"/>
+  <path d="M440,418 Q510,385 614,362" stroke="white" stroke-width="1.5" fill="none" opacity="0.35" stroke-dasharray="4,4"/>
+
+  <!-- Foreground rough -->
+  <path d="M0,620 Q200,600 400,610 Q600,598 800,608 L800,800 L0,800Z" fill="url(#b5fg)"/>
+
+  <!-- Foreground detail - grass texture blades -->
+  <g stroke="#2A7038" stroke-width="2.5" stroke-linecap="round" opacity="0.45">
+    <line x1="30" y1="660" x2="27" y2="642"/> <line x1="38" y1="658" x2="36" y2="641"/>
+    <line x1="80" y1="654" x2="78" y2="636"/> <line x1="88" y1="652" x2="86" y2="635"/>
+    <line x1="680" y1="655" x2="678" y2="637"/> <line x1="688" y1="653" x2="686" y2="636"/>
+    <line x1="740" y1="658" x2="738" y2="641"/> <line x1="748" y1="656" x2="746" y2="640"/>
+  </g>
+
+  <!-- Tee marker hint (on tee box) -->
+  <rect x="376" y="530" width="8" height="12" rx="2" fill="#FFCC00" opacity="0.80"/>
+  <rect x="392" y="530" width="8" height="12" rx="2" fill="#FFCC00" opacity="0.80"/>
+</svg>

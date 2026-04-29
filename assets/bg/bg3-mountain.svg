@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="b3sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1155A8"/>
+      <stop offset="45%" stop-color="#4A96DC"/>
+      <stop offset="100%" stop-color="#88C8EE"/>
+    </linearGradient>
+    <linearGradient id="b3mtn1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7BA8D4"/>
+      <stop offset="100%" stop-color="#5A88B8"/>
+    </linearGradient>
+    <linearGradient id="b3mtn2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6898C8"/>
+      <stop offset="100%" stop-color="#4A78A8"/>
+    </linearGradient>
+    <linearGradient id="b3hills" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5BBF70"/>
+      <stop offset="100%" stop-color="#3A9050"/>
+    </linearGradient>
+    <linearGradient id="b3course" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#48B85E"/>
+      <stop offset="100%" stop-color="#2D8040"/>
+    </linearGradient>
+    <linearGradient id="b3fg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#30883E"/>
+      <stop offset="100%" stop-color="#1C5428"/>
+    </linearGradient>
+    <linearGradient id="b3sunray" x1="0.65" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#FFE888" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#FFE888" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="800" fill="url(#b3sky)"/>
+
+  <!-- Sun rays (god rays) -->
+  <rect width="800" height="800" fill="url(#b3sunray)"/>
+
+  <!-- Sun -->
+  <circle cx="640" cy="110" r="42" fill="#FFFCE8" opacity="0.95"/>
+  <circle cx="640" cy="110" r="55" fill="#FFE880" opacity="0.25"/>
+
+  <!-- Clouds - large cumulus -->
+  <g fill="white">
+    <ellipse cx="130" cy="120" rx="90" ry="34" opacity="0.92"/>
+    <ellipse cx="78" cy="133" rx="55" ry="27" opacity="0.87"/>
+    <ellipse cx="185" cy="131" rx="65" ry="28" opacity="0.87"/>
+    <ellipse cx="130" cy="145" rx="95" ry="22" opacity="0.82"/>
+
+    <ellipse cx="450" cy="85" rx="70" ry="24" opacity="0.88"/>
+    <ellipse cx="405" cy="95" rx="46" ry="20" opacity="0.83"/>
+    <ellipse cx="497" cy="94" rx="52" ry="21" opacity="0.83"/>
+    <ellipse cx="450" cy="104" rx="74" ry="18" opacity="0.78"/>
+
+    <ellipse cx="730" cy="145" rx="55" ry="20" opacity="0.80"/>
+    <ellipse cx="693" cy="153" rx="36" ry="16" opacity="0.75"/>
+    <ellipse cx="768" cy="152" rx="40" ry="17" opacity="0.75"/>
+  </g>
+
+  <!-- Mountain range - far (blue-grey) -->
+  <path d="M0,370 Q40,295 100,320 Q140,280 185,310 Q210,268 255,295 Q285,265 320,288 Q350,258 380,278 Q410,252 440,272 Q470,250 500,265 Q530,245 560,262 Q590,248 625,265 Q660,242 695,262 Q730,245 770,260 L800,268 L800,390 L0,390Z" fill="url(#b3mtn1)" opacity="0.55"/>
+
+  <!-- Mountain range - mid -->
+  <path d="M0,400 Q50,345 105,368 Q145,330 190,355 Q230,320 270,345 Q305,312 340,335 Q370,305 400,326 Q428,298 460,320 Q490,305 520,318 Q555,295 590,312 Q625,295 660,308 Q700,285 740,305 Q768,290 800,300 L800,415 L0,415Z" fill="url(#b3mtn2)" opacity="0.65"/>
+
+  <!-- Rolling hills mid-ground -->
+  <path d="M0,458 Q80,418 165,438 Q250,408 340,430 Q420,408 510,428 Q600,408 695,426 Q745,416 800,422 L800,480 L0,480Z" fill="url(#b3hills)"/>
+
+  <!-- Sparse trees on hillside -->
+  <g fill="#236B30">
+    <ellipse cx="180" cy="453" rx="15" ry="22" opacity="0.85"/>
+    <ellipse cx="210" cy="448" rx="13" ry="19" opacity="0.80"/>
+    <ellipse cx="250" cy="456" rx="12" ry="18" opacity="0.80"/>
+    <ellipse cx="580" cy="450" rx="14" ry="20" opacity="0.82"/>
+    <ellipse cx="608" cy="444" rx="12" ry="18" opacity="0.78"/>
+    <ellipse cx="640" cy="452" rx="13" ry="19" opacity="0.80"/>
+  </g>
+
+  <!-- Course terrain - mid/near -->
+  <path d="M0,510 Q100,480 220,494 Q360,472 480,488 Q620,470 800,484 L800,570 L0,570Z" fill="url(#b3course)"/>
+
+  <!-- Pond/water feature -->
+  <ellipse cx="560" cy="530" rx="70" ry="25" fill="#4A9AE0" opacity="0.75"/>
+  <ellipse cx="560" cy="530" rx="68" ry="23" fill="#3A88CC" opacity="0.4"/>
+  <!-- Water shimmer -->
+  <ellipse cx="548" cy="527" rx="30" ry="7" fill="white" opacity="0.18"/>
+
+  <!-- Fairway band -->
+  <path d="M150,540 Q250,520 360,530 Q420,525 480,530 Q420,580 380,630 Q355,680 340,750 L220,750 Q210,680 198,630 Q178,580 150,540Z" fill="#42B055"/>
+
+  <!-- Flag on course -->
+  <line x1="310" y1="520" x2="310" y2="495" stroke="#DDD" stroke-width="2.5"/>
+  <path d="M310,495 C320,490 332,493 342,489 C332,496 320,502 310,504Z" fill="#E83040"/>
+
+  <!-- Foreground rough + trees -->
+  <path d="M0,620 Q200,595 400,608 Q600,594 800,608 L800,800 L0,800Z" fill="url(#b3fg)"/>
+
+  <!-- Foreground trees - left -->
+  <ellipse cx="55" cy="640" rx="48" ry="65" fill="#1C5A28"/>
+  <ellipse cx="95" cy="628" rx="42" ry="58" fill="#236B30"/>
+  <ellipse cx="28" cy="652" rx="36" ry="52" fill="#1A5224"/>
+
+  <!-- Foreground trees - right -->
+  <ellipse cx="745" cy="638" rx="46" ry="62" fill="#1C5A28"/>
+  <ellipse cx="705" cy="630" rx="40" ry="56" fill="#236B30"/>
+  <ellipse cx="770" cy="648" rx="34" ry="50" fill="#1A5224"/>
+</svg>
