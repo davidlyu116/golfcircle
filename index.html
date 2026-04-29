@@ -490,8 +490,12 @@
                 <option value="taoyuan_ew">桃園高爾夫俱樂部（東區＋西區）Par 73</option>
                 </optgroup>
                 <optgroup label="── 其他球場 ──">
-                <option value="changgeng">長庚高爾夫球場</option>
-                <option value="linkou">林口高爾夫球場</option>
+                <option value="changgeng_nm">長庚高爾夫球場（北區＋中區）</option>
+                <option value="changgeng_ns">長庚高爾夫球場（北區＋南區）</option>
+                <option value="changgeng_ms">長庚高爾夫球場（中區＋南區）</option>
+                <option value="linkou_ew">林口高爾夫球場（東區＋西區）Par 71</option>
+                <option value="linkou_es">林口高爾夫球場（東區＋南區）Par 71</option>
+                <option value="linkou_ws">林口高爾夫球場（西區＋南區）</option>
                 <option value="dasi">大溪高爾夫球場</option>
                 <option value="taipei">台北高爾夫俱樂部</option>
                 <option value="shimen">石門水庫球場</option>
@@ -645,12 +649,18 @@
 // ── Course Data ──
 // par arrays: holes 1-9 (OUT), holes 10-18 (IN)
 const COURSES = {
-    changgeng: { name: '長庚高爾夫球場', par: [4,5,3,4,4,3,4,5,4, 4,4,3,5,4,4,3,4,5] },
-    linkou:    { name: '林口高爾夫球場', par: [4,4,3,5,4,3,4,4,4, 4,5,3,4,4,3,4,4,3] },
+    // 長庚高爾夫球場 27洞（北36 / 中36 / 南36）
+    changgeng_nm: { name: '長庚高爾夫球場（北區＋中區）', par: [3,4,5,4,4,3,5,4,4, 4,3,4,5,4,4,3,5,4] }, // 36+36=72
+    changgeng_ns: { name: '長庚高爾夫球場（北區＋南區）', par: [3,4,5,4,4,3,5,4,4, 5,4,3,4,4,4,5,3,4] }, // 36+36=72
+    changgeng_ms: { name: '長庚高爾夫球場（中區＋南區）', par: [4,3,4,5,4,4,3,5,4, 5,4,3,4,4,4,5,3,4] }, // 36+36=72
+    // 林口高爾夫球場 27洞（東35 / 西36 / 南36）
+    linkou_ew:    { name: '林口高爾夫球場（東區＋西區）', par: [4,3,4,4,4,3,4,4,5, 5,3,4,4,4,4,4,3,5] }, // 35+36=71
+    linkou_es:    { name: '林口高爾夫球場（東區＋南區）', par: [4,3,4,4,4,3,4,4,5, 5,4,4,5,3,4,4,3,4] }, // 35+36=71
+    linkou_ws:    { name: '林口高爾夫球場（西區＋南區）', par: [5,3,4,4,4,4,4,3,5, 5,4,4,5,3,4,4,3,4] }, // 36+36=72
     dasi:      { name: '大溪高爾夫球場', par: [5,4,3,4,4,4,3,5,4, 4,4,3,5,4,3,4,4,5] },
     taipei:    { name: '台北高爾夫俱樂部', par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },
     shimen:    { name: '石門水庫球場',   par: [4,5,3,4,4,3,5,4,4, 4,4,3,5,4,4,3,4,4] },
-    oldtamsui: { name: '老淡水高爾夫球場',par: [4,5,3,4,4,3,4,4,5, 4,4,3,5,4,4,3,4,5] },
+    oldtamsui: { name: '老淡水高爾夫球場', par: [4,3,4,4,4,5,5,3,4, 3,4,4,5,4,5,4,3,4] }, // OUT 36 / IN 36 = 72
     // ── 實際驗證資料 ──
     lungtan:   { name: '龍潭高爾夫球場',   par: [4,4,3,5,4,4,3,5,4, 4,4,3,4,5,4,3,4,5] },  // OUT 36 / IN 36 = 72
     tsaihing:  { name: '再興高爾夫俱樂部', par: [4,4,3,5,5,4,4,3,5, 4,5,4,3,4,3,5,4,3] },  // OUT 37 / IN 35 = 72
