@@ -204,6 +204,14 @@
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
         .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.5); }
         .profile-name { font-size: 20px; font-weight: 700; }
+        .profile-name-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .profile-name-edit { background: none; border: none; color: rgba(255,255,255,0.55); cursor: pointer; font-size: 14px; padding: 2px 4px; line-height: 1; }
+        .profile-name-input { background: transparent; border: none; border-bottom: 1.5px solid rgba(255,255,255,0.7); color: white; font-size: 20px; font-weight: 700; text-align: center; width: 160px; outline: none; }
+        .draft-banner { background: #fff8e1; border-bottom: 1px solid #ffe082; padding: 10px 16px; font-size: 13px; color: #5d4037; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .draft-banner-text { flex: 1; }
+        .draft-banner-btns { display: flex; gap: 8px; flex-shrink: 0; }
+        .draft-resume-btn { background: var(--green); color: white; border: none; padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .draft-discard-btn { background: none; border: 1px solid #bbb; color: var(--gray); padding: 5px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; }
         .profile-sub { font-size: 13px; opacity: 0.8; margin-top: 4px; }
         .hcp-badge { display: inline-block; background: var(--gold); color: white; padding: 4px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; margin-top: 10px; }
         .profile-stats { display: flex; background: white; border-bottom: 1px solid var(--border); }
@@ -441,7 +449,7 @@
         <div class="lb-item"><div class="lb-rank lb-rank-num">4</div><div class="lb-avatar">🌿</div><div class="lb-info"><div class="lb-name">Kevin Chang</div><div class="lb-detail">差點 15 · 5場</div></div><div class="lb-score"><div class="lb-score-num">72</div><div class="lb-score-label">淨桿</div></div></div>
         <div class="lb-item"><div class="lb-rank lb-rank-num">5</div><div class="lb-avatar">🏆</div><div class="lb-info"><div class="lb-name">Jason Wang</div><div class="lb-detail">差點 18 · 4場</div></div><div class="lb-score"><div class="lb-score-num">73</div><div class="lb-score-label">淨桿</div></div></div>
         <div style="text-align:center;padding:16px;color:var(--gray);font-size:13px">⋯ 共 48 名球友參與本月排行</div>
-        <div class="lb-item me"><div class="lb-rank lb-rank-num">23</div><div class="lb-avatar">😊</div><div class="lb-info"><div class="lb-name">David（我）🏌️</div><div class="lb-detail">差點 20 · 2場</div></div><div class="lb-score"><div class="lb-score-num">76</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item me"><div class="lb-rank lb-rank-num">23</div><div class="lb-avatar">😊</div><div class="lb-info"><div class="lb-name" id="lb-me-name">Golfer（我）🏌️</div><div class="lb-detail">差點 20 · 2場</div></div><div class="lb-score"><div class="lb-score-num">76</div><div class="lb-score-label">淨桿</div></div></div>
     </div>
 </div>
 
@@ -538,6 +546,13 @@
         <button class="back-btn" onclick="go('scores', document.querySelectorAll('.nav-item')[2])">‹</button>
         <h2>記錄這場成績</h2>
     </div>
+    <div class="draft-banner" id="draft-banner" style="display:none">
+        <span class="draft-banner-text" id="draft-banner-text"></span>
+        <div class="draft-banner-btns">
+            <button class="draft-resume-btn" onclick="resumeDraft()">繼續填寫</button>
+            <button class="draft-discard-btn" onclick="discardDraft()">捨棄</button>
+        </div>
+    </div>
 
     <div class="record-section">
         <h3>基本資訊</h3>
@@ -618,7 +633,10 @@
 <div class="page" id="page-profile">
     <div class="profile-header">
         <div class="profile-pic">😊</div>
-        <div class="profile-name">David</div>
+        <div class="profile-name-row">
+            <span id="profile-name-display" class="profile-name">Golfer</span>
+            <button class="profile-name-edit" onclick="editProfileName()">✏️</button>
+        </div>
         <div class="profile-sub">台北市 · 高爾夫愛好者</div>
         <div class="hcp-badge" id="profile-hcp-badge">差點 --</div>
         <div class="profile-badge-tags" id="profile-badge-tags"></div>
@@ -870,6 +888,11 @@ function switchProfileTab(tab, el) {
 
 function renderProfile() {
     renderProfileBadge();
+    const playerName = getPlayerName();
+    const nameDisplay = document.getElementById('profile-name-display');
+    if (nameDisplay) nameDisplay.textContent = playerName;
+    const lbMe = document.getElementById('lb-me-name');
+    if (lbMe) lbMe.textContent = playerName + '（我）🏌️';
     const data = loadData();
     const rounds = data.rounds;
 
@@ -933,6 +956,7 @@ function go(name, el) {
 document.getElementById('fab').addEventListener('click', () => {
     go('record', null);
     buildScorecard();
+    checkDraftBanner();
 });
 
 // ── Scorecard Builder ──
@@ -981,7 +1005,7 @@ function buildScorecard() {
             } else {
                 autoAdvanceTimer = setTimeout(() => {
                     if (idx < allInputs.length - 1) allInputs[idx + 1].focus();
-                }, 600);
+                }, 350);
             }
         });
         inp.addEventListener('keydown', function(e) {
@@ -1042,6 +1066,7 @@ function calcTotals() {
 
     const totalPar = allPars.reduce((a,b)=>a+b,0);
     document.getElementById('total-gross').textContent = filled > 0 ? gross : '--';
+    saveDraft();
 }
 
 // ── Share Card (Canvas版) ──
@@ -1480,6 +1505,91 @@ function loadData() {
 }
 function saveData(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
 
+// ── Player Name ──
+const NAME_KEY = 'gc_player_name';
+function getPlayerName() { return localStorage.getItem(NAME_KEY) || 'Golfer'; }
+function setPlayerName(n) { localStorage.setItem(NAME_KEY, n.trim() || 'Golfer'); }
+
+function editProfileName() {
+    const display = document.getElementById('profile-name-display');
+    const editBtn = display.nextElementSibling;
+    display.style.display = 'none';
+    editBtn.style.display = 'none';
+    const input = document.createElement('input');
+    input.className = 'profile-name-input';
+    input.value = getPlayerName();
+    input.maxLength = 20;
+    display.parentNode.insertBefore(input, display);
+    input.focus(); input.select();
+    function save() {
+        const newName = input.value.trim() || 'Golfer';
+        setPlayerName(newName);
+        display.textContent = newName;
+        display.style.display = '';
+        editBtn.style.display = '';
+        input.remove();
+        const lb = document.getElementById('lb-me-name');
+        if (lb) lb.textContent = newName + '（我）🏌️';
+    }
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+}
+
+// ── Draft Score ──
+const DRAFT_KEY = 'gc_draft';
+function loadDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch { return null; } }
+function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
+
+function saveDraft() {
+    const courseEl = document.getElementById('course-select');
+    const holesEl  = document.getElementById('holes-select');
+    const dateEl   = document.getElementById('round-date');
+    if (!courseEl || !holesEl) return;
+    const courseKey = courseEl.value, holesOpt = holesEl.value;
+    let allHoles;
+    if (holesOpt==='18') allHoles=Array.from({length:18},(_,i)=>i+1);
+    else if (holesOpt==='9f') allHoles=Array.from({length:9},(_,i)=>i+1);
+    else allHoles=Array.from({length:9},(_,i)=>i+10);
+    const scores = {};
+    let hasAny = false;
+    allHoles.forEach(h => { const el=document.getElementById('h'+h); if(el&&el.value){scores[h]=el.value;hasAny=true;} });
+    if (!hasAny) { clearDraft(); return; }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ courseKey, holesOpt, date: dateEl ? dateEl.value : '', scores }));
+}
+
+function checkDraftBanner() {
+    const draft = loadDraft();
+    const banner = document.getElementById('draft-banner');
+    if (!banner) return;
+    if (!draft) { banner.style.display = 'none'; return; }
+    const course = COURSES[draft.courseKey];
+    const holesLabel = draft.holesOpt==='18'?'18洞':draft.holesOpt==='9f'?'前9洞':'後9洞';
+    document.getElementById('draft-banner-text').textContent = `⚠️ 有一筆未完成紀錄：${course ? course.name : ''} · ${holesLabel}`;
+    banner.style.display = 'flex';
+}
+
+function resumeDraft() {
+    const draft = loadDraft();
+    if (!draft) return;
+    const courseEl = document.getElementById('course-select');
+    const holesEl  = document.getElementById('holes-select');
+    const dateEl   = document.getElementById('round-date');
+    courseEl.value = draft.courseKey;
+    holesEl.value  = draft.holesOpt;
+    if (dateEl && draft.date) dateEl.value = draft.date;
+    buildScorecard();
+    Object.entries(draft.scores).forEach(([h, v]) => {
+        const el = document.getElementById('h'+h); if (el) el.value = v;
+    });
+    calcTotals();
+    document.getElementById('draft-banner').style.display = 'none';
+}
+
+function discardDraft() {
+    clearDraft();
+    document.getElementById('draft-banner').style.display = 'none';
+}
+
 function viewRoundDetail(id) {
     const data = loadData();
     const r = data.rounds.find(r => r.id === id);
@@ -1700,6 +1810,7 @@ function submitScore() {
     const round = { id:Date.now(), courseKey, courseName:course.name, date, holesOpt, holeNums:allHoles, scores, pars:allPars, total, badge: badgeAtPost };
     data.rounds.unshift(round);
     saveData(data);
+    clearDraft();
     refreshScoresPage();
     renderDream();
     go('scores', document.querySelectorAll('.nav-item')[2]);
