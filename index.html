@@ -202,7 +202,20 @@
 
         /* ── Profile ── */
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
-        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.5); }
+        .profile-pic-wrap { position: relative; width: 80px; margin: 0 auto 12px; cursor: pointer; }
+        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; border: 3px solid rgba(255,255,255,0.5); }
+        .profile-pic-edit { position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+        /* Avatar Picker Sheet */
+        .avatar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: flex-end; }
+        .avatar-overlay.show { display: flex; }
+        .avatar-sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 0 0 32px; max-height: 70vh; overflow-y: auto; }
+        .avatar-sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 12px auto 0; }
+        .avatar-sheet-title { font-size: 15px; font-weight: 700; text-align: center; padding: 14px 16px 4px; }
+        .avatar-section-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px 6px; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 0 16px 8px; }
+        .avatar-option { width: 100%; aspect-ratio: 1; border-radius: 50%; background: #f0f2f0; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; }
+        .avatar-option.selected { border-color: var(--green); background: #e8f5e9; }
+        .avatar-option:active { transform: scale(0.9); }
         .profile-name { font-size: 20px; font-weight: 700; }
         .profile-name-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .profile-name-edit { background: none; border: none; color: rgba(255,255,255,0.55); cursor: pointer; font-size: 14px; padding: 2px 4px; line-height: 1; }
@@ -449,7 +462,7 @@
         <div class="lb-item"><div class="lb-rank lb-rank-num">4</div><div class="lb-avatar">🌿</div><div class="lb-info"><div class="lb-name">Kevin Chang</div><div class="lb-detail">差點 15 · 5場</div></div><div class="lb-score"><div class="lb-score-num">72</div><div class="lb-score-label">淨桿</div></div></div>
         <div class="lb-item"><div class="lb-rank lb-rank-num">5</div><div class="lb-avatar">🏆</div><div class="lb-info"><div class="lb-name">Jason Wang</div><div class="lb-detail">差點 18 · 4場</div></div><div class="lb-score"><div class="lb-score-num">73</div><div class="lb-score-label">淨桿</div></div></div>
         <div style="text-align:center;padding:16px;color:var(--gray);font-size:13px">⋯ 共 48 名球友參與本月排行</div>
-        <div class="lb-item me"><div class="lb-rank lb-rank-num">23</div><div class="lb-avatar">😊</div><div class="lb-info"><div class="lb-name" id="lb-me-name">Golfer（我）🏌️</div><div class="lb-detail">差點 20 · 2場</div></div><div class="lb-score"><div class="lb-score-num">76</div><div class="lb-score-label">淨桿</div></div></div>
+        <div class="lb-item me"><div class="lb-rank lb-rank-num">23</div><div class="lb-avatar" id="lb-me-avatar">😊</div><div class="lb-info"><div class="lb-name" id="lb-me-name">Golfer（我）🏌️</div><div class="lb-detail">差點 20 · 2場</div></div><div class="lb-score"><div class="lb-score-num">76</div><div class="lb-score-label">淨桿</div></div></div>
     </div>
 </div>
 
@@ -632,7 +645,10 @@
 <!-- ════ PROFILE ════ -->
 <div class="page" id="page-profile">
     <div class="profile-header">
-        <div class="profile-pic">😊</div>
+        <div class="profile-pic-wrap" onclick="openAvatarPicker()">
+            <div class="profile-pic" id="profile-pic-display">😊</div>
+            <div class="profile-pic-edit">📷</div>
+        </div>
         <div class="profile-name-row">
             <span id="profile-name-display" class="profile-name">Golfer</span>
             <button class="profile-name-edit" onclick="editProfileName()">✏️</button>
@@ -666,6 +682,18 @@
             <div class="empty-state-icon">🔖</div>
             <div class="empty-state-text">還沒有收藏任何內容</div>
         </div>
+    </div>
+</div>
+
+<!-- Avatar Picker Sheet -->
+<div class="avatar-overlay" id="avatar-overlay" onclick="closeAvatarPicker(event)">
+    <div class="avatar-sheet">
+        <div class="avatar-sheet-handle"></div>
+        <div class="avatar-sheet-title">選擇頭貼</div>
+        <div class="avatar-section-label">表情</div>
+        <div class="avatar-grid" id="avatar-grid-faces"></div>
+        <div class="avatar-section-label">高爾夫</div>
+        <div class="avatar-grid" id="avatar-grid-golf"></div>
     </div>
 </div>
 
@@ -893,6 +921,11 @@ function renderProfile() {
     if (nameDisplay) nameDisplay.textContent = playerName;
     const lbMe = document.getElementById('lb-me-name');
     if (lbMe) lbMe.textContent = playerName + '（我）🏌️';
+    const avatar = getAvatar();
+    const picDisplay = document.getElementById('profile-pic-display');
+    if (picDisplay) picDisplay.textContent = avatar;
+    const lbAvatar = document.getElementById('lb-me-avatar');
+    if (lbAvatar) lbAvatar.textContent = avatar;
     const data = loadData();
     const rounds = data.rounds;
 
@@ -1504,6 +1537,39 @@ function loadData() {
     catch { return {rounds:[], dreamBests:{}}; }
 }
 function saveData(d) { localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+
+// ── Avatar ──
+const AVATAR_KEY = 'gc_avatar';
+const AVATAR_FACES = ['😊','😎','🤩','😄','😆','😏','🧐','😤','🥳','🤠','😴','🤫'];
+const AVATAR_GOLF  = ['🏌️','🏆','⛳','🎯','🦅','🐦','🔥','💎','🌿','🌟','👑','🎪'];
+
+function getAvatar() { return localStorage.getItem(AVATAR_KEY) || '😊'; }
+function setAvatar(e) { localStorage.setItem(AVATAR_KEY, e); }
+
+function openAvatarPicker() {
+    const current = getAvatar();
+    function renderGrid(id, list) {
+        document.getElementById(id).innerHTML = list.map(e =>
+            `<div class="avatar-option${e===current?' selected':''}" onclick="pickAvatar('${e}')">${e}</div>`
+        ).join('');
+    }
+    renderGrid('avatar-grid-faces', AVATAR_FACES);
+    renderGrid('avatar-grid-golf',  AVATAR_GOLF);
+    document.getElementById('avatar-overlay').classList.add('show');
+}
+
+function pickAvatar(emoji) {
+    setAvatar(emoji);
+    document.getElementById('profile-pic-display').textContent = emoji;
+    const lbAvatar = document.getElementById('lb-me-avatar');
+    if (lbAvatar) lbAvatar.textContent = emoji;
+    closeAvatarPicker();
+}
+
+function closeAvatarPicker(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('avatar-overlay').classList.remove('show');
+}
 
 // ── Player Name ──
 const NAME_KEY = 'gc_player_name';
