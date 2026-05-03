@@ -1830,14 +1830,27 @@ function viewRoundDetail(id) {
             <div><div class="rd-diff-num" style="color:${diffColor}">${diffStr}</div><div class="rd-lbl">vs Par ${par}</div></div>
         </div>
         <div class="rd-sc-wrap">${scHTML}</div>
-        <div style="text-align:center;padding:16px 0 20px">
+        <div style="text-align:center;padding:16px 0 8px">
             <button onclick="closeRoundDetail();reshareRound(${r.id})" style="background:var(--green);color:white;border:none;border-radius:10px;padding:11px 32px;font-size:14px;font-weight:700;cursor:pointer">↗ 分享這場成績</button>
+        </div>
+        <div style="text-align:center;padding:0 0 24px">
+            <button onclick="deleteRound(${r.id})" style="background:none;border:none;color:#c0392b;font-size:13px;cursor:pointer;padding:8px 16px;opacity:0.75">刪除這場成績</button>
         </div>`;
     document.getElementById('round-detail-overlay').classList.add('show');
 }
 
 function closeRoundDetail() {
     document.getElementById('round-detail-overlay').classList.remove('show');
+}
+
+function deleteRound(id) {
+    if (!confirm('確定要刪除這場成績？此操作無法復原。')) return;
+    const data = loadData();
+    data.rounds = data.rounds.filter(r => r.id !== id);
+    saveData(data);
+    closeRoundDetail();
+    refreshScoresPage();
+    renderProfile();
 }
 
 function openCourseDetail(courseKey) {
