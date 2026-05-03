@@ -19,7 +19,7 @@
         @keyframes pinShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
         .pin-dots.shake { animation: pinShake 0.35s ease; }
         .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
-        .pin-key { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.12); border: none; color: white; font-size: 22px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
+        .pin-key { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.12); border: none; color: white; font-size: 22px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         .pin-key:active { background: rgba(255,255,255,0.28); }
         .pin-key.empty { background: transparent; cursor: default; }
         .pin-key.del { font-size: 18px; }
