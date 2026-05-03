@@ -627,34 +627,44 @@
                 <div class="course-dropdown-panel" id="course-dropdown-panel"></div>
             </div>
             <select id="course-select" style="display:none">
-                <optgroup label="── 大台北／新北 ──">
+                <optgroup label="── 北部球場 ──">
                 <option value="oldtamsui">老淡水高爾夫球場</option>
+                <option value="shintanshui">新淡水高爾夫球場</option>
+                <option value="guohua">國華高爾夫球場</option>
                 <option value="linkou_ew">林口高爾夫球場（東區＋西區）</option>
                 <option value="linkou_es">林口高爾夫球場（東區＋南區）</option>
                 <option value="linkou_ws">林口高爾夫球場（西區＋南區）</option>
-                </optgroup>
-                <optgroup label="── 桃園 ──">
-                <option value="lungtan">龍潭高爾夫球場</option>
-                <option value="tsaihing">再興高爾夫俱樂部</option>
+                <option value="donghua">東華高爾夫球場</option>
                 <option value="changgeng_nm">長庚高爾夫球場（北區＋中區）</option>
                 <option value="changgeng_ns">長庚高爾夫球場（北區＋南區）</option>
                 <option value="changgeng_ms">長庚高爾夫球場（中區＋南區）</option>
+                <option value="dongfang_ty">東方高爾夫球場</option>
+                <option value="yangsheng">揚昇高爾夫鄉村俱樂部</option>
+                <option value="lungtan">龍潭高爾夫球場</option>
                 <option value="taoyuan_es">桃園高爾夫俱樂部（東區＋南區）</option>
                 <option value="taoyuan_sw">桃園高爾夫俱樂部（南區＋西區）</option>
                 <option value="taoyuan_ew">桃園高爾夫俱樂部（東區＋西區）</option>
-                <option value="xuyang">旭陽高爾夫球場</option>
-                <option value="shanxidi">山溪地高爾夫球場</option>
+                <option value="yonghan">永漢高爾夫球場</option>
                 </optgroup>
-                <optgroup label="── 新竹 ──">
+                <optgroup label="── 中部球場 ──">
+                <option value="xinfeng">新豐高爾夫球場</option>
+                <option value="tsaihing">再興高爾夫俱樂部</option>
                 <option value="laoyeguan">老爺關西高爾夫球場</option>
-                </optgroup>
-                <optgroup label="── 台中／彰化 ──">
-                <option value="taifeng">台豐高爾夫俱樂部</option>
-                <option value="nanfeng">南峰高爾夫球俱樂部</option>
+                <option value="shanxidi">山溪地高爾夫球場</option>
+                <option value="xuyang">旭陽高爾夫球場</option>
                 <option value="quanguo">全國花園鄉村俱樂部</option>
                 <option value="taichung_em">台中國際（東區＋中區）</option>
                 <option value="taichung_mw">台中國際（中區＋西區）</option>
                 <option value="taichung_ew">台中國際（東區＋西區）</option>
+                <option value="fengyuan">豐原高爾夫球場</option>
+                <option value="qingquangang">清泉崗高爾夫球場</option>
+                <option value="nanfeng">南峰高爾夫球場</option>
+                <option value="taifeng">台豐高爾夫俱樂部</option>
+                </optgroup>
+                <optgroup label="── 南部球場 ──">
+                <option value="nanyi">南一高爾夫球場</option>
+                <option value="xinyi">信誼高爾夫球場</option>
+                <option value="daganshan">大崗山高爾夫球場</option>
                 </optgroup>
             </select>
         </div>
@@ -857,6 +867,19 @@ const COURSES = {
     laoyeguan:  { name: '老爺關西高爾夫球場', par: [4,4,3,5,4,4,3,5,4, 4,5,3,4,4,4,4,3,5] }, // OUT 36 / IN 36 = 72
     xuyang:     { name: '旭陽高爾夫球場',     par: [4,4,4,3,4,5,4,3,5, 5,3,4,4,5,4,3,4,4] }, // OUT 36 / IN 36 = 72
     shanxidi:   { name: '山溪地高爾夫球場',   par: [4,4,4,3,4,5,4,3,5, 4,4,3,4,3,4,5,4,5] }, // OUT 36 / IN 36 = 72
+    // ── 新增球場 ──
+    shintanshui:  { name: '新淡水高爾夫球場',       par: [5,5,4,3,4,4,3,4,4, 5,4,3,4,5,4,3,4,4] }, // OUT 36 / IN 36 = 72
+    guohua:       { name: '國華高爾夫球場',         par: [4,4,3,5,3,4,4,5,4, 4,3,5,4,4,3,5,4,4] }, // OUT 36 / IN 36 = 72
+    donghua:      { name: '東華高爾夫球場',         par: [5,4,3,4,4,3,4,5,4, 4,4,5,3,4,4,3,5,4] }, // OUT 36 / IN 36 = 72
+    yangsheng:    { name: '揚昇高爾夫鄉村俱樂部',   par: [4,3,4,3,4,5,4,4,5, 4,3,4,5,4,4,3,4,5] }, // OUT 36 / IN 36 = 72
+    dongfang_ty:  { name: '東方高爾夫球場',         par: [5,3,4,4,5,4,3,4,4, 5,4,4,3,4,4,3,4,5] }, // OUT 36 / IN 36 = 72
+    yonghan:      { name: '永漢高爾夫球場',         par: [5,4,3,4,4,5,3,4,4, 4,4,5,4,4,3,4,3,5] }, // OUT 36 / IN 36 = 72
+    xinfeng:      { name: '新豐高爾夫球場',         par: [4,4,3,4,5,3,4,4,5, 4,3,4,4,5,4,4,3,5] }, // OUT 36 / IN 36 = 72
+    fengyuan:     { name: '豐原高爾夫球場',         par: [4,5,5,3,4,4,3,4,3, 5,3,4,3,4,3,5,4,5] }, // OUT 35 / IN 36 = 71
+    qingquangang: { name: '清泉崗高爾夫球場',       par: [4,4,4,3,4,4,5,4,4, 4,3,4,5,4,4,5,3,4] }, // OUT 36 / IN 36 = 72
+    xinyi:        { name: '信誼高爾夫球場',         par: [4,4,3,5,4,3,4,5,4, 4,4,4,3,4,5,4,3,5] }, // OUT 36 / IN 36 = 72
+    daganshan:    { name: '大崗山高爾夫球場',       par: [4,5,3,4,5,4,4,3,4, 4,4,4,3,5,4,3,5,4] }, // OUT 36 / IN 36 = 72
+    nanyi:        { name: '南一高爾夫球場',         par: [5,4,3,4,4,4,4,3,5, 4,5,4,3,4,3,4,5,4] }, // OUT 36 / IN 36 = 72
 };
 
 // ── Handicap Demo State ──
