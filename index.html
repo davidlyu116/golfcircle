@@ -2217,7 +2217,16 @@ function renderDream(key) {
 
 function openDreamSheet() {
     const list = document.getElementById('dream-sheet-list');
-    list.innerHTML = getAllDreamKeys().map(key => {
+    const allRounds = loadData().rounds;
+    const sortedKeys = getAllDreamKeys().sort((a, b) => {
+        const aR = allRounds.filter(r => r.courseKey === a);
+        const bR = allRounds.filter(r => r.courseKey === b);
+        if (bR.length !== aR.length) return bR.length - aR.length;
+        const aLatest = aR.map(r => r.date).sort().pop() || '';
+        const bLatest = bR.map(r => r.date).sort().pop() || '';
+        return bLatest.localeCompare(aLatest);
+    });
+    list.innerHTML = sortedKeys.map(key => {
         const d = getDreamForCourse(key);
         if (!d) return '';
         const totalBest = d.holes.reduce((a,x)=>a+x.best,0);
