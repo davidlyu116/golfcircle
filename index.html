@@ -393,6 +393,29 @@
         ::-webkit-scrollbar { display: none; }
         .mt10 { margin-top: 10px; }
         .mt12 { margin-top: 12px; }
+
+        /* ── Course Cards ── */
+        .course-card { background: white; border-radius: 14px; margin: 0 12px 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); cursor: pointer; display: flex; align-items: center; gap: 12px; -webkit-tap-highlight-color: transparent; }
+        .course-card:active { opacity: 0.82; }
+        .course-card-icon { width: 42px; height: 42px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .course-card-left { flex: 1; min-width: 0; }
+        .course-card-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .course-card-meta { font-size: 12px; color: var(--gray); margin-top: 3px; }
+        .course-card-right { text-align: right; flex-shrink: 0; }
+        .course-card-score { font-size: 24px; font-weight: 700; color: var(--green); line-height: 1; }
+        .course-card-score-lbl { font-size: 10px; color: var(--gray); margin-top: 2px; }
+        .course-card-arrow { color: #ccc; font-size: 18px; flex-shrink: 0; }
+
+        /* ── Course Detail Overlay ── */
+        .course-detail-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 250; display: none; flex-direction: column; max-width: 430px; left: 50%; transform: translateX(-50%); }
+        .course-detail-overlay.show { display: flex; }
+        .course-detail-header { background: var(--green); color: white; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .course-detail-header h2 { font-size: 15px; font-weight: 600; flex: 1; line-height: 1.3; }
+        .course-detail-stats { background: var(--green); display: flex; padding: 0 16px 16px; gap: 0; }
+        .course-detail-stat { flex: 1; text-align: center; }
+        .course-detail-stat-val { font-size: 22px; font-weight: 700; color: white; line-height: 1; }
+        .course-detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 3px; }
+        .course-detail-body { flex: 1; overflow-y: auto; padding-bottom: 30px; }
     </style>
 </head>
 <body>
@@ -593,7 +616,7 @@
     </div>
     </div><!-- /dream-section-wrap -->
 
-    <div class="section-label" style="margin-top:0">最近成績</div>
+    <div class="section-label" style="margin-top:0">我的球場</div>
     <div id="rounds-history" style="margin-bottom:12px">
         <div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">尚無成績記錄<br><br>點 <strong>+</strong> 開始記錄你的第一場 ⛳</div>
     </div>
@@ -749,6 +772,16 @@
             <div class="empty-state-text">還沒有收藏任何內容</div>
         </div>
     </div>
+</div>
+
+<!-- Course Detail Overlay -->
+<div class="course-detail-overlay" id="course-detail-overlay">
+    <div class="course-detail-header">
+        <button class="back-btn" onclick="closeCourseDetail()">‹</button>
+        <h2 id="course-detail-name"></h2>
+    </div>
+    <div class="course-detail-stats" id="course-detail-stats"></div>
+    <div class="course-detail-body" id="course-detail-body"></div>
 </div>
 
 <!-- Avatar Picker Sheet -->
@@ -1800,6 +1833,93 @@ function closeRoundDetail() {
     document.getElementById('round-detail-overlay').classList.remove('show');
 }
 
+function openCourseDetail(courseKey) {
+    const data    = loadData();
+    const course  = COURSES[courseKey];
+    const name    = course ? course.name : courseKey;
+    const cRounds = data.rounds.filter(r => r.courseKey === courseKey)
+                               .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+    if (!cRounds.length) return;
+
+    document.getElementById('course-detail-name').textContent = name;
+
+    // Stats
+    const count = cRounds.length;
+    const avg   = cRounds.reduce((s,r) => s + r.total, 0) / count;
+    const best  = Math.min(...cRounds.map(r => r.total));
+    document.getElementById('course-detail-stats').innerHTML = `
+        <div class="course-detail-stat"><div class="course-detail-stat-val">${count}</div><div class="course-detail-stat-lbl">累積場次</div></div>
+        <div class="course-detail-stat"><div class="course-detail-stat-val">${avg.toFixed(1)}</div><div class="course-detail-stat-lbl">平均桿</div></div>
+        <div class="course-detail-stat"><div class="course-detail-stat-val">${best}</div><div class="course-detail-stat-lbl">最佳桿</div></div>`;
+
+    // Dream Round
+    const dreamData = getDreamForCourse(courseKey);
+    let dreamHtml = '';
+    if (dreamData) {
+        const dTotal = dreamData.holes.reduce((a,x) => a + x.best, 0);
+        const dPar   = dreamData.holes.reduce((a,x) => a + x.par, 0);
+        const dDiff  = dTotal - dPar;
+        const dDiffStr = dDiff === 0 ? 'E' : (dDiff > 0 ? '+' + dDiff : '' + dDiff);
+        dreamHtml = `<div class="section-label" style="margin-top:8px">🌟 夢幻輪</div>
+        <div class="card" style="margin-bottom:10px;overflow:hidden">
+            <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
+                <div style="font-size:12px;color:var(--gray)">基於 ${dreamData.rounds} 場紀錄的每洞最佳</div>
+                <div style="text-align:right">
+                    <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1">${dTotal}</div>
+                    <div style="font-size:11px;color:var(--gray)">${dDiffStr} vs Par</div>
+                </div>
+            </div>
+            <div class="dream-section">
+                <table class="dream-table" id="cd-dream-out"></table>
+                <table class="dream-table" style="margin-top:4px" id="cd-dream-in"></table>
+            </div>
+        </div>`;
+    }
+
+    // Rounds list
+    const icons = ['⛳','🏌️','🎯','🌿','🏆'];
+    const roundsHtml = cRounds.map((r, i) => {
+        const par = r.pars.reduce((a,b) => a+b, 0);
+        const diff = r.total - par;
+        const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
+        const diffColor = diff<=0?'var(--green)':diff<=8?'var(--text)':'#e53e3e';
+        const d = r.date.split('-');
+        return `<div class="history-item" onclick="openCourseDetailRound(${r.id})" style="cursor:pointer">
+            <div class="history-icon">${icons[i%icons.length]}</div>
+            <div class="history-info">
+                <div class="history-course">${r.date} · ${r.holesOpt}洞</div>
+            </div>
+            <div class="history-score">
+                <div class="history-num" style="color:${diffColor}">${r.total}</div>
+                <div class="history-net">${diffStr}</div>
+                <div onclick="event.stopPropagation();reshareRound(${r.id})" style="font-size:11px;color:var(--green);cursor:pointer;margin-top:4px">↗ 分享</div>
+            </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('course-detail-body').innerHTML =
+        dreamHtml +
+        `<div class="section-label" style="margin-top:0">歷史場次</div>
+        <div style="margin:0 12px 12px">${roundsHtml}</div>`;
+
+    if (dreamData) {
+        buildDreamHalf(dreamData.holes.slice(0,9), 'cd-dream-out', '前九洞');
+        if (dreamData.holes.length > 9) buildDreamHalf(dreamData.holes.slice(9), 'cd-dream-in', '後九洞');
+    }
+
+    document.getElementById('course-detail-overlay').classList.add('show');
+    document.getElementById('course-detail-body').scrollTop = 0;
+}
+
+function openCourseDetailRound(id) {
+    closeCourseDetail();
+    setTimeout(() => viewRoundDetail(id), 50);
+}
+
+function closeCourseDetail() {
+    document.getElementById('course-detail-overlay').classList.remove('show');
+}
+
 function refreshScoresPage() {
     const data = loadData();
     const rounds = data.rounds;
@@ -1897,33 +2017,42 @@ function refreshScoresPage() {
         document.getElementById('hcp-display').textContent = '--';
     }
 
-    // History
+    // Course Cards
     const hist = document.getElementById('rounds-history');
     if (!hist) return;
     if (rounds.length === 0) {
         hist.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">尚無成績記錄<br><br>點 <strong>+</strong> 開始記錄你的第一場 ⛳</div>';
         return;
     }
-    const icons = ['⛳','🏌️','🎯','🌿','🏆'];
-    const sorted = [...rounds].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
-    hist.innerHTML = sorted.slice(0,10).map((r,i) => {
-        const par = r.pars.reduce((a,b)=>a+b,0);
-        const diff = r.total - par;
-        const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
-        const d = r.date.split('-');
-        const dateStr = `${d[0]}年${parseInt(d[1])}月${parseInt(d[2])}日`;
-        const holeStr = r.holesOpt==='18'?'18洞':'9洞';
-        return `<div class="history-item" onclick="viewRoundDetail(${r.id})" style="cursor:pointer">
-            <div class="history-icon">${icons[i%5]}</div>
-            <div class="history-info">
-                <div class="history-course">${r.courseName}</div>
-                <div class="history-date">${dateStr} · ${holeStr}</div>
+    const courseGroups = {};
+    rounds.forEach(r => {
+        if (!courseGroups[r.courseKey]) courseGroups[r.courseKey] = [];
+        courseGroups[r.courseKey].push(r);
+    });
+    const sortedKeys = Object.keys(courseGroups).sort((a, b) => {
+        const latestA = courseGroups[a][0].date;
+        const latestB = courseGroups[b][0].date;
+        return latestB.localeCompare(latestA);
+    });
+    const courseIcons = ['⛳','🏌️','🎯','🌿','🏆','🎪','🌟','💎'];
+    hist.innerHTML = sortedKeys.map((courseKey, i) => {
+        const cRounds = courseGroups[courseKey];
+        const course  = COURSES[courseKey];
+        const name    = course ? course.name : (cRounds[0].courseName || courseKey);
+        const count   = cRounds.length;
+        const avg     = cRounds.reduce((s, r) => s + r.total, 0) / count;
+        const best    = Math.min(...cRounds.map(r => r.total));
+        return `<div class="course-card" onclick="openCourseDetail('${courseKey}')">
+            <div class="course-card-icon">${courseIcons[i % courseIcons.length]}</div>
+            <div class="course-card-left">
+                <div class="course-card-name">${name}</div>
+                <div class="course-card-meta">${count} 場 · 最佳 ${best} 桿</div>
             </div>
-            <div class="history-score">
-                <div class="history-num">${r.total}</div>
-                <div class="history-net">${diffStr}</div>
-                <div onclick="event.stopPropagation();reshareRound(${r.id})" style="font-size:11px;color:var(--green);cursor:pointer;margin-top:4px">↗ 分享</div>
+            <div class="course-card-right">
+                <div class="course-card-score">${avg.toFixed(1)}</div>
+                <div class="course-card-score-lbl">平均桿</div>
             </div>
+            <div class="course-card-arrow">›</div>
         </div>`;
     }).join('');
 }
