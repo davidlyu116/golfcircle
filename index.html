@@ -657,6 +657,7 @@
                 <optgroup label="── 北部球場 ──">
                 <option value="oldtamsui">老淡水高爾夫球場</option>
                 <option value="shintanshui">新淡水高爾夫球場</option>
+                <option value="bali">八里高爾夫球場</option>
                 <option value="guohua">國華高爾夫球場</option>
                 <option value="datun">大屯高爾夫球場</option>
                 <option value="huangjin">黃金海岸高爾夫球場</option>
@@ -693,14 +694,17 @@
                 <option value="qingquangang">清泉崗高爾夫球場</option>
                 <option value="nanfeng">南峰高爾夫球場</option>
                 <option value="taifeng">台豐高爾夫俱樂部</option>
+                <option value="wufeng">霧峰高爾夫球場</option>
                 </optgroup>
                 <optgroup label="── 南部球場 ──">
                 <option value="nanyi">南一高爾夫球場</option>
                 <option value="xinyi">信誼高爾夫球場</option>
                 <option value="daganshan">大崗山高爾夫球場</option>
+                <option value="tainan">台南高爾夫球場</option>
                 </optgroup>
                 <optgroup label="── 東部球場 ──">
                 <option value="jiaoxi">礁溪高爾夫球場</option>
+                <option value="hualien">花蓮高爾夫球場</option>
                 </optgroup>
             </select>
         </div>
@@ -935,6 +939,10 @@ const COURSES = {
     dasih_me:     { name: '大溪高爾夫球場（中區＋東區）', par: [4,4,5,4,3,5,3,4,4, 5,3,4,4,5,4,4,4,3] }, // 36+36=72
     dasih_we:     { name: '大溪高爾夫球場（西區＋東區）', par: [4,4,3,4,5,5,4,3,4, 5,3,4,4,5,4,4,4,3] }, // 36+36=72
     baoshan:      { name: '寶山高爾夫球場',         par: [5,4,4,4,3,5,4,3,4, 4,5,4,3,4,5,4,3,4] }, // OUT 36 / IN 36 = 72
+    bali:         { name: '八里高爾夫球場',         par: [4,4,4,4,3,5,5,3,4, 4,4,3,5,4,4,3,4,5] }, // OUT 36 / IN 36 = 72
+    wufeng:       { name: '霧峰高爾夫球場',         par: [4,3,5,3,4,4,4,4,5, 4,4,5,3,4,5,4,3,4] }, // OUT 36 / IN 36 = 72
+    tainan:       { name: '台南高爾夫球場',         par: [5,4,3,4,3,5,4,4,4, 4,4,4,3,4,5,4,3,5] }, // OUT 36 / IN 36 = 72
+    hualien:      { name: '花蓮高爾夫球場',         par: [4,3,5,4,3,5,3,5,4, 4,3,4,3,5,5,4,3,5] }, // OUT 36 / IN 36 = 72
     jiaoxi:       { name: '礁溪高爾夫球場',         par: [4,4,3,4,4,5,5,3,4, 4,5,3,4,4,3,5,4,4] }, // OUT 36 / IN 36 = 72
 };
 
@@ -2049,9 +2057,11 @@ function refreshScoresPage() {
         courseGroups[r.courseKey].push(r);
     });
     const sortedKeys = Object.keys(courseGroups).sort((a, b) => {
-        const latestA = courseGroups[a][0].date;
-        const latestB = courseGroups[b][0].date;
-        return latestB.localeCompare(latestA);
+        const aRounds = courseGroups[a], bRounds = courseGroups[b];
+        if (bRounds.length !== aRounds.length) return bRounds.length - aRounds.length;
+        const aLatest = aRounds.map(r => r.date).sort().pop();
+        const bLatest = bRounds.map(r => r.date).sort().pop();
+        return bLatest.localeCompare(aLatest);
     });
     const courseIcons = ['⛳','🏌️','🎯','🌿','🏆','🎪','🌟','💎'];
     hist.innerHTML = sortedKeys.map((courseKey, i) => {
