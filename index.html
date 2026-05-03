@@ -946,6 +946,27 @@ const COURSES = {
     jiaoxi:       { name: '礁溪高爾夫球場',         par: [4,4,3,4,4,5,5,3,4, 4,5,3,4,4,3,5,4,4] }, // OUT 36 / IN 36 = 72
 };
 
+// ── Course Group Mapping (27/36-hole courses) ──
+const COURSE_GROUPS = {
+    changgeng_nm: { group: 'changgeng', groupName: '長庚高爾夫球場' },
+    changgeng_ns: { group: 'changgeng', groupName: '長庚高爾夫球場' },
+    changgeng_ms: { group: 'changgeng', groupName: '長庚高爾夫球場' },
+    linkou_ew:    { group: 'linkou',    groupName: '林口高爾夫球場' },
+    linkou_es:    { group: 'linkou',    groupName: '林口高爾夫球場' },
+    linkou_ws:    { group: 'linkou',    groupName: '林口高爾夫球場' },
+    taichung_em:  { group: 'taichung', groupName: '台中國際高爾夫俱樂部' },
+    taichung_mw:  { group: 'taichung', groupName: '台中國際高爾夫俱樂部' },
+    taichung_ew:  { group: 'taichung', groupName: '台中國際高爾夫俱樂部' },
+    taoyuan_es:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
+    taoyuan_sw:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
+    taoyuan_ew:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
+    dasih_mw:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
+    dasih_me:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
+    dasih_we:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
+};
+function getGroupKey(courseKey)  { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].group    : courseKey; }
+function getGroupName(courseKey) { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].groupName : (COURSES[courseKey] ? COURSES[courseKey].name : courseKey); }
+
 // ── Handicap Demo State ──
 // Toggle: false = locked (2/5), true = unlocked
 // WHS lookup: [minRounds, take, adjustment]
@@ -1861,11 +1882,13 @@ function deleteRound(id) {
     renderProfile();
 }
 
-function openCourseDetail(courseKey) {
+function openCourseDetail(groupKey) {
     const data    = loadData();
-    const course  = COURSES[courseKey];
-    const name    = course ? course.name : courseKey;
-    const cRounds = data.rounds.filter(r => r.courseKey === courseKey)
+    const name    = (() => {
+        const sample = data.rounds.find(r => getGroupKey(r.courseKey) === groupKey);
+        return sample ? getGroupName(sample.courseKey) : (COURSES[groupKey] ? COURSES[groupKey].name : groupKey);
+    })();
+    const cRounds = data.rounds.filter(r => getGroupKey(r.courseKey) === groupKey)
                                .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
     if (!cRounds.length) return;
 
@@ -1880,8 +1903,9 @@ function openCourseDetail(courseKey) {
         <div class="course-detail-stat"><div class="course-detail-stat-val">${avg.toFixed(1)}</div><div class="course-detail-stat-lbl">平均桿</div></div>
         <div class="course-detail-stat"><div class="course-detail-stat-val">${best}</div><div class="course-detail-stat-lbl">最佳桿</div></div>`;
 
-    // Dream Round
-    const dreamData = getDreamForCourse(courseKey);
+    // Dream Round — only for single-course (non-grouped) views
+    const isSingleCourse = !COURSE_GROUPS[cRounds[0]?.courseKey] && new Set(cRounds.map(r => r.courseKey)).size === 1;
+    const dreamData = isSingleCourse ? getDreamForCourse(cRounds[0].courseKey) : null;
     let dreamHtml = '';
     if (dreamData) {
         const dTotal = dreamData.holes.reduce((a,x) => a + x.best, 0);
@@ -1915,7 +1939,7 @@ function openCourseDetail(courseKey) {
         return `<div class="history-item" onclick="openCourseDetailRound(${r.id})" style="cursor:pointer">
             <div class="history-icon">${icons[i%icons.length]}</div>
             <div class="history-info">
-                <div class="history-course">${r.date} · ${r.holesOpt}洞</div>
+                <div class="history-course">${r.date} · ${(() => { if (!COURSE_GROUPS[r.courseKey]) return r.holesOpt+'洞'; const m = (COURSES[r.courseKey]?.name||'').match(/（(.+?)）/); return m ? m[1] : r.holesOpt+'洞'; })()}</div>
             </div>
             <div class="history-score">
                 <div class="history-num" style="color:${diffColor}">${r.total}</div>
@@ -2053,25 +2077,25 @@ function refreshScoresPage() {
     }
     const courseGroups = {};
     rounds.forEach(r => {
-        if (!courseGroups[r.courseKey]) courseGroups[r.courseKey] = [];
-        courseGroups[r.courseKey].push(r);
+        const gk = getGroupKey(r.courseKey);
+        if (!courseGroups[gk]) courseGroups[gk] = { rounds: [], name: getGroupName(r.courseKey) };
+        courseGroups[gk].rounds.push(r);
     });
     const sortedKeys = Object.keys(courseGroups).sort((a, b) => {
-        const aRounds = courseGroups[a], bRounds = courseGroups[b];
-        if (bRounds.length !== aRounds.length) return bRounds.length - aRounds.length;
-        const aLatest = aRounds.map(r => r.date).sort().pop();
-        const bLatest = bRounds.map(r => r.date).sort().pop();
+        const aR = courseGroups[a].rounds, bR = courseGroups[b].rounds;
+        if (bR.length !== aR.length) return bR.length - aR.length;
+        const aLatest = aR.map(r => r.date).sort().pop();
+        const bLatest = bR.map(r => r.date).sort().pop();
         return bLatest.localeCompare(aLatest);
     });
     const courseIcons = ['⛳','🏌️','🎯','🌿','🏆','🎪','🌟','💎'];
-    hist.innerHTML = sortedKeys.map((courseKey, i) => {
-        const cRounds = courseGroups[courseKey];
-        const course  = COURSES[courseKey];
-        const name    = course ? course.name : (cRounds[0].courseName || courseKey);
+    hist.innerHTML = sortedKeys.map((groupKey, i) => {
+        const cRounds = courseGroups[groupKey].rounds;
+        const name    = courseGroups[groupKey].name;
         const count   = cRounds.length;
         const avg     = cRounds.reduce((s, r) => s + r.total, 0) / count;
         const best    = Math.min(...cRounds.map(r => r.total));
-        return `<div class="course-card" onclick="openCourseDetail('${courseKey}')">
+        return `<div class="course-card" onclick="openCourseDetail('${groupKey}')">
             <div class="course-card-icon">${courseIcons[i % courseIcons.length]}</div>
             <div class="course-card-left">
                 <div class="course-card-name">${name}</div>
