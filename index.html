@@ -1076,13 +1076,14 @@ function renderProfile() {
         list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⛳</div><div class="empty-state-text">還沒有成績紀錄<br>去打第一場吧！</div></div>';
         return;
     }
-    list.innerHTML = rounds.map(r => {
+    const sortedRounds = [...rounds].sort((a, b) => b.date.localeCompare(a.date));
+    list.innerHTML = sortedRounds.map(r => {
         const parTotal = r.pars ? r.pars.reduce((a, b) => a + b, 0) : null;
         const diff = parTotal ? r.total - parTotal : null;
         const diffStr = diff !== null ? (diff > 0 ? `+${diff}` : diff === 0 ? 'E' : `${diff}`) : '';
         const diffColor = diff === null ? 'var(--gray)' : diff <= 0 ? 'var(--green)' : diff <= 8 ? 'var(--text)' : '#e53e3e';
         const badgeHtml = r.badge ? `<span class="post-badge" style="font-size:9px;padding:1px 7px">${r.badge.icon} ${r.badge.name}</span>` : '';
-        return `<div class="history-item" onclick="viewRound(${r.id})">
+        return `<div class="history-item" onclick="viewRoundDetail(${r.id})">
             <div class="history-icon">⛳</div>
             <div class="history-info">
                 <div class="post-name-row" style="margin-bottom:2px"><span class="history-course">${r.courseName}</span>${badgeHtml}</div>
