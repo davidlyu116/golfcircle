@@ -335,9 +335,14 @@
         .course-option:last-child { border-bottom: none; }
         .course-option:hover { background: rgba(26,92,42,0.05); }
         .course-option.selected { background: rgba(26,92,42,0.08); }
-        .course-option-main { font-size: 14px; color: var(--dark); line-height: 1.5; }
+        .course-option-main { font-size: 14px; color: var(--dark); line-height: 1.5; flex: 1; }
         .course-option-sub { font-size: 11px; color: #aaa; margin-left: 3px; }
         .course-trigger-sub { font-size: 11px; color: #aaa; margin-left: 3px; }
+        .course-option-group { display: flex; align-items: center; }
+        .course-option-zone-arr { font-size: 16px; color: var(--green); flex-shrink: 0; margin-left: 6px; }
+        .record-zone-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 350; display: none; align-items: flex-end; justify-content: center; }
+        .record-zone-overlay.show { display: flex; }
+        .record-zone-sheet { background: white; width: 100%; max-width: 430px; border-radius: 20px 20px 0 0; padding: 0 0 32px; max-height: 70vh; overflow-y: auto; }
 
         /* Scorecard grid */
         .scorecard { margin-top: 4px; }
@@ -905,6 +910,13 @@
     <div class="dream-sheet">
         <div class="dream-sheet-title">選擇顯示的球場</div>
         <div id="dream-sheet-list"></div>
+    </div>
+</div>
+
+<div class="record-zone-overlay" id="record-zone-overlay" onclick="closeRecordZonePicker()">
+    <div class="record-zone-sheet" onclick="event.stopPropagation()">
+        <div class="dream-sheet-title" id="record-zone-title"></div>
+        <div id="record-zone-list"></div>
     </div>
 </div>
 
@@ -2454,27 +2466,38 @@ function closeDreamSheet(e) {
 
 // ── Custom Course Dropdown ──
 function buildCourseDropdown() {
-    const sel = document.getElementById('course-select');
+    const sel   = document.getElementById('course-select');
     const panel = document.getElementById('course-dropdown-panel');
     panel.innerHTML = '';
+    const shownGroups = new Set();
+
     Array.from(sel.children).forEach(group => {
         if (group.tagName !== 'OPTGROUP') return;
         const header = document.createElement('div');
         header.className = 'course-region-header';
-        header.textContent = group.label.replace(/──\s*/g, '').replace(/\s*──/g, '').trim();
+        header.textContent = group.label.replace(/──\s*/g,'').replace(/\s*──/g,'').trim();
         panel.appendChild(header);
+
         Array.from(group.children).forEach(opt => {
-            const text = opt.textContent.trim();
-            const bi = text.indexOf('（');
-            const mainText = bi !== -1 ? text.substring(0, bi) : text;
-            const subText  = bi !== -1 ? text.substring(bi) : '';
-            const item = document.createElement('div');
-            item.className = 'course-option';
-            item.dataset.value = opt.value;
-            item.innerHTML = `<div class="course-option-main">${mainText}` +
-                (subText ? `<span class="course-option-sub">${subText}</span>` : '') + `</div>`;
-            item.addEventListener('click', () => pickCourse(opt.value, mainText, subText));
-            panel.appendChild(item);
+            const gi = COURSE_GROUPS[opt.value];
+            if (gi) {
+                if (shownGroups.has(gi.group)) return;
+                shownGroups.add(gi.group);
+                const item = document.createElement('div');
+                item.className = 'course-option course-option-group';
+                item.dataset.group = gi.group;
+                item.innerHTML = `<div class="course-option-main">${gi.groupName}</div><div class="course-option-zone-arr">›</div>`;
+                item.addEventListener('click', () => openRecordZonePicker(gi.group, gi.groupName));
+                panel.appendChild(item);
+            } else {
+                const text = opt.textContent.trim();
+                const item = document.createElement('div');
+                item.className = 'course-option';
+                item.dataset.value = opt.value;
+                item.innerHTML = `<div class="course-option-main">${text}</div>`;
+                item.addEventListener('click', () => pickCourse(opt.value, text, ''));
+                panel.appendChild(item);
+            }
         });
     });
 }
@@ -2484,10 +2507,42 @@ function pickCourse(value, mainText, subText) {
     const wrap = document.getElementById('course-trigger-text');
     wrap.innerHTML = `<span class="course-trigger-main">${mainText}` +
         (subText ? `<span class="course-trigger-sub">${subText}</span>` : '') + `</span>`;
-    document.querySelectorAll('.course-option').forEach(el =>
+    document.querySelectorAll('.course-option[data-value]').forEach(el =>
         el.classList.toggle('selected', el.dataset.value === value));
+    const gi = COURSE_GROUPS[value];
+    document.querySelectorAll('.course-option[data-group]').forEach(el =>
+        el.classList.toggle('selected', gi && el.dataset.group === gi.group));
     closeCourseDropdown();
     loadCoursePars();
+}
+
+let _rzGroup = null;
+function openRecordZonePicker(groupKey, groupName) {
+    _rzGroup = groupKey;
+    const sel     = document.getElementById('course-select');
+    const current = sel.value;
+    const opts    = Array.from(sel.options).filter(o => COURSE_GROUPS[o.value]?.group === groupKey);
+    document.getElementById('record-zone-title').textContent = groupName;
+    document.getElementById('record-zone-list').innerHTML = opts.map(opt => {
+        const m = opt.textContent.match(/（(.+?)）/);
+        const zoneName = m ? m[1] : opt.textContent.trim();
+        const isCur = opt.value === current;
+        return `<div class="dream-sheet-item${isCur?' current':''}" onclick="pickRecordZone('${opt.value}')">
+            <div class="dream-sheet-name">${zoneName}${isCur?' ✓':''}</div>
+        </div>`;
+    }).join('');
+    document.getElementById('record-zone-overlay').classList.add('show');
+}
+
+function pickRecordZone(courseKey) {
+    closeRecordZonePicker();
+    const name = COURSES[courseKey]?.name || courseKey;
+    const bi   = name.indexOf('（');
+    pickCourse(courseKey, bi !== -1 ? name.substring(0, bi) : name, bi !== -1 ? name.substring(bi) : '');
+}
+
+function closeRecordZonePicker() {
+    document.getElementById('record-zone-overlay').classList.remove('show');
 }
 
 function toggleCourseDropdown() {
