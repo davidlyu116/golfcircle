@@ -682,6 +682,18 @@
                 <option value="dasih_mw">大溪高爾夫球場（中區＋西區）</option>
                 <option value="dasih_me">大溪高爾夫球場（中區＋東區）</option>
                 <option value="dasih_we">大溪高爾夫球場（西區＋東區）</option>
+                <option value="meilihwa_en">美麗華高爾夫球場（東區＋北區）</option>
+                <option value="meilihwa_es">美麗華高爾夫球場（東區＋南區）</option>
+                <option value="meilihwa_ew">美麗華高爾夫球場（東區＋西區）</option>
+                <option value="meilihwa_ns">美麗華高爾夫球場（北區＋南區）</option>
+                <option value="meilihwa_nw">美麗華高爾夫球場（北區＋西區）</option>
+                <option value="meilihwa_sw">美麗華高爾夫球場（南區＋西區）</option>
+                <option value="taipei_ab">台北高爾夫球場（A區＋B區）</option>
+                <option value="taipei_ac">台北高爾夫球場（A區＋C區）</option>
+                <option value="taipei_ad">台北高爾夫球場（A區＋D區）</option>
+                <option value="taipei_bc">台北高爾夫球場（B區＋C區）</option>
+                <option value="taipei_bd">台北高爾夫球場（B區＋D區）</option>
+                <option value="taipei_cd">台北高爾夫球場（C區＋D區）</option>
                 </optgroup>
                 <optgroup label="── 中部球場 ──">
                 <option value="baoshan">寶山高爾夫球場</option>
@@ -953,6 +965,20 @@ const COURSES = {
     tainan:       { name: '台南高爾夫球場',         par: [5,4,3,4,3,5,4,4,4, 4,4,4,3,4,5,4,3,5] }, // OUT 36 / IN 36 = 72
     hualien:      { name: '花蓮高爾夫球場',         par: [4,3,5,4,3,5,3,5,4, 4,3,4,3,5,5,4,3,5] }, // OUT 36 / IN 36 = 72
     jiaoxi:       { name: '礁溪高爾夫球場',         par: [4,4,3,4,4,5,5,3,4, 4,5,3,4,4,3,5,4,4] }, // OUT 36 / IN 36 = 72
+    // 美麗華高爾夫球場 36洞（東36/南36/西36/北36）
+    meilihwa_en:  { name: '美麗華高爾夫球場（東區＋北區）', par: [4,5,3,4,4,5,3,4,4, 4,5,3,4,4,5,3,4,4] }, // 36+36=72
+    meilihwa_es:  { name: '美麗華高爾夫球場（東區＋南區）', par: [4,5,3,4,4,5,3,4,4, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
+    meilihwa_ew:  { name: '美麗華高爾夫球場（東區＋西區）', par: [4,5,3,4,4,5,3,4,4, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
+    meilihwa_ns:  { name: '美麗華高爾夫球場（北區＋南區）', par: [4,5,3,4,4,5,3,4,4, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
+    meilihwa_nw:  { name: '美麗華高爾夫球場（北區＋西區）', par: [4,5,3,4,4,5,3,4,4, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
+    meilihwa_sw:  { name: '美麗華高爾夫球場（南區＋西區）', par: [4,4,3,5,4,4,3,4,5, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
+    // 台北高爾夫球場 36洞（A37/B36/C36/D36）
+    taipei_ab:    { name: '台北高爾夫球場（A區＋B區）', par: [4,3,4,4,4,3,5,5,5, 4,5,3,4,4,4,5,3,4] }, // 37+36=73
+    taipei_ac:    { name: '台北高爾夫球場（A區＋C區）', par: [4,3,4,4,4,3,5,5,5, 5,3,4,4,4,4,3,4,5] }, // 37+36=73
+    taipei_ad:    { name: '台北高爾夫球場（A區＋D區）', par: [4,3,4,4,4,3,5,5,5, 4,3,5,4,4,4,3,5,4] }, // 37+36=73
+    taipei_bc:    { name: '台北高爾夫球場（B區＋C區）', par: [4,5,3,4,4,4,5,3,4, 5,3,4,4,4,4,3,4,5] }, // 36+36=72
+    taipei_bd:    { name: '台北高爾夫球場（B區＋D區）', par: [4,5,3,4,4,4,5,3,4, 4,3,5,4,4,4,3,5,4] }, // 36+36=72
+    taipei_cd:    { name: '台北高爾夫球場（C區＋D區）', par: [5,3,4,4,4,4,3,4,5, 4,3,5,4,4,4,3,5,4] }, // 36+36=72
 };
 
 // ── Course Group Mapping (27/36-hole courses) ──
@@ -969,9 +995,21 @@ const COURSE_GROUPS = {
     taoyuan_es:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
     taoyuan_sw:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
     taoyuan_ew:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
-    dasih_mw:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
-    dasih_me:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
-    dasih_we:     { group: 'dasih',    groupName: '大溪高爾夫球場' },
+    dasih_mw:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
+    dasih_me:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
+    dasih_we:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
+    meilihwa_en:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    meilihwa_es:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    meilihwa_ew:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    meilihwa_ns:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    meilihwa_nw:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    meilihwa_sw:  { group: 'meilihwa', groupName: '美麗華高爾夫球場' },
+    taipei_ab:    { group: 'taipei',   groupName: '台北高爾夫球場' },
+    taipei_ac:    { group: 'taipei',   groupName: '台北高爾夫球場' },
+    taipei_ad:    { group: 'taipei',   groupName: '台北高爾夫球場' },
+    taipei_bc:    { group: 'taipei',   groupName: '台北高爾夫球場' },
+    taipei_bd:    { group: 'taipei',   groupName: '台北高爾夫球場' },
+    taipei_cd:    { group: 'taipei',   groupName: '台北高爾夫球場' },
 };
 function getGroupKey(courseKey)  { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].group    : courseKey; }
 function getGroupName(courseKey) { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].groupName : (COURSES[courseKey] ? COURSES[courseKey].name : courseKey); }
@@ -983,6 +1021,8 @@ const ZONE_LETTERS = {
     taichung:  { e:'東', m:'中', w:'西' },
     taoyuan:   { e:'東', s:'南', w:'西' },
     dasih:     { m:'中', w:'西', e:'東' },
+    meilihwa:  { e:'東', n:'北', s:'南', w:'西' },
+    taipei:    { a:'A區', b:'B區', c:'C區', d:'D區' },
 };
 function getZoneMap(courseKey) {
     const gi = COURSE_GROUPS[courseKey]; if (!gi) return null;
