@@ -684,6 +684,9 @@
                 <option value="taoyuan_sw">桃園高爾夫俱樂部（南區＋西區）</option>
                 <option value="taoyuan_ew">桃園高爾夫俱樂部（東區＋西區）</option>
                 <option value="yonghan">永漢高爾夫球場</option>
+                <option value="xinfu_em">新豐高爾夫球場（東區＋中區）</option>
+                <option value="xinfu_ew">新豐高爾夫球場（東區＋西區）</option>
+                <option value="xinfu_mw">新豐高爾夫球場（中區＋西區）</option>
                 <option value="dasih_mw">大溪高爾夫球場（中區＋西區）</option>
                 <option value="dasih_me">大溪高爾夫球場（中區＋東區）</option>
                 <option value="dasih_we">大溪高爾夫球場（西區＋東區）</option>
@@ -977,6 +980,10 @@ const COURSES = {
     tainan:       { name: '台南高爾夫球場',         par: [5,4,3,4,3,5,4,4,4, 4,4,4,3,4,5,4,3,5] }, // OUT 36 / IN 36 = 72
     hualien:      { name: '花蓮高爾夫球場',         par: [4,3,5,4,3,5,3,5,4, 4,3,4,3,5,5,4,3,5] }, // OUT 36 / IN 36 = 72
     jiaoxi:       { name: '礁溪高爾夫球場',         par: [4,4,3,4,4,5,5,3,4, 4,5,3,4,4,3,5,4,4] }, // OUT 36 / IN 36 = 72
+    // 新豐高爾夫球場 27洞（東36 / 西36 / 中36）
+    xinfu_em:     { name: '新豐高爾夫球場（東區＋中區）', par: [4,4,3,5,4,4,4,3,5, 4,4,3,4,4,5,3,5,4] }, // 36+36=72
+    xinfu_ew:     { name: '新豐高爾夫球場（東區＋西區）', par: [4,4,3,5,4,4,4,3,5, 5,3,4,4,3,4,4,4,5] }, // 36+36=72
+    xinfu_mw:     { name: '新豐高爾夫球場（中區＋西區）', par: [4,4,3,4,4,5,3,5,4, 5,3,4,4,3,4,4,4,5] }, // 36+36=72
     // 美麗華高爾夫球場 36洞（東36/南36/西36/北36）
     meilihwa_en:  { name: '美麗華高爾夫球場（東區＋北區）', par: [4,5,3,4,4,5,3,4,4, 4,5,3,4,4,5,3,4,4] }, // 36+36=72
     meilihwa_es:  { name: '美麗華高爾夫球場（東區＋南區）', par: [4,5,3,4,4,5,3,4,4, 4,4,3,5,4,4,3,4,5] }, // 36+36=72
@@ -1007,6 +1014,9 @@ const COURSE_GROUPS = {
     taoyuan_es:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
     taoyuan_sw:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
     taoyuan_ew:   { group: 'taoyuan',  groupName: '桃園高爾夫俱樂部' },
+    xinfu_em:     { group: 'xinfu',     groupName: '新豐高爾夫球場' },
+    xinfu_ew:     { group: 'xinfu',     groupName: '新豐高爾夫球場' },
+    xinfu_mw:     { group: 'xinfu',     groupName: '新豐高爾夫球場' },
     dasih_mw:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
     dasih_me:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
     dasih_we:     { group: 'dasih',     groupName: '大溪高爾夫球場' },
@@ -1032,6 +1042,7 @@ const ZONE_LETTERS = {
     linkou:    { e:'東', w:'西', s:'南' },
     taichung:  { e:'東', m:'中', w:'西' },
     taoyuan:   { e:'東', s:'南', w:'西' },
+    xinfu:     { e:'東', m:'中', w:'西' },
     dasih:     { m:'中', w:'西', e:'東' },
     meilihwa:  { e:'東', n:'北', s:'南', w:'西' },
     taipei:    { a:'A區', b:'B區', c:'C區', d:'D區' },
