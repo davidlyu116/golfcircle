@@ -568,7 +568,7 @@
     </div>
     <div class="stats-row">
         <div class="stat-item"><div class="stat-val" id="yearly-best">--</div><div class="stat-lbl">本年最佳</div></div>
-        <div class="stat-item"><div class="stat-val" id="hcp-display">--</div><div class="stat-lbl">我的差點</div></div>
+        <div class="stat-item"><div class="stat-val" id="monthly-best">--</div><div class="stat-lbl">本月最佳</div></div>
         <div class="stat-item"><div class="stat-val" id="yearly-rounds">0</div><div class="stat-lbl">累積場數</div></div>
     </div>
     <div class="stats-row bird-stats">
@@ -2146,14 +2146,17 @@ function refreshScoresPage() {
         const best = fullRounds.reduce((b,r) => r.total < b.total ? r : b, fullRounds[0]);
         document.getElementById('best-gross').textContent = best.total;
         document.getElementById('best-course').textContent = `總桿 · ${best.courseName}`;
+        const thisMonth = new Date().toISOString().slice(0, 7);
         const yearRounds = fullRounds.filter(r => (r.date || '').startsWith(thisYear));
-        const yearBestEl = document.getElementById('yearly-best');
+        const monthRounds = fullRounds.filter(r => (r.date || '').startsWith(thisMonth));
+        const yearBestEl  = document.getElementById('yearly-best');
+        const monthBestEl = document.getElementById('monthly-best');
         if (yearRounds.length > 0) {
-            const yb = yearRounds.reduce((b,r) => r.total < b.total ? r : b, yearRounds[0]);
-            yearBestEl.textContent = yb.total;
-        } else {
-            yearBestEl.textContent = '--';
-        }
+            yearBestEl.textContent = yearRounds.reduce((b,r) => r.total < b.total ? r : b, yearRounds[0]).total;
+        } else { yearBestEl.textContent = '--'; }
+        if (monthRounds.length > 0) {
+            monthBestEl.textContent = monthRounds.reduce((b,r) => r.total < b.total ? r : b, monthRounds[0]).total;
+        } else { monthBestEl.textContent = '--'; }
     }
 
     // Bird stats — calculated from hole-by-hole scores
@@ -2208,7 +2211,6 @@ function refreshScoresPage() {
         document.getElementById('hcp-unlocked-view').style.display = 'block';
         document.getElementById('hcp-big').style.display = 'block';
         document.getElementById('hcp-big').textContent = hcpStr;
-        document.getElementById('hcp-display').textContent = hcpStr;
         const badge = document.getElementById('profile-hcp-badge');
         if (badge) badge.textContent = `差點 ${hcpStr}`;
 
@@ -2235,7 +2237,6 @@ function refreshScoresPage() {
         document.getElementById('hcp-locked-view').style.display = 'block';
         document.getElementById('hcp-unlocked-view').style.display = 'none';
         document.getElementById('hcp-big').style.display = 'none';
-        document.getElementById('hcp-display').textContent = '--';
     }
 
     // Course Cards
