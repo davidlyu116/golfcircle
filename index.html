@@ -976,6 +976,27 @@ const COURSE_GROUPS = {
 function getGroupKey(courseKey)  { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].group    : courseKey; }
 function getGroupName(courseKey) { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].groupName : (COURSES[courseKey] ? COURSES[courseKey].name : courseKey); }
 
+// ── Zone-based Dream Round for 27-hole courses ──
+const ZONE_LETTERS = {
+    changgeng: { n:'北', m:'中', s:'南' },
+    linkou:    { e:'東', w:'西', s:'南' },
+    taichung:  { e:'東', m:'中', w:'西' },
+    taoyuan:   { e:'東', s:'南', w:'西' },
+    dasih:     { m:'中', w:'西', e:'東' },
+};
+function getZoneMap(courseKey) {
+    const gi = COURSE_GROUPS[courseKey]; if (!gi) return null;
+    const letters = ZONE_LETTERS[gi.group]; if (!letters) return null;
+    const suffix = courseKey.slice(gi.group.length + 1); // e.g. 'mw'
+    const z0 = letters[suffix[0]], z1 = letters[suffix[1]];
+    if (!z0 || !z1) return null;
+    const map = [];
+    for (let i=1; i<=9; i++) map.push([z0, i]);
+    for (let i=1; i<=9; i++) map.push([z1, i]);
+    return map; // index = hole position 0-17 → [zoneName, zoneHoleNum]
+}
+function zoneStorageKey(group, zone) { return group + '__' + zone; }
+
 // ── Handicap Demo State ──
 // Toggle: false = locked (2/5), true = unlocked
 // WHS lookup: [minRounds, take, adjustment]
@@ -2198,16 +2219,32 @@ function submitScore() {
     const data = loadData();
     const courseRoundNum = data.rounds.filter(r=>r.courseKey===courseKey).length + 1;
 
-    if (!data.dreamBests[courseKey]) data.dreamBests[courseKey] = { holes:{} };
-    const db = data.dreamBests[courseKey];
+    const zoneMap = getZoneMap(courseKey);
     const dreamUpdates = [];
-    allHoles.forEach((h,i) => {
-        const s = scores[i]; if (s===null) return;
-        if (!db.holes[h] || s < db.holes[h].best) {
-            db.holes[h] = { best:s, roundNum:courseRoundNum };
-            dreamUpdates.push(h);
-        }
-    });
+    if (zoneMap) {
+        const group = COURSE_GROUPS[courseKey].group;
+        allHoles.forEach((h,i) => {
+            const s = scores[i]; if (s===null) return;
+            const [zone, zh] = zoneMap[h-1];
+            const sk = zoneStorageKey(group, zone);
+            if (!data.dreamBests[sk]) data.dreamBests[sk] = { holes:{} };
+            const db = data.dreamBests[sk];
+            if (!db.holes[zh] || s < db.holes[zh].best) {
+                db.holes[zh] = { best:s, roundNum:courseRoundNum };
+                dreamUpdates.push(h);
+            }
+        });
+    } else {
+        if (!data.dreamBests[courseKey]) data.dreamBests[courseKey] = { holes:{} };
+        const db = data.dreamBests[courseKey];
+        allHoles.forEach((h,i) => {
+            const s = scores[i]; if (s===null) return;
+            if (!db.holes[h] || s < db.holes[h].best) {
+                db.holes[h] = { best:s, roundNum:courseRoundNum };
+                dreamUpdates.push(h);
+            }
+        });
+    }
 
     const selectedBadgeId = getSelectedBadge();
     const badgeAtPost = selectedBadgeId ? (DEMO_BADGES.find(b => b.id === selectedBadgeId) || null) : null;
@@ -2260,22 +2297,44 @@ function buildDreamHalf(holes, tableId, label) {
 
 function getDreamForCourse(courseKey) {
     const data = loadData();
-    const lsDB = (data.dreamBests[courseKey] || {}).holes || {};
-    const lsRounds = data.rounds.filter(r => r.courseKey === courseKey);
-    if (lsRounds.length === 0 || Object.keys(lsDB).length === 0) return null;
     const course = COURSES[courseKey];
     if (!course) return null;
-    const holes = course.par.map((par, idx) => {
-        const h = idx + 1, hd = lsDB[h];
-        return { h, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
-    });
+    const lsRounds = data.rounds.filter(r => r.courseKey === courseKey);
+    if (lsRounds.length === 0) return null;
+
+    const zoneMap = getZoneMap(courseKey);
+    let holes;
+    if (zoneMap) {
+        const group = COURSE_GROUPS[courseKey].group;
+        const hasAny = zoneMap.some(([zone]) => {
+            const sk = zoneStorageKey(group, zone);
+            return Object.keys((data.dreamBests[sk] || {}).holes || {}).length > 0;
+        });
+        if (!hasAny) return null;
+        holes = course.par.map((par, idx) => {
+            const [zone, zh] = zoneMap[idx];
+            const sk = zoneStorageKey(group, zone);
+            const hd = ((data.dreamBests[sk] || {}).holes || {})[zh];
+            return { h: idx+1, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
+        });
+    } else {
+        const lsDB = (data.dreamBests[courseKey] || {}).holes || {};
+        if (Object.keys(lsDB).length === 0) return null;
+        holes = course.par.map((par, idx) => {
+            const h = idx+1, hd = lsDB[h];
+            return { h, par, best: hd ? hd.best : par, r: hd ? hd.roundNum : '-' };
+        });
+    }
     const bestActual = lsRounds.reduce((b, r) => Math.min(b, r.total), 999);
     return { name: course.name, rounds: lsRounds.length, bestActual, holes };
 }
 
 function getAllDreamKeys() {
     const data = loadData();
-    return [...new Set(Object.keys(data.dreamBests).filter(k => data.rounds.some(r => r.courseKey === k)))];
+    return [...new Set(data.rounds
+        .filter(r => COURSES[r.courseKey])
+        .map(r => r.courseKey)
+    )];
 }
 
 function renderDream(key) {
@@ -2442,6 +2501,34 @@ function pinCheck() {
         }, 400);
     }
 }
+
+// Migrate existing multi-zone dream data to zone-based storage
+function migrateZoneDreams() {
+    const data = loadData();
+    if (data.zoneDreamMigrated) return;
+    const ordered = [...data.rounds].reverse(); // oldest first
+    const roundNums = {};
+    ordered.forEach(r => {
+        const zoneMap = getZoneMap(r.courseKey);
+        if (!zoneMap) return;
+        const group = COURSE_GROUPS[r.courseKey].group;
+        roundNums[r.courseKey] = (roundNums[r.courseKey] || 0) + 1;
+        const rn = roundNums[r.courseKey];
+        (r.holeNums || []).forEach((h, i) => {
+            const s = r.scores[i]; if (s===null || s===undefined) return;
+            const [zone, zh] = zoneMap[h-1];
+            const sk = zoneStorageKey(group, zone);
+            if (!data.dreamBests[sk]) data.dreamBests[sk] = { holes:{} };
+            const db = data.dreamBests[sk];
+            if (!db.holes[zh] || s < db.holes[zh].best) {
+                db.holes[zh] = { best:s, roundNum:rn };
+            }
+        });
+    });
+    data.zoneDreamMigrated = true;
+    saveData(data);
+}
+migrateZoneDreams();
 
 // Init
 if (localStorage.getItem(PIN_LS) === '1') {
