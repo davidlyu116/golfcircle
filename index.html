@@ -1977,9 +1977,11 @@ function deleteRound(id) {
     if (!confirm('確定要刪除這場成績？此操作無法復原。')) return;
     const data = loadData();
     data.rounds = data.rounds.filter(r => r.id !== id);
+    rebuildAllDreamBests(data);
     saveData(data);
     closeRoundDetail();
     refreshScoresPage();
+    renderDream();
     renderProfile();
 }
 
@@ -2348,6 +2350,38 @@ document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', func
 }));
 
 // ── Dream Round ──
+
+function rebuildAllDreamBests(data) {
+    data.dreamBests = {};
+    const sorted = [...data.rounds].sort((a,b) => a.date.localeCompare(b.date) || a.id - b.id);
+    const courseCounts = {};
+    for (const r of sorted) {
+        const { courseKey, scores, holeNums } = r;
+        if (!scores || !holeNums) continue;
+        courseCounts[courseKey] = (courseCounts[courseKey] || 0) + 1;
+        const roundNum = courseCounts[courseKey];
+        const zoneMap = getZoneMap(courseKey);
+        if (zoneMap) {
+            const group = COURSE_GROUPS[courseKey].group;
+            holeNums.forEach((h, i) => {
+                const s = scores[i]; if (s === null || s === undefined) return;
+                const [zone, zh] = zoneMap[h - 1];
+                const sk = zoneStorageKey(group, zone);
+                if (!data.dreamBests[sk]) data.dreamBests[sk] = { holes: {} };
+                const db = data.dreamBests[sk];
+                if (!db.holes[zh] || s < db.holes[zh].best) db.holes[zh] = { best: s, roundNum };
+            });
+        } else {
+            if (!data.dreamBests[courseKey]) data.dreamBests[courseKey] = { holes: {} };
+            const db = data.dreamBests[courseKey];
+            holeNums.forEach((h, i) => {
+                const s = scores[i]; if (s === null || s === undefined) return;
+                if (!db.holes[h] || s < db.holes[h].best) db.holes[h] = { best: s, roundNum };
+            });
+        }
+    }
+}
+
 let activeDream = loadData().dreamCourse || '';
 
 function dreamCellClass(best, par) {
