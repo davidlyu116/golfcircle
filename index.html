@@ -2688,6 +2688,15 @@ function migrateZoneDreams() {
 }
 migrateZoneDreams();
 
+function rebuildDreamBestsOnce() {
+    const data = loadData();
+    if (data.dreamRebuildV1) return;
+    rebuildAllDreamBests(data);
+    data.dreamRebuildV1 = true;
+    saveData(data);
+}
+rebuildDreamBestsOnce();
+
 // Init
 if (localStorage.getItem(PIN_LS) === '1') {
     document.getElementById('pin-screen').style.display = 'none';
