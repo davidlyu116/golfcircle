@@ -1307,7 +1307,7 @@ function buildScorecard() {
             }
         });
     });
-    calcTotals();
+    calcTotals(true);
 }
 
 function buildHalf(holes, pars, label) {
@@ -1318,7 +1318,7 @@ function buildHalf(holes, pars, label) {
     return `<tr>${headCells}</tr><tr class="par-row">${parCells}</tr><tr class="score-row">${scoreCells}</tr>`;
 }
 
-function calcTotals() {
+function calcTotals(skipSave) {
     const courseKey = document.getElementById('course-select').value;
     const holesOpt = document.getElementById('holes-select').value;
     const course = COURSES[courseKey];
@@ -1357,7 +1357,7 @@ function calcTotals() {
 
     const totalPar = allPars.reduce((a,b)=>a+b,0);
     document.getElementById('total-gross').textContent = filled > 0 ? gross : '--';
-    saveDraft();
+    if (!skipSave) saveDraft();
 }
 
 // ── Share Card (Canvas版) ──
