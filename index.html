@@ -419,6 +419,9 @@
         .course-detail-stat-val { font-size: 22px; font-weight: 700; color: white; line-height: 1; }
         .course-detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 3px; }
         .course-detail-body { flex: 1; overflow-y: auto; padding-bottom: 30px; }
+        .cd-zone-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 10; display: none; align-items: flex-end; }
+        .cd-zone-overlay.show { display: flex; }
+        .cd-zone-sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 0 0 32px; }
     </style>
 </head>
 <body>
@@ -807,6 +810,12 @@
     </div>
     <div class="course-detail-stats" id="course-detail-stats"></div>
     <div class="course-detail-body" id="course-detail-body"></div>
+    <div class="cd-zone-overlay" id="cd-zone-overlay" onclick="closeCourseZonePicker()">
+        <div class="cd-zone-sheet" onclick="event.stopPropagation()">
+            <div class="dream-sheet-title">選擇區域組合</div>
+            <div id="cd-zone-list"></div>
+        </div>
+    </div>
 </div>
 
 <!-- Avatar Picker Sheet -->
@@ -1882,6 +1891,9 @@ function deleteRound(id) {
     renderProfile();
 }
 
+let _cdGroupKey = null;
+let _cdZoneKey  = null;
+
 function openCourseDetail(groupKey) {
     const data    = loadData();
     const name    = (() => {
@@ -1891,6 +1903,22 @@ function openCourseDetail(groupKey) {
     const cRounds = data.rounds.filter(r => getGroupKey(r.courseKey) === groupKey)
                                .sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
     if (!cRounds.length) return;
+
+    _cdGroupKey = groupKey;
+
+    // Determine zone keys for this group
+    const zoneKeys = Object.keys(COURSE_GROUPS)
+        .filter(k => COURSE_GROUPS[k].group === groupKey && data.rounds.some(r => r.courseKey === k));
+    const isGrouped = zoneKeys.length > 0;
+
+    // Default zone: most-played
+    if (isGrouped) {
+        _cdZoneKey = zoneKeys.sort((a,b) =>
+            data.rounds.filter(r => r.courseKey === b).length - data.rounds.filter(r => r.courseKey === a).length
+        )[0];
+    } else {
+        _cdZoneKey = cRounds[0].courseKey;
+    }
 
     document.getElementById('course-detail-name').textContent = name;
 
@@ -1903,31 +1931,6 @@ function openCourseDetail(groupKey) {
         <div class="course-detail-stat"><div class="course-detail-stat-val">${avg.toFixed(1)}</div><div class="course-detail-stat-lbl">平均桿</div></div>
         <div class="course-detail-stat"><div class="course-detail-stat-val">${best}</div><div class="course-detail-stat-lbl">最佳桿</div></div>`;
 
-    // Dream Round — only for single-course (non-grouped) views
-    const isSingleCourse = !COURSE_GROUPS[cRounds[0]?.courseKey] && new Set(cRounds.map(r => r.courseKey)).size === 1;
-    const dreamData = isSingleCourse ? getDreamForCourse(cRounds[0].courseKey) : null;
-    let dreamHtml = '';
-    if (dreamData) {
-        const dTotal = dreamData.holes.reduce((a,x) => a + x.best, 0);
-        const dPar   = dreamData.holes.reduce((a,x) => a + x.par, 0);
-        const dDiff  = dTotal - dPar;
-        const dDiffStr = dDiff === 0 ? 'E' : (dDiff > 0 ? '+' + dDiff : '' + dDiff);
-        dreamHtml = `<div class="section-label" style="margin-top:8px">🌟 夢幻輪</div>
-        <div class="card" style="margin-bottom:10px;overflow:hidden">
-            <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
-                <div style="font-size:12px;color:var(--gray)">基於 ${dreamData.rounds} 場紀錄的每洞最佳</div>
-                <div style="text-align:right">
-                    <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1">${dTotal}</div>
-                    <div style="font-size:11px;color:var(--gray)">${dDiffStr} vs Par</div>
-                </div>
-            </div>
-            <div class="dream-section">
-                <table class="dream-table" id="cd-dream-out"></table>
-                <table class="dream-table" style="margin-top:4px" id="cd-dream-in"></table>
-            </div>
-        </div>`;
-    }
-
     // Rounds list
     const icons = ['⛳','🏌️','🎯','🌿','🏆'];
     const roundsHtml = cRounds.map((r, i) => {
@@ -1935,11 +1938,11 @@ function openCourseDetail(groupKey) {
         const diff = r.total - par;
         const diffStr = diff===0?'E':(diff>0?'+'+diff:''+diff);
         const diffColor = diff<=0?'var(--green)':diff<=8?'var(--text)':'#e53e3e';
-        const d = r.date.split('-');
+        const zoneLbl = (() => { if (!COURSE_GROUPS[r.courseKey]) return r.holesOpt+'洞'; const m = (COURSES[r.courseKey]?.name||'').match(/（(.+?)）/); return m ? m[1] : r.holesOpt+'洞'; })();
         return `<div class="history-item" onclick="openCourseDetailRound(${r.id})" style="cursor:pointer">
             <div class="history-icon">${icons[i%icons.length]}</div>
             <div class="history-info">
-                <div class="history-course">${r.date} · ${(() => { if (!COURSE_GROUPS[r.courseKey]) return r.holesOpt+'洞'; const m = (COURSES[r.courseKey]?.name||'').match(/（(.+?)）/); return m ? m[1] : r.holesOpt+'洞'; })()}</div>
+                <div class="history-course">${r.date} · ${zoneLbl}</div>
             </div>
             <div class="history-score">
                 <div class="history-num" style="color:${diffColor}">${r.total}</div>
@@ -1950,17 +1953,82 @@ function openCourseDetail(groupKey) {
     }).join('');
 
     document.getElementById('course-detail-body').innerHTML =
-        dreamHtml +
-        `<div class="section-label" style="margin-top:0">歷史場次</div>
+        `<div id="cd-dream-section"></div>
+        <div class="section-label" style="margin-top:0">歷史場次</div>
         <div style="margin:0 12px 12px">${roundsHtml}</div>`;
 
-    if (dreamData) {
-        buildDreamHalf(dreamData.holes.slice(0,9), 'cd-dream-out', '前九洞');
-        if (dreamData.holes.length > 9) buildDreamHalf(dreamData.holes.slice(9), 'cd-dream-in', '後九洞');
-    }
+    renderCourseDetailDream(_cdZoneKey, isGrouped ? zoneKeys : null);
 
     document.getElementById('course-detail-overlay').classList.add('show');
     document.getElementById('course-detail-body').scrollTop = 0;
+}
+
+function renderCourseDetailDream(zoneKey, zoneKeys) {
+    const dreamData = getDreamForCourse(zoneKey);
+    const section   = document.getElementById('cd-dream-section');
+    if (!section) return;
+    if (!dreamData) { section.innerHTML = ''; return; }
+
+    const dTotal  = dreamData.holes.reduce((a,x) => a + x.best, 0);
+    const dPar    = dreamData.holes.reduce((a,x) => a + x.par, 0);
+    const dDiff   = dTotal - dPar;
+    const dDiffStr = dDiff===0?'E':(dDiff>0?'+'+dDiff:''+dDiff);
+    const hasZones = zoneKeys && zoneKeys.length > 1;
+    const zoneName = (() => { const m = (COURSES[zoneKey]?.name||'').match(/（(.+?)）/); return m ? m[1] : ''; })();
+
+    section.innerHTML = `<div class="section-label" style="margin-top:8px">🌟 夢幻輪</div>
+    <div class="card" style="margin-bottom:10px;overflow:hidden">
+        <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+                <div style="font-size:12px;color:var(--gray)">基於 ${dreamData.rounds} 場紀錄的每洞最佳</div>
+                ${hasZones ? `<div style="font-size:13px;font-weight:600;color:var(--dark);margin-top:3px">${zoneName}</div>
+                <div class="dream-switch-btn" onclick="openCourseZonePicker()">切換區域 ›</div>` : ''}
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:28px;font-weight:700;color:var(--green);line-height:1">${dTotal}</div>
+                <div style="font-size:11px;color:var(--gray)">${dDiffStr} vs Par</div>
+            </div>
+        </div>
+        <div class="dream-section">
+            <table class="dream-table" id="cd-dream-out"></table>
+            <table class="dream-table" style="margin-top:4px" id="cd-dream-in"></table>
+        </div>
+    </div>`;
+
+    buildDreamHalf(dreamData.holes.slice(0,9), 'cd-dream-out', '前九洞');
+    if (dreamData.holes.length > 9) buildDreamHalf(dreamData.holes.slice(9), 'cd-dream-in', '後九洞');
+}
+
+function openCourseZonePicker() {
+    const data = loadData();
+    const zoneKeys = Object.keys(COURSE_GROUPS)
+        .filter(k => COURSE_GROUPS[k].group === _cdGroupKey && data.rounds.some(r => r.courseKey === k));
+    document.getElementById('cd-zone-list').innerHTML = zoneKeys.map(k => {
+        const d = getDreamForCourse(k);
+        const zoneName = (() => { const m = (COURSES[k]?.name||'').match(/（(.+?)）/); return m ? m[1] : k; })();
+        const isCurrent = k === _cdZoneKey;
+        const meta = d ? `${d.rounds} 場紀錄` : '尚無紀錄';
+        return `<div class="dream-sheet-item${isCurrent?' current':''}" onclick="selectCourseZone('${k}')">
+            <div>
+                <div class="dream-sheet-name">${zoneName}${isCurrent?' ✓':''}</div>
+                <div class="dream-sheet-meta">${meta}</div>
+            </div>
+        </div>`;
+    }).join('');
+    document.getElementById('cd-zone-overlay').classList.add('show');
+}
+
+function selectCourseZone(zoneKey) {
+    _cdZoneKey = zoneKey;
+    closeCourseZonePicker();
+    const data = loadData();
+    const zoneKeys = Object.keys(COURSE_GROUPS)
+        .filter(k => COURSE_GROUPS[k].group === _cdGroupKey && data.rounds.some(r => r.courseKey === k));
+    renderCourseDetailDream(zoneKey, zoneKeys);
+}
+
+function closeCourseZonePicker() {
+    document.getElementById('cd-zone-overlay').classList.remove('show');
 }
 
 function openCourseDetailRound(id) {
