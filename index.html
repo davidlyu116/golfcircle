@@ -562,12 +562,12 @@
 <!-- ════ SCORES ════ -->
 <div class="page active" id="page-scores">
     <div class="score-summary">
-        <h2>本月最佳成績</h2>
+        <h2>個人最佳成績</h2>
         <div class="big-score" id="best-gross">--</div>
         <div class="score-type" id="best-course">尚無成績記錄</div>
     </div>
     <div class="stats-row">
-        <div class="stat-item"><div class="stat-val" id="best-net">--</div><div class="stat-lbl">最佳總桿</div></div>
+        <div class="stat-item"><div class="stat-val" id="yearly-best">--</div><div class="stat-lbl">本年最佳</div></div>
         <div class="stat-item"><div class="stat-val" id="hcp-display">--</div><div class="stat-lbl">我的差點</div></div>
         <div class="stat-item"><div class="stat-val" id="yearly-rounds">0</div><div class="stat-lbl">累積場數</div></div>
     </div>
@@ -737,7 +737,7 @@
         </div>
         <div class="form-row" style="margin-bottom:0">
             <label class="form-label">洞數</label>
-            <select class="form-select" id="holes-select" onchange="buildScorecard()">
+            <select class="form-select" id="holes-select" onchange="loadCoursePars(true)">
                 <option value="18">18 洞</option>
                 <option value="9f">前 9 洞</option>
                 <option value="9b">後 9 洞</option>
@@ -916,7 +916,7 @@
     </div>
 </div>
 
-<div class="record-zone-overlay" id="record-zone-overlay" onclick="closeRecordZonePicker()">
+<div class="record-zone-overlay" id="record-zone-overlay" onclick="closeRecordZonePicker(event)">
     <div class="record-zone-sheet" onclick="event.stopPropagation()">
         <div class="dream-sheet-title" id="record-zone-title"></div>
         <div id="record-zone-list"></div>
@@ -1243,7 +1243,15 @@ document.getElementById('fab').addEventListener('click', () => {
 });
 
 // ── Scorecard Builder ──
-function loadCoursePars() { buildScorecard(); }
+function loadCoursePars(scroll) {
+    buildScorecard();
+    if (scroll) {
+        setTimeout(() => {
+            const sc = document.querySelector('.scorecard');
+            if (sc) sc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+    }
+}
 
 function buildScorecard() {
     const courseKey = document.getElementById('course-select').value;
@@ -2132,10 +2140,18 @@ function refreshScoresPage() {
     const yrEl = document.getElementById('yearly-rounds');
     if (yrEl) yrEl.textContent = rounds.length;
     if (fullRounds.length > 0) {
+        const thisYear = new Date().getFullYear().toString();
         const best = fullRounds.reduce((b,r) => r.total < b.total ? r : b, fullRounds[0]);
         document.getElementById('best-gross').textContent = best.total;
-        document.getElementById('best-net').textContent = best.total;
         document.getElementById('best-course').textContent = `總桿 · ${best.courseName}`;
+        const yearRounds = fullRounds.filter(r => (r.date || '').startsWith(thisYear));
+        const yearBestEl = document.getElementById('yearly-best');
+        if (yearRounds.length > 0) {
+            const yb = yearRounds.reduce((b,r) => r.total < b.total ? r : b, yearRounds[0]);
+            yearBestEl.textContent = yb.total;
+        } else {
+            yearBestEl.textContent = '--';
+        }
     }
 
     // Bird stats — calculated from hole-by-hole scores
@@ -2524,7 +2540,7 @@ function pickCourse(value, mainText, subText) {
     document.querySelectorAll('.course-option[data-group]').forEach(el =>
         el.classList.toggle('selected', gi && el.dataset.group === gi.group));
     closeCourseDropdown();
-    loadCoursePars();
+    loadCoursePars(true);
 }
 
 let _rzGroup = null;
@@ -2552,7 +2568,8 @@ function pickRecordZone(courseKey) {
     pickCourse(courseKey, bi !== -1 ? name.substring(0, bi) : name, bi !== -1 ? name.substring(bi) : '');
 }
 
-function closeRecordZonePicker() {
+function closeRecordZonePicker(e) {
+    if (e) e.stopPropagation();
     document.getElementById('record-zone-overlay').classList.remove('show');
 }
 
