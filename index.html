@@ -2537,12 +2537,13 @@ function openDreamSheet() {
     const list = document.getElementById('dream-sheet-list');
     const allRounds = loadData().rounds;
     const sortedKeys = getAllDreamKeys().sort((a, b) => {
-        const aR = allRounds.filter(r => r.courseKey === a);
-        const bR = allRounds.filter(r => r.courseKey === b);
-        if (bR.length !== aR.length) return bR.length - aR.length;
-        const aLatest = aR.map(r => r.date).sort().pop() || '';
-        const bLatest = bR.map(r => r.date).sort().pop() || '';
-        return bLatest.localeCompare(aLatest);
+        const dA = getDreamForCourse(a);
+        const dB = getDreamForCourse(b);
+        if (!dA) return 1;
+        if (!dB) return -1;
+        const totalA = dA.holes.reduce((s, x) => s + x.best, 0);
+        const totalB = dB.holes.reduce((s, x) => s + x.best, 0);
+        return totalA - totalB;
     });
     list.innerHTML = sortedKeys.map(key => {
         const d = getDreamForCourse(key);
