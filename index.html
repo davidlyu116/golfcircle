@@ -182,7 +182,8 @@
         .dream-switch-btn { font-size:11px; color:var(--green); margin-top:5px; cursor:pointer; display:inline-block; }
         .dream-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:flex-end; justify-content:center; }
         .dream-overlay.show { display:flex; }
-        .dream-sheet { background:white; width:100%; max-width:430px; border-radius:16px 16px 0 0; padding-bottom:36px; }
+        .dream-sheet { background:white; width:100%; max-width:430px; border-radius:16px 16px 0 0; padding-bottom:36px; max-height:75vh; display:flex; flex-direction:column; }
+        #dream-sheet-list { overflow-y:auto; flex:1; }
         .dream-sheet-title { font-size:13px; font-weight:600; color:var(--gray); padding:14px 16px 12px; border-bottom:1px solid var(--border); }
         .dream-sheet-item { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; }
         .dream-sheet-item:active { background:#f5f9f6; }
