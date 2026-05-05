@@ -2131,7 +2131,7 @@ function renderCourseDetailDream(zoneKey, zoneKeys) {
     <div class="card" style="margin-bottom:10px;overflow:hidden">
         <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center">
             <div>
-                <div style="font-size:12px;color:var(--gray)">基於 ${dreamData.rounds} 場紀錄的每洞最佳</div>
+                <div style="font-size:12px;color:var(--gray)">基於 ${dreamData.rounds} 場${dreamData.isMultiZone ? '各區' : ''}紀錄的每洞最佳</div>
                 ${hasZones ? `<div style="font-size:13px;font-weight:600;color:var(--dark);margin-top:3px">${zoneName}</div>
                 <div class="dream-switch-btn" onclick="openCourseZonePicker()">切換區域 ›</div>` : ''}
             </div>
@@ -2158,7 +2158,7 @@ function openCourseZonePicker() {
         const d = getDreamForCourse(k);
         const zoneName = (() => { const m = (COURSES[k]?.name||'').match(/（(.+?)）/); return m ? m[1] : k; })();
         const isCurrent = k === _cdZoneKey;
-        const meta = d ? `${d.rounds} 場紀錄` : '尚無紀錄';
+        const meta = d ? `${d.rounds} 場${d.isMultiZone ? '各區' : ''}紀錄` : '尚無紀錄';
         return `<div class="dream-sheet-item${isCurrent?' current':''}" onclick="selectCourseZone('${k}')">
             <div>
                 <div class="dream-sheet-name">${zoneName}${isCurrent?' ✓':''}</div>
@@ -2497,7 +2497,11 @@ function getDreamForCourse(courseKey) {
         });
     }
     const bestActual = lsRounds.reduce((b, r) => Math.min(b, r.total), 999);
-    return { name: course.name, rounds: lsRounds.length, bestActual, holes };
+    const isMultiZone = !!zoneMap;
+    const roundCount = isMultiZone
+        ? data.rounds.filter(r => COURSE_GROUPS[r.courseKey]?.group === COURSE_GROUPS[courseKey].group).length
+        : lsRounds.length;
+    return { name: course.name, rounds: roundCount, bestActual, holes, isMultiZone };
 }
 
 function getAllDreamKeys() {
@@ -2526,7 +2530,7 @@ function renderDream(key) {
     document.getElementById('dream-course-name').textContent = d.name;
     document.getElementById('dream-total-score').textContent = totalBest;
     document.getElementById('dream-vs-par').textContent = diffStr + ' · 夢幻輪';
-    document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場紀錄`;
+    document.getElementById('dream-round-count').textContent = `基於 ${d.rounds} 場${d.isMultiZone ? '各區' : ''}紀錄`;
     document.getElementById('dream-total-compare').firstChild.textContent = totalBest + ' ';
     document.getElementById('dream-total-diff').textContent = diffStr;
     if (d.bestActual) {
@@ -2561,7 +2565,7 @@ function openDreamSheet() {
         return `<div class="dream-sheet-item${isCurrent?' current':''}" onclick="selectDream('${key}')">
             <div>
                 <div class="dream-sheet-name">${d.name}${isCurrent?' ✓':''}</div>
-                <div class="dream-sheet-meta">${d.rounds} 場紀錄${bestStr}</div>
+                <div class="dream-sheet-meta">${d.rounds} 場${d.isMultiZone ? '各區' : ''}紀錄${bestStr}</div>
             </div>
             <div style="text-align:right">
                 <div class="dream-sheet-score">${totalBest}</div>
