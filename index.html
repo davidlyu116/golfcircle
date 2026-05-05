@@ -331,7 +331,7 @@
         }
         .course-region-header:first-child { border-top: none; }
         .course-option {
-            padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f5f5f5;
+            padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f5f5f5; -webkit-tap-highlight-color: transparent;
         }
         .course-option:last-child { border-bottom: none; }
         .course-option:hover { background: rgba(26,92,42,0.05); }
@@ -2669,6 +2669,12 @@ function toggleCourseDropdown() {
     const trigger = document.getElementById('course-trigger');
     const panel   = document.getElementById('course-dropdown-panel');
     if (panel.classList.contains('open')) { closeCourseDropdown(); return; }
+    const currentValue = document.getElementById('course-select').value;
+    document.querySelectorAll('.course-option[data-value]').forEach(el =>
+        el.classList.toggle('selected', el.dataset.value === currentValue));
+    const gi = COURSE_GROUPS[currentValue];
+    document.querySelectorAll('.course-option[data-group]').forEach(el =>
+        el.classList.toggle('selected', gi && el.dataset.group === gi.group));
     trigger.classList.add('open');
     panel.classList.add('open');
 }
