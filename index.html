@@ -964,7 +964,10 @@
 <!-- Dream Course Switcher Sheet -->
 <div class="dream-overlay" id="dream-overlay" onclick="closeDreamSheet(event)">
     <div class="dream-sheet">
-        <div class="dream-sheet-title">選擇顯示的球場</div>
+        <div class="dream-sheet-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>選擇顯示的球場</span>
+            <button onclick="document.getElementById('dream-overlay').classList.remove('show')" style="background:none;border:none;font-size:20px;color:var(--gray);cursor:pointer;line-height:1;padding:0">✕</button>
+        </div>
         <div id="dream-sheet-list"></div>
     </div>
 </div>
