@@ -2730,7 +2730,7 @@ initPhotoInteraction();
 
 function openRulesOverlay() {
     const iframe = document.getElementById('rules-iframe');
-    if (!iframe.src) iframe.src = 'https://davidlyu116.github.io/golf-rules/';
+    if (!iframe.getAttribute('src')) iframe.src = 'https://davidlyu116.github.io/golf-rules/';
     document.getElementById('rules-overlay').classList.add('open');
 }
 function closeRulesOverlay() {
