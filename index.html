@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>GolfCircle</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -226,7 +227,7 @@
         /* ── Profile ── */
         .profile-header { background: linear-gradient(135deg, var(--green), #2d7a50); padding: 24px 16px 32px; text-align: center; color: white; }
         .profile-pic-wrap { position: relative; width: 80px; margin: 0 auto 12px; cursor: pointer; }
-        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; border: 3px solid rgba(255,255,255,0.5); }
+        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; border: 3px solid rgba(255,255,255,0.5); overflow: hidden; }
         .profile-pic-edit { position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
         /* Avatar Picker Sheet */
         .avatar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: flex-end; }
@@ -1279,10 +1280,22 @@ function renderProfile() {
     const lbMe = document.getElementById('lb-me-name');
     if (lbMe) lbMe.textContent = playerName + '（我）🏌️';
     const avatar = getAvatar();
+    const lineProfile = getLineProfile();
     const picDisplay = document.getElementById('profile-pic-display');
-    if (picDisplay) picDisplay.textContent = avatar;
+    if (picDisplay) {
+        if (lineProfile && lineProfile.pictureUrl) {
+            const img = document.createElement('img');
+            img.src = lineProfile.pictureUrl;
+            img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            img.onerror = () => { picDisplay.textContent = avatar; };
+            picDisplay.innerHTML = '';
+            picDisplay.appendChild(img);
+        } else {
+            picDisplay.textContent = avatar;
+        }
+    }
     const lbAvatar = document.getElementById('lb-me-avatar');
-    if (lbAvatar) lbAvatar.textContent = avatar;
+    if (lbAvatar) lbAvatar.textContent = lineProfile ? '🟢' : avatar;
     const data = loadData();
     const rounds = data.rounds;
 
@@ -1975,6 +1988,30 @@ function closeAvatarPicker(e) {
 const NAME_KEY = 'gc_player_name';
 function getPlayerName() { return localStorage.getItem(NAME_KEY) || 'Golfer'; }
 function setPlayerName(n) { localStorage.setItem(NAME_KEY, n.trim() || 'Golfer'); }
+
+// ── LIFF ──
+const LIFF_ID = '2009999945-0Cm8nxQu';
+const LINE_PROFILE_KEY = 'gc_line_profile';
+function getLineProfile() {
+    try { return JSON.parse(localStorage.getItem(LINE_PROFILE_KEY)); } catch { return null; }
+}
+async function initLiff() {
+    try {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            localStorage.setItem(LINE_PROFILE_KEY, JSON.stringify({
+                userId: profile.userId,
+                displayName: profile.displayName,
+                pictureUrl: profile.pictureUrl || null
+            }));
+            if (!localStorage.getItem(NAME_KEY) || localStorage.getItem(NAME_KEY) === 'Golfer') {
+                setPlayerName(profile.displayName);
+            }
+            renderProfile();
+        }
+    } catch (e) { /* not in LINE env, silent fallback */ }
+}
 
 function editProfileName() {
     const display = document.getElementById('profile-name-display');
@@ -2929,6 +2966,7 @@ renderDream();
 buildCourseDropdown();
 buildScorecard();
 initPhotoInteraction();
+initLiff();
 
 // ── Stats Charts ──
 let _chartInstances = {};
