@@ -1635,11 +1635,13 @@ function drawCard() {
     tg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = tg; ctx.fillRect(0, 0, W, 220);
 
-    // 4. Bottom overlay (minimal, just enough for text readability)
-    const bg2 = ctx.createLinearGradient(0, 750, 0, H);
+    // 4. Bottom overlay
+    const bg2 = ctx.createLinearGradient(0, 580, 0, H);
     bg2.addColorStop(0, 'rgba(0,0,0,0)');
-    bg2.addColorStop(1, 'rgba(0,0,0,0.22)');
-    ctx.fillStyle = bg2; ctx.fillRect(0, 750, W, H - 750);
+    bg2.addColorStop(0.14, 'rgba(0,0,0,0.36)');
+    bg2.addColorStop(0.38, 'rgba(0,0,0,0.56)');
+    bg2.addColorStop(1, 'rgba(0,0,0,0.64)');
+    ctx.fillStyle = bg2; ctx.fillRect(0, 580, W, H - 580);
 
     const pars  = _shareRound.pars;
     const scores= _shareRound.scores;
