@@ -943,11 +943,11 @@
         </div>
 
         <div class="theme-picker">
-            <div class="tp-dot active" data-theme="green"     style="background:linear-gradient(135deg,#1a5c2a,#0a2e14)" onclick="setTheme(this,'green')"></div>
-            <div class="tp-dot"        data-theme="blue"      style="background:linear-gradient(135deg,#0c2262,#04091a)" onclick="setTheme(this,'blue')"></div>
-            <div class="tp-dot"        data-theme="pink"      style="background:linear-gradient(135deg,#d82868,#380a22)" onclick="setTheme(this,'pink')"></div>
-            <div class="tp-dot"        data-theme="champagne" style="background:linear-gradient(135deg,#3a2c06,#1c1400)" onclick="setTheme(this,'champagne')"></div>
-            <div class="tp-dot"        data-theme="rose"      style="background:linear-gradient(135deg,#300c24,#120408)" onclick="setTheme(this,'rose')"></div>
+            <div class="tp-dot" data-preset="0" style="background:linear-gradient(135deg,#1a7a3a,#0d4a22)" onclick="setBgScene(this,0)" title="果嶺"></div>
+            <div class="tp-dot" data-preset="1" style="background:linear-gradient(135deg,#3a8a4a,#1a5a2a)" onclick="setBgScene(this,1)" title="球道"></div>
+            <div class="tp-dot active" data-preset="2" style="background:linear-gradient(135deg,#4a7a9a,#2a5070)" onclick="setBgScene(this,2)" title="山景"></div>
+            <div class="tp-dot" data-preset="3" style="background:linear-gradient(135deg,#3a7acc,#1a4a9a)" onclick="setBgScene(this,3)" title="藍天"></div>
+            <div class="tp-dot" data-preset="4" style="background:linear-gradient(135deg,#2a1a5a,#0a0a2a)" onclick="setBgScene(this,4)" title="揮桿"></div>
         </div>
 
         <div class="share-action-row">
@@ -1514,10 +1514,10 @@ function showShareModal(round, dreamUpdates) {
     _shareWeather = '⛅';
     document.getElementById('photo-btn-lbl').textContent = '加入照片';
     document.getElementById('share-photo-input').value = '';
-    document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === 'green'));
     document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
     document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
     _shareBgPreset = getCourseBgPreset(round.courseKey);
+    document.querySelectorAll('.tp-dot').forEach((d, i) => d.classList.toggle('active', i === _shareBgPreset));
     // Dream update banner
     const banner = document.getElementById('dream-update-banner');
     if (dreamUpdates && dreamUpdates.length > 0) {
@@ -1589,6 +1589,18 @@ function setTheme(el, t) {
     document.querySelectorAll('.tp-dot').forEach(d => d.classList.remove('active'));
     el.classList.add('active');
     drawCard();
+}
+
+function setBgScene(el, idx) {
+    _shareBgPreset = idx;
+    _sharePhoto = null;
+    document.getElementById('photo-btn-lbl').textContent = '加入照片';
+    document.getElementById('share-photo-hint').style.display = 'none';
+    document.getElementById('share-photo-input').value = '';
+    document.querySelectorAll('.tp-dot').forEach(d => d.classList.remove('active'));
+    el.classList.add('active');
+    const bgImg = _bgImgs[idx];
+    if (bgImg && !bgImg.complete) { bgImg.onload = drawCard; } else { drawCard(); }
 }
 
 // ── Canvas Drawing ──
@@ -1685,7 +1697,7 @@ function drawCard() {
     ctx.fillText(`Par ${par}`, W - PAD, 182);
 
     // 12. Score grid
-    const GRID_TOP = is18 ? 622 : 766;
+    const GRID_TOP = is18 ? 720 : 870;
     const ROW_H    = 44;
     const LABEL_W  = 78;
     const SUM_SEP  = W - PAD - 68;
@@ -2103,6 +2115,11 @@ function deleteRound(id) {
     rebuildAllDreamBests(data);
     saveData(data);
     closeRoundDetail();
+    const cdOverlay = document.getElementById('course-detail-overlay');
+    if (cdOverlay && cdOverlay.classList.contains('show') && _cdGroupKey) {
+        const remaining = data.rounds.filter(r => getGroupKey(r.courseKey) === _cdGroupKey);
+        if (remaining.length > 0) { openCourseDetail(_cdGroupKey); } else { closeCourseDetail(); }
+    }
     refreshScoresPage();
     renderDream();
     renderProfile();
