@@ -1498,10 +1498,18 @@ const CARD_THEMES = {
     rose:      [['#280a18',0],['#3c1028',.35],['#541840',.60],['#280a18',1]],
 };
 
+function getCourseBgPreset(courseKey) {
+    const group = COURSE_GROUPS[courseKey]?.group || courseKey;
+    const BLUESKY  = ['oldtamsui','shintanshui','bali','datun','huangjin','tainan','daganshan','nanyi','hualien','meilihwa','qingquangang','yonghan'];
+    const FAIRWAY  = ['fengyuan','wufeng','xinyi','xinfu','quanguo','taichung'];
+    if (BLUESKY.includes(group))  return 3; // bg4-bluesky
+    if (FAIRWAY.includes(group))  return 1; // bg2-fairway
+    return 2; // bg3-mountain (default for most Taiwan courses)
+}
+
 function showShareModal(round, dreamUpdates) {
     _shareRound = round;
     _sharePhoto = null;
-    _shareBgPreset = null;
     _shareTheme = 'green';
     _shareWeather = '⛅';
     document.getElementById('photo-btn-lbl').textContent = '加入照片';
@@ -1509,6 +1517,7 @@ function showShareModal(round, dreamUpdates) {
     document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === 'green'));
     document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
     document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
+    _shareBgPreset = getCourseBgPreset(round.courseKey);
     // Dream update banner
     const banner = document.getElementById('dream-update-banner');
     if (dreamUpdates && dreamUpdates.length > 0) {
@@ -1518,7 +1527,8 @@ function showShareModal(round, dreamUpdates) {
         banner.style.display = 'none';
     }
     document.getElementById('share-overlay').classList.add('show');
-    setTimeout(drawCard, 60);
+    const presetImg = _bgImgs[_shareBgPreset];
+    if (presetImg && !presetImg.complete) { presetImg.onload = drawCard; } else { setTimeout(drawCard, 60); }
 }
 
 function closeShare() {
@@ -1622,9 +1632,9 @@ function drawCard() {
     // 4. Bottom overlay
     const bg2 = ctx.createLinearGradient(0, 580, 0, H);
     bg2.addColorStop(0, 'rgba(0,0,0,0)');
-    bg2.addColorStop(0.14, 'rgba(0,0,0,0.48)');
-    bg2.addColorStop(0.38, 'rgba(0,0,0,0.74)');
-    bg2.addColorStop(1, 'rgba(0,0,0,0.82)');
+    bg2.addColorStop(0.14, 'rgba(0,0,0,0.36)');
+    bg2.addColorStop(0.38, 'rgba(0,0,0,0.56)');
+    bg2.addColorStop(1, 'rgba(0,0,0,0.64)');
     ctx.fillStyle = bg2; ctx.fillRect(0, 580, W, H - 580);
 
     const pars  = _shareRound.pars;
@@ -1675,8 +1685,8 @@ function drawCard() {
     ctx.fillText(`Par ${par}`, W - PAD, 182);
 
     // 12. Score grid
-    const GRID_TOP = is18 ? 655 : 800;
-    const ROW_H    = 50;
+    const GRID_TOP = is18 ? 622 : 766;
+    const ROW_H    = 44;
     const LABEL_W  = 78;
     const SUM_SEP  = W - PAD - 68;
     const SUM_CX   = W - PAD - 34;
@@ -1739,13 +1749,13 @@ function drawCard() {
     let endY = drawHalf(0, GRID_TOP, 'OUT');
 
     if (is18) {
-        const divY = endY + 18;
+        const divY = endY + 10;
         ctx.strokeStyle = 'rgba(255,255,255,0.1)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(PAD, divY); ctx.lineTo(W - PAD, divY);
         ctx.stroke();
-        drawHalf(1, divY + 20, 'IN');
+        drawHalf(1, divY + 12, 'IN');
     }
 
     // GolfCircle logo (bottom-right)
