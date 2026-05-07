@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d9e5f"/>
+      <stop offset="100%" stop-color="#1a7a3a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#bg)"/>
+  <text x="50" y="63"
+        font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif"
+        font-size="40" font-weight="800"
+        text-anchor="middle" fill="white" letter-spacing="-1">GC</text>
+</svg>
