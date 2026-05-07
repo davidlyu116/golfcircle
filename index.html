@@ -1826,7 +1826,7 @@ async function doShareCard() {
             const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
             const file = new File([blob], 'GolfCircle.png', { type: 'image/png' });
             if (navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: 'GolfCircle 成績' });
+                await navigator.share({ files: [file] });
                 return;
             }
         } catch(e) {}
@@ -1843,13 +1843,10 @@ function clampPhoto() {
     if (!_sharePhoto) return;
     const W = 1080;
     const base = Math.max(W / _sharePhoto.width, W / _sharePhoto.height) * _photoScale;
-    const dW = _sharePhoto.width * base, dH = _sharePhoto.height * base;
-    // When photo fills canvas: constrain so no black edges appear
-    // When photo is smaller (zoomed out): allow free movement within ±W range
+    const dW = _sharePhoto.width * base;
     const limX = dW > W ? (dW - W) / 2 : W * 0.8;
-    const limY = dH > W ? (dH - W) / 2 : W * 0.8;
     _photoOffsetX = Math.max(-limX, Math.min(limX, _photoOffsetX));
-    _photoOffsetY = Math.max(-limY, Math.min(limY, _photoOffsetY));
+    _photoOffsetY = Math.max(-W, Math.min(W, _photoOffsetY)); // free Y movement
 }
 
 function initPhotoInteraction() {
