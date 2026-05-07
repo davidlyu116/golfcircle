@@ -2005,11 +2005,12 @@ function getLineProfile() {
 }
 
 async function initLiff() {
-    // ① Safari 接收端：URL hash 帶有 LINE 資料時直接存入
-    const hash = window.location.hash;
-    if (hash.startsWith('#gc_lp=')) {
+    // ① Safari 接收端：URL query parameter 帶有 LINE 資料時直接存入
+    const params = new URLSearchParams(location.search);
+    const gcLp = params.get('gc_lp');
+    if (gcLp) {
         try {
-            const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(7)))));
+            const data = JSON.parse(decodeURIComponent(escape(atob(gcLp))));
             localStorage.setItem(LINE_PROFILE_KEY, JSON.stringify(data));
             if (!localStorage.getItem(NAME_KEY) || localStorage.getItem(NAME_KEY) === 'Golfer') {
                 setPlayerName(data.displayName);
@@ -2046,7 +2047,7 @@ async function initLiff() {
 
 function showSafariHandoffBanner(profileData) {
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(profileData))));
-    const safariUrl = `${location.origin}${location.pathname}#gc_lp=${encoded}`;
+    const safariUrl = `${location.origin}${location.pathname}?gc_lp=${encoded}`;
     const el = document.createElement('div');
     el.id = 'safari-handoff-banner';
     el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:white;border-radius:16px;padding:16px 16px 12px;box-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:500;';
