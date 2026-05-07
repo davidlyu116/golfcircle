@@ -342,6 +342,10 @@
         .course-trigger-sub { font-size: 11px; color: #aaa; margin-left: 3px; }
         .course-option-group { display: flex; align-items: center; }
         .course-option-zone-arr { font-size: 16px; color: var(--green); flex-shrink: 0; margin-left: 6px; }
+        .nearby-course-btn { width: 100%; padding: 9px 16px; background: #f0f7f1; border: none; border-bottom: 1px solid #e0eee2; color: var(--green); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; border-radius: 10px 10px 0 0; -webkit-tap-highlight-color: transparent; }
+        .nearby-course-btn:disabled { color: #aaa; background: #f5f5f5; }
+        .nearby-section-header { padding: 6px 14px 4px; font-size: 11px; color: var(--green); font-weight: 700; letter-spacing: 0.5px; background: #f0f7f1; border-bottom: 1px solid #e0eee2; }
+        .course-option-dist { font-size: 11px; color: #aaa; margin-left: 4px; }
         .record-zone-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 350; display: none; align-items: flex-end; justify-content: center; }
         .record-zone-overlay.show { display: flex; }
         .record-zone-sheet { background: white; width: 100%; max-width: 430px; border-radius: 20px 20px 0 0; padding: 0 0 32px; max-height: 70vh; overflow-y: auto; }
@@ -754,7 +758,7 @@
         </div>
         <div class="form-row">
             <label class="form-label">日期</label>
-            <input class="form-input" type="date" id="round-date" value="2026-04-27">
+            <input class="form-input" type="date" id="round-date">
         </div>
         <div class="form-row" style="margin-bottom:0">
             <label class="form-label">洞數</label>
@@ -1093,6 +1097,56 @@ const COURSE_GROUPS = {
 function getGroupKey(courseKey)  { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].group    : courseKey; }
 function getGroupName(courseKey) { return COURSE_GROUPS[courseKey] ? COURSE_GROUPS[courseKey].groupName : (COURSES[courseKey] ? COURSES[courseKey].name : courseKey); }
 
+// ── GPS Coordinates (approximate, for nearby detection) ──
+const COURSE_GPS = {
+    changgeng:    { lat: 25.066, lng: 121.338 }, // Guishan, Taoyuan
+    linkou:       { lat: 25.074, lng: 121.371 }, // Linkou, New Taipei
+    oldtamsui:    { lat: 25.151, lng: 121.476 }, // Tamsui, New Taipei
+    lungtan:      { lat: 24.855, lng: 121.219 }, // Longtan, Taoyuan
+    tsaihing:     { lat: 24.876, lng: 121.240 }, // Daxi/Longtan, Taoyuan
+    nanfeng:      { lat: 24.970, lng: 121.265 }, // Taoyuan
+    quanguo:      { lat: 24.476, lng: 120.840 }, // Miaoli
+    taifeng:      { lat: 24.869, lng: 121.294 }, // Daxi, Taoyuan
+    taichung:     { lat: 24.285, lng: 120.673 }, // Taichung
+    taoyuan:      { lat: 24.943, lng: 121.200 }, // Taoyuan
+    laoyeguan:    { lat: 24.785, lng: 121.163 }, // Guanxi, Hsinchu
+    xuyang:       { lat: 24.960, lng: 121.197 }, // Taoyuan
+    shanxidi:     { lat: 24.926, lng: 121.268 }, // Taoyuan
+    shintanshui:  { lat: 25.177, lng: 121.483 }, // Tamsui, New Taipei
+    guohua:       { lat: 24.931, lng: 121.199 }, // Taoyuan area
+    donghua:      { lat: 25.012, lng: 121.331 }, // Taoyuan area
+    yangsheng:    { lat: 23.545, lng: 120.473 }, // Chiayi/Yunlin
+    dongfang_ty:  { lat: 24.940, lng: 121.196 }, // Taoyuan
+    yonghan:      { lat: 24.950, lng: 121.213 }, // Taoyuan area
+    fengyuan:     { lat: 24.258, lng: 120.719 }, // Fengyuan, Taichung
+    qingquangang: { lat: 24.266, lng: 120.621 }, // Taichung
+    xinyi:        { lat: 24.103, lng: 120.682 }, // Taichung area
+    daganshan:    { lat: 22.799, lng: 120.282 }, // Kaohsiung/Tainan
+    nanyi:        { lat: 22.898, lng: 120.399 }, // Southern Taiwan
+    feicui:       { lat: 24.500, lng: 121.000 }, // Central area
+    huangjin:     { lat: 24.881, lng: 121.128 }, // Hsinchu area
+    datun:        { lat: 25.166, lng: 121.523 }, // Beitou, Taipei
+    dasih:        { lat: 24.874, lng: 121.290 }, // Daxi, Taoyuan
+    baoshan:      { lat: 24.733, lng: 120.971 }, // Baoshan, Hsinchu
+    bali:         { lat: 25.119, lng: 121.372 }, // Bali, New Taipei
+    wufeng:       { lat: 24.066, lng: 120.738 }, // Wufeng, Taichung
+    tainan:       { lat: 23.015, lng: 120.219 }, // Tainan
+    hualien:      { lat: 23.970, lng: 121.618 }, // Hualien
+    jiaoxi:       { lat: 24.819, lng: 121.772 }, // Jiaoxi, Yilan
+    xinfu:        { lat: 24.933, lng: 120.993 }, // Xinfeng, Hsinchu
+    meilihwa:     { lat: 25.041, lng: 121.355 }, // Guishan, Taoyuan
+    taipei:       { lat: 25.091, lng: 121.464 }, // New Taipei
+};
+function getCourseGPS(courseKey) {
+    const group = COURSE_GROUPS[courseKey]?.group;
+    return COURSE_GPS[group || courseKey] || null;
+}
+function geoDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 // ── Zone-based Dream Round for 27-hole courses ──
 const ZONE_LETTERS = {
     changgeng: { n:'北', m:'中', s:'南' },
@@ -1295,6 +1349,8 @@ function go(name, el) {
 
 document.getElementById('fab').addEventListener('click', () => {
     go('record', null);
+    const dateEl = document.getElementById('round-date');
+    if (dateEl) dateEl.value = new Date().toLocaleDateString('en-CA');
     buildScorecard();
     checkDraftBanner();
 });
@@ -2593,8 +2649,15 @@ function buildCourseDropdown() {
     const sel   = document.getElementById('course-select');
     const panel = document.getElementById('course-dropdown-panel');
     panel.innerHTML = '';
-    const shownGroups = new Set();
 
+    const nearbyBtn = document.createElement('button');
+    nearbyBtn.id = 'nearby-btn';
+    nearbyBtn.className = 'nearby-course-btn';
+    nearbyBtn.textContent = '📍 定位附近球場';
+    nearbyBtn.addEventListener('click', e => { e.stopPropagation(); detectNearbyCourses(); });
+    panel.appendChild(nearbyBtn);
+
+    const shownGroups = new Set();
     Array.from(sel.children).forEach(group => {
         if (group.tagName !== 'OPTGROUP') return;
         const header = document.createElement('div');
@@ -2624,6 +2687,64 @@ function buildCourseDropdown() {
             }
         });
     });
+}
+
+function detectNearbyCourses() {
+    if (!navigator.geolocation) { alert('您的瀏覽器不支援定位功能'); return; }
+    const btn = document.getElementById('nearby-btn');
+    if (btn) { btn.textContent = '定位中...'; btn.disabled = true; }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const seenGroups = new Set();
+        const candidates = [];
+        Object.keys(COURSES).forEach(key => {
+            const group = COURSE_GROUPS[key]?.group || key;
+            if (seenGroups.has(group)) return;
+            seenGroups.add(group);
+            const coords = getCourseGPS(key);
+            if (!coords) return;
+            candidates.push({ key, group, coords, dist: geoDistance(lat, lng, coords.lat, coords.lng) });
+        });
+        candidates.sort((a, b) => a.dist - b.dist);
+
+        const panel = document.getElementById('course-dropdown-panel');
+        const old = document.getElementById('nearby-results');
+        if (old) old.remove();
+
+        const section = document.createElement('div');
+        section.id = 'nearby-results';
+        const hdr = document.createElement('div');
+        hdr.className = 'nearby-section-header';
+        hdr.textContent = '📍 附近球場';
+        section.appendChild(hdr);
+
+        candidates.slice(0, 3).forEach(c => {
+            const distStr = c.dist < 1 ? `${Math.round(c.dist*1000)} m` : `${c.dist.toFixed(1)} km`;
+            const gi = COURSE_GROUPS[c.key];
+            const item = document.createElement('div');
+            if (gi) {
+                item.className = 'course-option course-option-group';
+                item.dataset.group = gi.group;
+                item.innerHTML = `<div class="course-option-main">${gi.groupName}<span class="course-option-dist">${distStr}</span></div><div class="course-option-zone-arr">›</div>`;
+                item.addEventListener('click', () => openRecordZonePicker(gi.group, gi.groupName));
+            } else {
+                const text = COURSES[c.key]?.name || c.key;
+                item.className = 'course-option';
+                item.dataset.value = c.key;
+                item.innerHTML = `<div class="course-option-main">${text}<span class="course-option-dist">${distStr}</span></div>`;
+                item.addEventListener('click', () => pickCourse(c.key, text, ''));
+            }
+            section.appendChild(item);
+        });
+
+        const nearbyBtn = document.getElementById('nearby-btn');
+        if (nearbyBtn) panel.insertBefore(section, nearbyBtn.nextSibling);
+        if (btn) { btn.textContent = '📍 定位附近球場'; btn.disabled = false; }
+    }, () => {
+        if (btn) { btn.textContent = '📍 定位附近球場'; btn.disabled = false; }
+        alert('無法取得位置，請確認已授權定位權限');
+    }, { timeout: 10000, maximumAge: 300000 });
 }
 
 function pickCourse(value, mainText, subText) {
