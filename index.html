@@ -2052,12 +2052,16 @@ function showSafariHandoffBanner(profileData) {
     el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:white;border-radius:16px;padding:16px 16px 12px;box-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:500;';
     el.innerHTML = `
         <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:6px">✅ LINE 帳號已連結</div>
-        <div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:14px">加入主畫面後可直接開啟，不需每次透過 LINE。<br>點下方按鈕在 Safari 開啟，再加入主畫面即可。</div>
-        <button id="gc-safari-btn" style="width:100%;background:#1a7a3a;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">在 Safari 開啟 →</button>
+        <div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:14px">請在 Safari 開啟並加入主畫面，之後直接從主畫面開啟即可。</div>
+        <a id="gc-safari-link" href="" style="display:block;width:100%;background:#1a7a3a;color:white;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;margin-bottom:8px;box-sizing:border-box">在 Safari 開啟 →</a>
+        <div style="font-size:11px;color:#999;text-align:center;margin-bottom:8px">長按上方按鈕可複製連結，在 Safari 貼上開啟</div>
         <button onclick="document.getElementById('safari-handoff-banner').remove()" style="width:100%;background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;padding:2px">稍後再說</button>
     `;
     document.body.appendChild(el);
-    document.getElementById('gc-safari-btn').onclick = () => {
+    const link = document.getElementById('gc-safari-link');
+    link.href = safariUrl;
+    link.onclick = (e) => {
+        e.preventDefault();
         liff.openWindow({ url: safariUrl, external: true });
         el.remove();
     };
