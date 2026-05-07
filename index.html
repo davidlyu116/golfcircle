@@ -1995,22 +1995,60 @@ const LINE_PROFILE_KEY = 'gc_line_profile';
 function getLineProfile() {
     try { return JSON.parse(localStorage.getItem(LINE_PROFILE_KEY)); } catch { return null; }
 }
+
 async function initLiff() {
+    // ① Safari 接收端：URL hash 帶有 LINE 資料時直接存入
+    const hash = window.location.hash;
+    if (hash.startsWith('#gc_lp=')) {
+        try {
+            const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(7)))));
+            localStorage.setItem(LINE_PROFILE_KEY, JSON.stringify(data));
+            if (!localStorage.getItem(NAME_KEY) || localStorage.getItem(NAME_KEY) === 'Golfer') {
+                setPlayerName(data.displayName);
+            }
+            history.replaceState(null, '', location.pathname);
+            renderProfile();
+        } catch (e) {}
+        return;
+    }
+
+    // ② LINE LIFF 端：取得 profile，在 LINE 內顯示交接提示
     try {
         await liff.init({ liffId: LIFF_ID });
         if (liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            localStorage.setItem(LINE_PROFILE_KEY, JSON.stringify({
-                userId: profile.userId,
-                displayName: profile.displayName,
-                pictureUrl: profile.pictureUrl || null
-            }));
+            const p = await liff.getProfile();
+            const profileData = {
+                userId: p.userId,
+                displayName: p.displayName,
+                pictureUrl: p.pictureUrl || null
+            };
+            localStorage.setItem(LINE_PROFILE_KEY, JSON.stringify(profileData));
             if (!localStorage.getItem(NAME_KEY) || localStorage.getItem(NAME_KEY) === 'Golfer') {
-                setPlayerName(profile.displayName);
+                setPlayerName(profileData.displayName);
             }
             renderProfile();
+            if (liff.isInClient()) showSafariHandoffBanner(profileData);
         }
-    } catch (e) { /* not in LINE env, silent fallback */ }
+    } catch (e) { /* 非 LINE 環境，靜默 fallback */ }
+}
+
+function showSafariHandoffBanner(profileData) {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(profileData))));
+    const safariUrl = `${location.origin}${location.pathname}#gc_lp=${encoded}`;
+    const el = document.createElement('div');
+    el.id = 'safari-handoff-banner';
+    el.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:white;border-radius:16px;padding:16px 16px 12px;box-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:500;';
+    el.innerHTML = `
+        <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:6px">✅ LINE 帳號已連結</div>
+        <div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:14px">加入主畫面後可直接開啟，不需每次透過 LINE。<br>點下方按鈕在 Safari 開啟，再加入主畫面即可。</div>
+        <button id="gc-safari-btn" style="width:100%;background:#1a7a3a;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">在 Safari 開啟 →</button>
+        <button onclick="document.getElementById('safari-handoff-banner').remove()" style="width:100%;background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;padding:2px">稍後再說</button>
+    `;
+    document.body.appendChild(el);
+    document.getElementById('gc-safari-btn').onclick = () => {
+        liff.openWindow({ url: safariUrl, external: true });
+        el.remove();
+    };
 }
 
 function editProfileName() {
