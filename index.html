@@ -2023,6 +2023,10 @@ async function initLiff() {
     // ② LINE LIFF 端：取得 profile，在 LINE 內顯示交接提示
     try {
         await liff.init({ liffId: LIFF_ID });
+        if (liff.isInClient() && !liff.isLoggedIn()) {
+            liff.login();
+            return;
+        }
         if (liff.isLoggedIn()) {
             const p = await liff.getProfile();
             const profileData = {
