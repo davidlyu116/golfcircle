@@ -943,11 +943,8 @@
         </div>
 
         <div class="theme-picker">
-            <div class="tp-dot" data-preset="0" style="background:linear-gradient(135deg,#1a7a3a,#0d4a22)" onclick="setBgScene(this,0)" title="果嶺"></div>
-            <div class="tp-dot" data-preset="1" style="background:linear-gradient(135deg,#3a8a4a,#1a5a2a)" onclick="setBgScene(this,1)" title="球道"></div>
-            <div class="tp-dot active" data-preset="2" style="background:linear-gradient(135deg,#4a7a9a,#2a5070)" onclick="setBgScene(this,2)" title="山景"></div>
+            <div class="tp-dot active" data-preset="0" style="background:linear-gradient(135deg,#1a7a3a,#0d4a22)" onclick="setBgScene(this,0)" title="果嶺"></div>
             <div class="tp-dot" data-preset="3" style="background:linear-gradient(135deg,#3a7acc,#1a4a9a)" onclick="setBgScene(this,3)" title="藍天"></div>
-            <div class="tp-dot" data-preset="4" style="background:linear-gradient(135deg,#2a1a5a,#0a0a2a)" onclick="setBgScene(this,4)" title="揮桿"></div>
         </div>
 
         <div class="share-action-row">
@@ -1500,11 +1497,8 @@ const CARD_THEMES = {
 
 function getCourseBgPreset(courseKey) {
     const group = COURSE_GROUPS[courseKey]?.group || courseKey;
-    const BLUESKY  = ['oldtamsui','shintanshui','bali','datun','huangjin','tainan','daganshan','nanyi','hualien','meilihwa','qingquangang','yonghan'];
-    const FAIRWAY  = ['fengyuan','wufeng','xinyi','xinfu','quanguo','taichung'];
-    if (BLUESKY.includes(group))  return 3; // bg4-bluesky
-    if (FAIRWAY.includes(group))  return 1; // bg2-fairway
-    return 2; // bg3-mountain (default for most Taiwan courses)
+    const BLUESKY = ['oldtamsui','shintanshui','bali','datun','huangjin','tainan','daganshan','nanyi','hualien','meilihwa','qingquangang','yonghan'];
+    return BLUESKY.includes(group) ? 3 : 0; // 3=藍天, 0=果嶺
 }
 
 function showShareModal(round, dreamUpdates) {
@@ -1517,7 +1511,7 @@ function showShareModal(round, dreamUpdates) {
     document.querySelectorAll('.wp-opt').forEach(o => o.classList.toggle('active', o.textContent.trim() === '⛅'));
     document.querySelectorAll('.bg-thumb').forEach(t => t.classList.remove('active'));
     _shareBgPreset = getCourseBgPreset(round.courseKey);
-    document.querySelectorAll('.tp-dot').forEach((d, i) => d.classList.toggle('active', i === _shareBgPreset));
+    document.querySelectorAll('.tp-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.preset) === _shareBgPreset));
     // Dream update banner
     const banner = document.getElementById('dream-update-banner');
     if (dreamUpdates && dreamUpdates.length > 0) {
@@ -1641,13 +1635,11 @@ function drawCard() {
     tg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = tg; ctx.fillRect(0, 0, W, 220);
 
-    // 4. Bottom overlay
-    const bg2 = ctx.createLinearGradient(0, 580, 0, H);
+    // 4. Bottom overlay (minimal, just enough for text readability)
+    const bg2 = ctx.createLinearGradient(0, 750, 0, H);
     bg2.addColorStop(0, 'rgba(0,0,0,0)');
-    bg2.addColorStop(0.14, 'rgba(0,0,0,0.36)');
-    bg2.addColorStop(0.38, 'rgba(0,0,0,0.56)');
-    bg2.addColorStop(1, 'rgba(0,0,0,0.64)');
-    ctx.fillStyle = bg2; ctx.fillRect(0, 580, W, H - 580);
+    bg2.addColorStop(1, 'rgba(0,0,0,0.22)');
+    ctx.fillStyle = bg2; ctx.fillRect(0, 750, W, H - 750);
 
     const pars  = _shareRound.pars;
     const scores= _shareRound.scores;
@@ -1681,14 +1673,13 @@ function drawCard() {
     ctx.textAlign = 'right';
     ctx.fillText(diffStr, W - PAD, 152);
 
-    // 10. Date / holes / weather (left-aligned with course name)
+    // 10. Date / weather (left-aligned with course name)
     const dp = _shareRound.date.split('-');
     const dateStr  = `${dp[0]}.${dp[1]}.${dp[2]}`;
-    const holesStr = is18 ? '18洞' : '9洞';
     ctx.font = `32px ${F}`;
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255,255,255,0.56)';
-    ctx.fillText(`${dateStr}  ·  ${holesStr}  ·  ${_shareWeather}`, PAD, 128);
+    ctx.fillText(`${dateStr}  ·  ${_shareWeather}`, PAD, 128);
 
     // 11. Par label
     ctx.font = `26px ${F}`;
@@ -1744,8 +1735,10 @@ function drawCard() {
             drawScoreCell(ctx, s, hp[k], cellCX(k), sy, F);
         });
         ctx.font = `bold 34px ${F}`; ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(255,255,255,0.92)';
-        ctx.fillText(scoreSum, SUM_CX, sy + 2);
+        ctx.fillText(scoreSum, SUM_CX, sy);
+        ctx.textBaseline = 'alphabetic';
 
         // Vertical separator before sum
         ctx.strokeStyle = 'rgba(255,255,255,0.1)';
@@ -1770,15 +1763,14 @@ function drawCard() {
         drawHalf(1, divY + 12, 'IN');
     }
 
-    // GolfCircle logo (bottom-right)
+    // GolfCircle logo (bottom-left)
     ctx.textBaseline = 'alphabetic';
     ctx.font = `bold 32px ${F}`;
     const gcGolfW = ctx.measureText('Golf').width;
-    const logoX = W - PAD - ctx.measureText('GolfCircle').width;
     ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.textAlign = 'left';
-    ctx.fillText('Golf', logoX, H - 38);
+    ctx.fillText('Golf', PAD, H - 38);
     ctx.fillStyle = '#5dba7a';
-    ctx.fillText('Circle', logoX + gcGolfW, H - 38);
+    ctx.fillText('Circle', PAD + gcGolfW, H - 38);
 }
 
 function drawScoreCell(ctx, score, par, cx, cy, F) {
