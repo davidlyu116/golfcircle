@@ -1109,7 +1109,7 @@ const COURSE_GPS = {
     linkou:       { lat: 25.074, lng: 121.371 }, // Linkou, New Taipei
     oldtamsui:    { lat: 25.151, lng: 121.476 }, // Tamsui, New Taipei
     lungtan:      { lat: 24.855, lng: 121.219 }, // Longtan, Taoyuan
-    tsaihing:     { lat: 24.876, lng: 121.240 }, // Daxi/Longtan, Taoyuan
+    tsaihing:     { lat: 24.8836, lng: 121.0868 }, // Daxi, Taoyuan (verified via Google Maps)
     nanfeng:      { lat: 24.970, lng: 121.265 }, // Taoyuan
     quanguo:      { lat: 24.476, lng: 120.840 }, // Miaoli
     taifeng:      { lat: 24.869, lng: 121.294 }, // Daxi, Taoyuan
@@ -2891,7 +2891,7 @@ function detectNearbyCourses() {
     }, () => {
         if (btn) { btn.textContent = '📍 定位附近球場'; btn.disabled = false; }
         alert('無法取得位置，請確認已授權定位權限');
-    }, { timeout: 10000, maximumAge: 300000 });
+    }, { timeout: 15000, maximumAge: 0, enableHighAccuracy: true });
 }
 
 function pickCourse(value, mainText, subText) {
